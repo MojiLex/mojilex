@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "review-routing-v1",
+  "priority_order": [
+    "blocking",
+    "high",
+    "normal",
+    "low"
+  ],
+  "rules": [
+    {
+      "reason_code": "unqualified-model",
+      "priority": "blocking",
+      "condition": "ai-result-has-no-exact-active-qualification-and-review-is-not-approved"
+    },
+    {
+      "reason_code": "moderation-uncertainty",
+      "priority": "blocking",
+      "condition": "rating-is-not-general-or-warnings-are-not-empty-and-review-is-not-approved"
+    },
+    {
+      "reason_code": "motion-uncertainty",
+      "priority": "high",
+      "condition": "facets-uncertainties-contains-motion"
+    },
+    {
+      "reason_code": "ocr-conflict",
+      "priority": "high",
+      "condition": "routing-reason-codes-contains-ocr-conflict"
+    },
+    {
+      "reason_code": "unknown-character-or-brand",
+      "priority": "high",
+      "condition": "facets-uncertainties-contains-character-or-brand"
+    },
+    {
+      "reason_code": "exact-group-description-conflict",
+      "priority": "normal",
+      "condition": "descriptions-conflict-inside-an-exact-group"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "tombstone",
+  "target_entity_type": "emoji",
+  "target_id": "mxe_41c23048-163e-53d3-80ab-5a859b4c316b",
+  "reason_code": "privacy",
+  "withheld_at": "2026-09-10T19:00:00Z",
+  "public_note": "Record withheld under the MojiLex takedown policy."
+}

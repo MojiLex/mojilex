@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "review-reasons-v1",
+  "entries": [
+    {
+      "id": "exact-group-description-conflict",
+      "definition": "Descriptions differ materially within an exact visual group."
+    },
+    {
+      "id": "moderation-uncertainty",
+      "definition": "Content rating or warnings require a human decision."
+    },
+    {
+      "id": "motion-uncertainty",
+      "definition": "The main motion cycle is marked as undetermined."
+    },
+    {
+      "id": "ocr-conflict",
+      "definition": "Canonical literal text conflicts with the OCR verifier signal."
+    },
+    {
+      "id": "unknown-character-or-brand",
+      "definition": "A possible character or brand is not reliably identified."
+    },
+    {
+      "id": "unqualified-model",
+      "definition": "The AI provenance does not match an active qualification at generation time."
+    }
+  ]
+}

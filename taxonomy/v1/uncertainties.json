@@ -1,0 +1,76 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "uncertainties",
+  "entries": [
+    {
+      "id": "character-or-brand",
+      "name_ru": "Персонаж или бренд",
+      "name_en": "Character or brand",
+      "definition_ru": "Идентичность персонажа, маскота или бренда не подтверждена визуально.",
+      "definition_en": "The identity of a character, mascot, or brand is not visually confirmed.",
+      "positive_examples": ["неизвестная эмблема", "похожий на героя персонаж"],
+      "negative_examples": ["обычная шестерёнка", "подтверждённый логотип"],
+      "status": "active"
+    },
+    {
+      "id": "content-type",
+      "name_ru": "Тип содержимого",
+      "name_en": "Content type",
+      "definition_ru": "Визуальные признаки допускают несколько несовместимых классификаций типа.",
+      "definition_en": "Visual evidence permits multiple incompatible content-type classifications.",
+      "positive_examples": ["неясно, объект это или символ"],
+      "negative_examples": ["однозначный автомобиль"],
+      "status": "active"
+    },
+    {
+      "id": "cultural-reference",
+      "name_ru": "Культурная отсылка",
+      "name_en": "Cultural reference",
+      "definition_ru": "Возможная культурная отсылка не может быть надёжно подтверждена по изображению.",
+      "definition_en": "A possible cultural reference cannot be reliably confirmed from the image.",
+      "positive_examples": ["неизвестный мем", "неоднозначный жест"],
+      "negative_examples": ["простая стрелка", "буквальный текст"],
+      "status": "active"
+    },
+    {
+      "id": "motion",
+      "name_ru": "Движение",
+      "name_en": "Motion",
+      "definition_ru": "Главный цикл или направление движения невозможно определить надёжно.",
+      "definition_en": "The primary motion cycle or direction cannot be determined reliably.",
+      "positive_examples": ["неполный цикл", "слишком малое движение"],
+      "negative_examples": ["явное вращение", "статичное изображение"],
+      "status": "active"
+    },
+    {
+      "id": "style",
+      "name_ru": "Стиль",
+      "name_en": "Style",
+      "definition_ru": "Стиль неоднозначен либо одновременно присутствуют противоположные признаки.",
+      "definition_en": "The style is ambiguous or opposing traits coexist.",
+      "positive_examples": ["контурные и сплошные части", "минимальный объект на детальном фоне"],
+      "negative_examples": ["однозначный пиксель-арт"],
+      "status": "active"
+    },
+    {
+      "id": "suggested-use",
+      "name_ru": "Предлагаемое применение",
+      "name_en": "Suggested use",
+      "definition_ru": "Визуальная пригодность для предлагаемого сценария неоднозначна.",
+      "definition_en": "Visual suitability for a suggested use is ambiguous.",
+      "positive_examples": ["плохо читается как кнопка", "возможно пригодно для статуса"],
+      "negative_examples": ["чёткая навигационная стрелка"],
+      "status": "active"
+    },
+    {
+      "id": "text",
+      "name_ru": "Текст",
+      "name_en": "Text",
+      "definition_ru": "Видимый текст распознан частично либо не читается надёжно.",
+      "definition_en": "Visible text is only partially recognized or cannot be read reliably.",
+      "positive_examples": ["размытая надпись", "частично закрытое слово"],
+      "negative_examples": ["полностью читаемое 404", "текста нет"],
+      "status": "active"
+    }
+  ]
+}

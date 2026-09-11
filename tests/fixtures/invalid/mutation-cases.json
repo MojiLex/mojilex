@@ -1,0 +1,36 @@
+[
+  {
+    "name": "unknown emoji property",
+    "source": "examples/telegram/emoji.json",
+    "pointer": "/unexpected",
+    "value": true,
+    "expected_fragment": "Additional properties are not allowed"
+  },
+  {
+    "name": "missing Russian description",
+    "source": "examples/telegram/emoji.json",
+    "delete_pointer": "/descriptions/ru",
+    "expected_fragment": "'ru' is a required property"
+  },
+  {
+    "name": "numeric Telegram external ID",
+    "source": "examples/telegram/emoji.json",
+    "pointer": "/native_id",
+    "value": 5368324170671202286,
+    "expected_fragment": "is not of type 'string'"
+  },
+  {
+    "name": "published processing failure",
+    "source": "examples/telegram/emoji.json",
+    "pointer": "/descriptions/en/motion_status",
+    "value": "processing_failed",
+    "expected_fragment": "is not one of"
+  },
+  {
+    "name": "collection-only private status on emoji",
+    "source": "examples/telegram/emoji.json",
+    "pointer": "/availability/status",
+    "value": "private",
+    "expected_fragment": "is not one of"
+  }
+]

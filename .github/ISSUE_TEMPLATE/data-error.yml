@@ -1,0 +1,35 @@
+name: Data error
+description: Report an incorrect public metadata record without sensitive content.
+title: "[data] "
+labels:
+  - data
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach emoji media, credentials, personal data, or private evidence.
+  - type: input
+    id: entity
+    attributes:
+      label: MojiLex entity ID or path
+      placeholder: mxe_...
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is incorrect?
+      description: Explain the observable error and proposed correction.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Safe public evidence
+      description: Do not include raw download URLs or disputed media.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: This report contains no secret, personal data, illegal material, or media attachment.
+          required: true

@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "emoji",
+  "id": "mxe_9f8f6af4-72dc-5fef-9e71-f787a06ac68d",
+  "platform": "telegram",
+  "native_namespace": "custom_emoji.id",
+  "scope_id": "global",
+  "native_id": "5368324170671202286",
+  "identity_epoch": 0,
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-10T18:00:00Z",
+    "last_changed_at": "2026-09-10T18:00:00Z",
+    "last_verified_at": "2026-09-10T18:00:00Z"
+  },
+  "media": [
+    {
+      "role": "primary",
+      "kind": "video",
+      "format": "webm",
+      "mime_type": "video/webm",
+      "sha256": "8f3c0e6bb13df8b5e6a4d1c9af4f2c7e184e4e2d4c47e9d63e771a48b40f5312",
+      "byte_size": 18432,
+      "width": 100,
+      "height": 100,
+      "animated": true,
+      "duration_ms": 1800
+    }
+  ],
+  "fingerprints": {
+    "status": "complete",
+    "profile": "dedupe-v1",
+    "input_media_digest": "b68082fef0796700eacfe9573195a34c978cb13dc1600a3c797ca732eda3ce24",
+    "items": [
+      {
+        "role": "primary",
+        "decoded_payload_sha256": "6f7e86a1ce9b6dc63bcf6e8b602be1da2cbe1be5452cfac93c16d90ed435a0c4",
+        "canonical_render_sha256": "98d64f8d821bbf89fc6c89b8d4bb080d772d6e88631856601154a7474ab1bb08",
+        "shape_sha256": "0ab72f54eb418f450d7c6a41b798b078f072570e329531d52f6a7b201728e8ac",
+        "perceptual": {
+          "encoding": "u64be-base64url-nopad",
+          "sample_count": 16,
+          "layout_phash64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "content_phash64": "MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2NzgxMjM0NTY3ODEyMzQ1Njc4MTIzNDU2Nzg",
+          "alpha_phash64": "__________________________________________________________________________________________________________________________________________________________________________8",
+          "edge_phash64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "temporal_energy_bp": 1480,
+          "low_information": false
+        }
+      }
+    ]
+  },
+  "descriptions": {
+    "ru": {
+      "text": "Жёлтый кот подозрительно приподнимает одну бровь.",
+      "motion_status": "described",
+      "motion": "Кот медленно поднимает бровь и замирает.",
+      "usage": [
+        "подозрение",
+        "недоверие"
+      ]
+    },
+    "en": {
+      "text": "A yellow cat suspiciously raises one eyebrow.",
+      "motion_status": "described",
+      "motion": "The cat slowly raises an eyebrow and pauses.",
+      "usage": [
+        "suspicion",
+        "doubt"
+      ]
+    }
+  },
+  "facets": {
+    "taxonomy_version": "1.0.0",
+    "rendering": {
+      "profile": "color-v1",
+      "items": [
+        {
+          "role": "primary",
+          "color_behavior": "fixed",
+          "palette_dynamics": "stable",
+          "alpha_mode": "translucent",
+          "visible_area_bp": 7210,
+          "dominant_colors": [
+            {
+              "hex": "#f7c843",
+              "family": "yellow",
+              "coverage_bp": 6100
+            },
+            {
+              "hex": "#8a6532",
+              "family": "brown",
+              "coverage_bp": 1800
+            }
+          ]
+        }
+      ]
+    },
+    "text_content": {
+      "status": "none",
+      "dynamics": "stable",
+      "items": []
+    },
+    "content_types": [
+      "animal",
+      "reaction"
+    ],
+    "styles": [
+      "cartoon",
+      "flat"
+    ],
+    "suggested_uses": [
+      "message-accent",
+      "status"
+    ],
+    "uncertainties": []
+  },
+  "semantic_tags": [
+    "cat",
+    "doubt",
+    "raised-eyebrow"
+  ],
+  "content": {
+    "rating": "general",
+    "warnings": []
+  },
+  "provenance": {
+    "origin": "ai",
+    "provider": "gemini",
+    "model": "configured-model-id",
+    "prompt_version": "1.0.0",
+    "pipeline_version": "1.0.0",
+    "description_profile": "standard-v1",
+    "prompt_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "request_parameters_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "generation_stage": "primary",
+    "routing_policy_version": "1.0.0",
+    "routing_reason_codes": [
+      "unqualified-model"
+    ],
+    "generated_at": "2026-09-10T18:00:05Z",
+    "input_media_sha256": [
+      "8f3c0e6bb13df8b5e6a4d1c9af4f2c7e184e4e2d4c47e9d63e771a48b40f5312"
+    ],
+    "tool": {
+      "name": "mojilex-cli",
+      "version": "0.1.0"
+    }
+  },
+  "review": {
+    "status": "approved",
+    "reviewed_at": "2026-09-10T19:00:00Z",
+    "reviewer": "example-reviewer",
+    "reviewed_content_sha256": "6a81e7263af10b1aca3fd346205fb9c15f0bcc7fd1cca98b07b58b3c6bffd2fd"
+  },
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "custom_emoji_id": "5368324170671202286",
+      "file_unique_id": "AgADExampleUniqueId",
+      "fallback_emoji": "🤨",
+      "needs_repainting": false
+    }
+  }
+}

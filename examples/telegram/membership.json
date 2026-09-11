@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "membership",
+  "id": "mxm_e3fbd0c6-b5d2-5151-b4b1-c820891028d0",
+  "collection_id": "mxc_5f3fda56-0066-518c-88d9-1fc62da96d38",
+  "emoji_id": "mxe_9f8f6af4-72dc-5fef-9e71-f787a06ac68d",
+  "status": "active",
+  "position": 0,
+  "first_seen_at": "2026-09-10T18:00:00Z",
+  "last_changed_at": "2026-09-10T18:00:00Z"
+}

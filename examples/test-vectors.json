@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0.0",
+  "namespace": "47d42c76-38da-5ab5-90fe-7af0ba6c4a27",
+  "uuid_v5": [
+    {
+      "entity_type": "collection",
+      "components": [
+        "telegram",
+        "collection",
+        "sticker_set.name",
+        "global",
+        "SuspiciousCats",
+        "0"
+      ],
+      "nul_joined_utf8_hex": "74656c656772616d00636f6c6c656374696f6e00737469636b65725f7365742e6e616d6500676c6f62616c00537573706963696f7573436174730030",
+      "expected_id": "mxc_5f3fda56-0066-518c-88d9-1fc62da96d38"
+    },
+    {
+      "entity_type": "emoji",
+      "components": [
+        "telegram",
+        "emoji",
+        "custom_emoji.id",
+        "global",
+        "5368324170671202286",
+        "0"
+      ],
+      "nul_joined_utf8_hex": "74656c656772616d00656d6f6a6900637573746f6d5f656d6f6a692e696400676c6f62616c00353336383332343137303637313230323238360030",
+      "expected_id": "mxe_9f8f6af4-72dc-5fef-9e71-f787a06ac68d"
+    },
+    {
+      "entity_type": "membership",
+      "components": [
+        "mxc_5f3fda56-0066-518c-88d9-1fc62da96d38",
+        "mxe_9f8f6af4-72dc-5fef-9e71-f787a06ac68d"
+      ],
+      "nul_joined_utf8_hex": "6d78635f35663366646135362d303036362d353138632d383864392d316663363264613936643338006d78655f39663866366166342d373264632d356665662d396537312d663738376130366163363864",
+      "expected_id": "mxm_e3fbd0c6-b5d2-5151-b4b1-c820891028d0"
+    }
+  ],
+  "telegram_set_fingerprint": {
+    "members": [
+      {
+        "custom_emoji_id": "5368324170671202286",
+        "file_unique_id": "AgADExampleUniqueId"
+      }
+    ],
+    "jcs_utf8_hex": "5b7b22637573746f6d5f656d6f6a695f6964223a2235333638333234313730363731323032323836222c2266696c655f756e697175655f6964223a22416741444578616d706c65556e697175654964227d5d",
+    "expected_sha256": "35a70b19472747a656a7f5f8f44ec8cd22a31e18e82d122381fa738f78d618d1"
+  },
+  "media_digest": {
+    "media": [
+      {
+        "role": "light",
+        "variant_id": "white",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "role": "primary",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "role": "dark",
+        "variant_id": "black",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "expected_sha256": "b71ded9760e80041c40ea7959b4c6c4448e60518161727dded06ff8277ad10de"
+  },
+  "visual_relation_uuid_v5": {
+    "namespace": "4958ce2d-8120-5c3a-8755-a71d93c0c866",
+    "source": "visual-relation.json",
+    "nul_joined_utf8_hex": "76697375616c2d72656c6174696f6e006d78655f31313131313131312d313131312d353131312d383131312d313131313131313131313131006d78655f32323232323232322d323232322d353232322d383232322d32323232323232323232323200656e74697479000000000030",
+    "expected_id": "mxr_5c736bb3-43c1-5bd7-bd83-ce9954fb2101",
+    "expected_reviewed_relation_sha256": "0c586d4f6be558bfb7b9f96e0b129b149e825bf51abb852b6a852bad151cc496"
+  },
+  "phash64": [
+    {
+      "sample_count": 1,
+      "encoded": "AAAAAAAAAAA",
+      "decoded_hex": "0000000000000000"
+    },
+    {
+      "sample_count": 16,
+      "encoded": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "decoded_hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "duplicate_group_ids": {
+    "namespace": "4958ce2d-8120-5c3a-8755-a71d93c0c866",
+    "binary_media": {
+      "group_type": "binary-exact",
+      "scope": "media",
+      "profile": "",
+      "source_sha256": "8f3c0e6bb13df8b5e6a4d1c9af4f2c7e184e4e2d4c47e9d63e771a48b40f5312",
+      "byte_size": 18432,
+      "content_digest": "89d181cd21045e5222801488c03a4d72e0442f6bfedc47b923e1fd2f6578b412",
+      "nul_joined_utf8_hex": "6475706c69636174652d67726f75700062696e6172792d6578616374006d65646961000038396431383163643231303435653532323238303134383863303361346437326530343432663662666564633437623932336531666432663635373862343132",
+      "expected_id": "mxdg_dc07fd44-1bfa-5ce3-9b68-99b83d64337d"
+    },
+    "decoded_media": {
+      "group_type": "decoded-exact",
+      "scope": "media",
+      "profile": "dedupe-v1",
+      "content_digest": "6f7e86a1ce9b6dc63bcf6e8b602be1da2cbe1be5452cfac93c16d90ed435a0c4",
+      "nul_joined_utf8_hex": "6475706c69636174652d67726f7570006465636f6465642d6578616374006d65646961006465647570652d76310036663765383661316365396236646336336263663665386236303262653164613263626531626535343532636661633933633136643930656434333561306334",
+      "expected_id": "mxdg_aaa1e739-20f2-50a0-ad33-3bab1aa9c08e"
+    },
+    "reviewed_same_artwork": {
+      "members": [
+        "mxe_11111111-1111-5111-8111-111111111111",
+        "mxe_22222222-2222-5222-8222-222222222222"
+      ],
+      "nul_joined_utf8_hex": "6475706c69636174652d67726f75700072657669657765642d73616d652d617274776f726b00656e7469747900006d78655f31313131313131312d313131312d353131312d383131312d313131313131313131313131006d78655f32323232323232322d323232322d353232322d383232322d323232323232323232323232",
+      "expected_id": "mxdg_38051e1c-266e-50a3-8917-14e4368f1481"
+    }
+  },
+  "reviewed_content": {
+    "source": "telegram/emoji.json",
+    "expected_sha256": "6a81e7263af10b1aca3fd346205fb9c15f0bcc7fd1cca98b07b58b3c6bffd2fd"
+  }
+}

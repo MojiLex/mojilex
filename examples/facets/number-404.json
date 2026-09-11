@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "emoji",
+  "id": "mxe_a5f15134-05ec-58c7-8871-3b09fc9758c1",
+  "platform": "telegram",
+  "native_namespace": "custom_emoji.id",
+  "scope_id": "global",
+  "native_id": "1000000000000000002",
+  "identity_epoch": 0,
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-11T00:00:00Z",
+    "last_changed_at": "2026-09-11T00:00:00Z",
+    "last_verified_at": "2026-09-11T00:00:00Z"
+  },
+  "media": [
+    {
+      "role": "primary",
+      "kind": "static",
+      "format": "webp",
+      "mime_type": "image/webp",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "byte_size": 640,
+      "width": 100,
+      "height": 100,
+      "animated": false
+    }
+  ],
+  "fingerprints": {
+    "status": "complete",
+    "profile": "dedupe-v1",
+    "input_media_digest": "7c1c97fce3e345803696ee69fd53cb63657c3a72cda9284a8ad1319de47d2554",
+    "items": [
+      {
+        "role": "primary",
+        "decoded_payload_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "canonical_render_sha256": "1212121212121212121212121212121212121212121212121212121212121212",
+        "shape_sha256": "3434343434343434343434343434343434343434343434343434343434343434",
+        "perceptual": {
+          "encoding": "u64be-base64url-nopad",
+          "sample_count": 1,
+          "layout_phash64": "AAAAAAAAAAA",
+          "content_phash64": "MTIzNDU2Nzg",
+          "alpha_phash64": "__________8",
+          "edge_phash64": "AAAAAAAAAAA",
+          "temporal_energy_bp": 0,
+          "low_information": false
+        }
+      }
+    ]
+  },
+  "descriptions": {
+    "ru": {
+      "text": "Красное число «404» внутри тёмной прямоугольной рамки.",
+      "motion_status": "not_applicable",
+      "usage": [
+        "ошибка",
+        "страница не найдена"
+      ]
+    },
+    "en": {
+      "text": "The red number “404” inside a dark rectangular frame.",
+      "motion_status": "not_applicable",
+      "usage": [
+        "error",
+        "page not found"
+      ]
+    }
+  },
+  "facets": {
+    "taxonomy_version": "1.0.0",
+    "rendering": {
+      "profile": "color-v1",
+      "items": [
+        {
+          "role": "primary",
+          "color_behavior": "fixed",
+          "palette_dynamics": "stable",
+          "alpha_mode": "binary",
+          "visible_area_bp": 6200,
+          "dominant_colors": [
+            {
+              "hex": "#d93025",
+              "family": "red",
+              "coverage_bp": 5100
+            },
+            {
+              "hex": "#202124",
+              "family": "black",
+              "coverage_bp": 3900
+            }
+          ]
+        }
+      ]
+    },
+    "text_content": {
+      "status": "recognized",
+      "dynamics": "stable",
+      "items": [
+        {
+          "value": "404",
+          "kind": "number",
+          "script": "Zyyy",
+          "temporal_scope": "persistent",
+          "media_refs": [
+            {
+              "role": "primary"
+            }
+          ]
+        }
+      ]
+    },
+    "content_types": [
+      "number",
+      "symbol",
+      "text"
+    ],
+    "styles": [
+      "flat",
+      "solid"
+    ],
+    "suggested_uses": [
+      "counter",
+      "label"
+    ],
+    "uncertainties": []
+  },
+  "semantic_tags": [
+    "error",
+    "not-found"
+  ],
+  "content": {
+    "rating": "general",
+    "warnings": []
+  },
+  "provenance": {
+    "origin": "human",
+    "created_at": "2026-09-11T00:00:00Z",
+    "creator": "mojilex-example",
+    "tool": {
+      "name": "mojilex-cli",
+      "version": "0.1.0"
+    }
+  },
+  "review": {
+    "status": "unreviewed"
+  },
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "custom_emoji_id": "1000000000000000002",
+      "file_unique_id": "SyntheticNumber404Example",
+      "fallback_emoji": "🔢",
+      "needs_repainting": false
+    }
+  }
+}

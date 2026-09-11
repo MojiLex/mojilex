@@ -1,0 +1,31 @@
+name: Schema or tooling bug
+description: Report an offline validator, index builder, schema, or documentation problem.
+title: "[tooling] "
+labels:
+  - tooling
+body:
+  - type: input
+    id: revision
+    attributes:
+      label: Repository revision
+      placeholder: Full Git commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and sanitized output
+      description: Remove paths, tokens, IDs not needed for reproduction, and sensitive URLs.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Minimal text-only reproduction
+      description: Never attach Telegram or other binary media.

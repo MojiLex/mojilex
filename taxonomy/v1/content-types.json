@@ -1,0 +1,227 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "content_types",
+  "entries": [
+    {
+      "id": "abstract",
+      "name_ru": "Абстракция",
+      "name_en": "Abstract",
+      "definition_ru": "Нефигуративная форма без однозначного предметного объекта.",
+      "definition_en": "A non-figurative form without a clearly identifiable object.",
+      "positive_examples": ["цветовая спираль", "геометрическое свечение"],
+      "negative_examples": ["узнаваемый логотип", "конкретный предмет"],
+      "status": "active"
+    },
+    {
+      "id": "activity",
+      "name_ru": "Действие",
+      "name_en": "Activity",
+      "definition_ru": "Спорт, занятие или целенаправленная деятельность является главным содержанием.",
+      "definition_en": "A sport, task, or purposeful activity is the primary content.",
+      "positive_examples": ["бег", "рисование"],
+      "negative_examples": ["неподвижный мяч", "пейзаж"],
+      "status": "active"
+    },
+    {
+      "id": "animal",
+      "name_ru": "Животное",
+      "name_en": "Animal",
+      "definition_ru": "Изображено реальное или стилизованное животное.",
+      "definition_en": "A real or stylized animal is depicted.",
+      "positive_examples": ["кот", "птица"],
+      "negative_examples": ["человек в маске", "лапа без животного"],
+      "status": "active"
+    },
+    {
+      "id": "body-part",
+      "name_ru": "Часть тела",
+      "name_en": "Body part",
+      "definition_ru": "Отдельная часть тела является главным объектом.",
+      "definition_en": "An isolated body part is the primary object.",
+      "positive_examples": ["глаз", "ладонь"],
+      "negative_examples": ["человек целиком", "перчатка"],
+      "status": "active"
+    },
+    {
+      "id": "character",
+      "name_ru": "Персонаж",
+      "name_en": "Character",
+      "definition_ru": "Узнаваемый вымышленный или повторяющийся персонаж является главным объектом.",
+      "definition_en": "A recognizable fictional or recurring character is the primary object.",
+      "positive_examples": ["маскот серии", "мультяшный герой"],
+      "negative_examples": ["неидентифицированный человек", "логотип без персонажа"],
+      "status": "active"
+    },
+    {
+      "id": "flag",
+      "name_ru": "Флаг",
+      "name_en": "Flag",
+      "definition_ru": "Флаг, знамя или флажковый символ является главным содержанием.",
+      "definition_en": "A flag, banner, or flag symbol is the primary content.",
+      "positive_examples": ["национальный флаг", "гоночный флаг"],
+      "negative_examples": ["полосатый узор", "логотип страны"],
+      "status": "active"
+    },
+    {
+      "id": "food-drink",
+      "name_ru": "Еда и напитки",
+      "name_en": "Food and drink",
+      "definition_ru": "Пища, напиток или их подача являются главным объектом.",
+      "definition_en": "Food, drink, or serving ware with contents is the primary object.",
+      "positive_examples": ["чашка кофе", "кусок торта"],
+      "negative_examples": ["пустая тарелка", "ресторан как место"],
+      "status": "active"
+    },
+    {
+      "id": "logo",
+      "name_ru": "Логотип",
+      "name_en": "Logo",
+      "definition_ru": "Фирменный знак или визуальная марка является главным содержанием.",
+      "definition_en": "A brand mark or visual identity is the primary content.",
+      "positive_examples": ["подтверждённый знак бренда", "эмблема продукта"],
+      "negative_examples": ["неизвестный символ", "обычная буква"],
+      "status": "active"
+    },
+    {
+      "id": "nature",
+      "name_ru": "Природа",
+      "name_en": "Nature",
+      "definition_ru": "Природное явление или ландшафт является главным содержанием.",
+      "definition_en": "A natural phenomenon or landscape is the primary content.",
+      "positive_examples": ["радуга", "гора"],
+      "negative_examples": ["комнатное растение", "городской парк как место"],
+      "status": "active"
+    },
+    {
+      "id": "number",
+      "name_ru": "Число",
+      "name_en": "Number",
+      "definition_ru": "Видимая цифра или числовая последовательность является значимой частью изображения.",
+      "definition_en": "A visible digit or numeric sequence is a meaningful part of the image.",
+      "positive_examples": ["404", "цифра 7"],
+      "negative_examples": ["четыре нарисованных предмета", "код без цифр"],
+      "status": "active"
+    },
+    {
+      "id": "object",
+      "name_ru": "Предмет",
+      "name_en": "Object",
+      "definition_ru": "Материальный искусственный предмет является главным объектом.",
+      "definition_en": "A tangible manufactured object is the primary object.",
+      "positive_examples": ["ключ", "телефон"],
+      "negative_examples": ["абстрактная форма", "место"],
+      "status": "active"
+    },
+    {
+      "id": "pattern",
+      "name_ru": "Узор",
+      "name_en": "Pattern",
+      "definition_ru": "Повторяемый орнамент или текстура является главным содержанием.",
+      "definition_en": "A repeatable ornament or texture is the primary content.",
+      "positive_examples": ["мозаика", "повторяющиеся точки"],
+      "negative_examples": ["одиночный символ", "сцена"],
+      "status": "active"
+    },
+    {
+      "id": "person",
+      "name_ru": "Человек",
+      "name_en": "Person",
+      "definition_ru": "Человек или человекоподобная фигура является главным объектом.",
+      "definition_en": "A human or human-like figure is the primary object.",
+      "positive_examples": ["портрет", "человек целиком"],
+      "negative_examples": ["отдельная рука", "животное"],
+      "status": "active"
+    },
+    {
+      "id": "place",
+      "name_ru": "Место",
+      "name_en": "Place",
+      "definition_ru": "Здание, помещение или географическое место является главным содержанием.",
+      "definition_en": "A building, interior, or geographic place is the primary content.",
+      "positive_examples": ["дом", "вокзал"],
+      "negative_examples": ["автомобиль", "карта-иконка"],
+      "status": "active"
+    },
+    {
+      "id": "plant",
+      "name_ru": "Растение",
+      "name_en": "Plant",
+      "definition_ru": "Растение или его самостоятельная часть является главным объектом.",
+      "definition_en": "A plant or a standalone plant part is the primary object.",
+      "positive_examples": ["цветок", "лист"],
+      "negative_examples": ["лесной пейзаж", "растительный орнамент"],
+      "status": "active"
+    },
+    {
+      "id": "reaction",
+      "name_ru": "Реакция",
+      "name_en": "Reaction",
+      "definition_ru": "Выражение эмоции или коммуникативная реакция является главным смыслом.",
+      "definition_en": "An emotion or conversational reaction is the primary meaning.",
+      "positive_examples": ["сомнение", "аплодисменты"],
+      "negative_examples": ["нейтральный портрет", "кнопка интерфейса"],
+      "status": "active"
+    },
+    {
+      "id": "scene",
+      "name_ru": "Сцена",
+      "name_en": "Scene",
+      "definition_ru": "Композиция из нескольких объектов и окружения образует целостную сцену.",
+      "definition_en": "Multiple objects and surroundings form a coherent scene.",
+      "positive_examples": ["пикник в парке", "корабль в шторме"],
+      "negative_examples": ["одиночный предмет", "абстрактный узор"],
+      "status": "active"
+    },
+    {
+      "id": "symbol",
+      "name_ru": "Символ",
+      "name_en": "Symbol",
+      "definition_ru": "Условный знак передаёт понятие, состояние или действие.",
+      "definition_en": "A conventional sign communicates a concept, state, or action.",
+      "positive_examples": ["галочка", "стрелка"],
+      "negative_examples": ["слово", "реалистичный предмет"],
+      "status": "active"
+    },
+    {
+      "id": "technical-icon",
+      "name_ru": "Техническая иконка",
+      "name_en": "Technical icon",
+      "definition_ru": "Пиктограмма представляет функцию, настройку или состояние цифрового интерфейса.",
+      "definition_en": "A pictogram represents a function, setting, or state in a digital interface.",
+      "positive_examples": ["шестерёнка настроек", "иконка загрузки"],
+      "negative_examples": ["декоративная шестерёнка", "текстовая метка"],
+      "status": "active"
+    },
+    {
+      "id": "text",
+      "name_ru": "Текст",
+      "name_en": "Text",
+      "definition_ru": "Видимые буквы, цифры, слова или иные читаемые знаки являются значимой частью.",
+      "definition_en": "Visible letters, digits, words, or other readable marks are meaningful content.",
+      "positive_examples": ["слово ON", "код 404"],
+      "negative_examples": ["случайная текстура", "нетекстовый орнамент"],
+      "status": "active"
+    },
+    {
+      "id": "ui-icon",
+      "name_ru": "Иконка интерфейса",
+      "name_en": "UI icon",
+      "definition_ru": "Устаревший общий ID интерфейсной иконки; однозначно заменяется technical-icon.",
+      "definition_en": "Deprecated generic interface-icon ID; maps unambiguously to technical-icon.",
+      "positive_examples": ["старое значение technical-icon"],
+      "negative_examples": ["новая запись CLI"],
+      "status": "deprecated",
+      "replaced_by": "technical-icon"
+    },
+    {
+      "id": "vehicle",
+      "name_ru": "Транспорт",
+      "name_en": "Vehicle",
+      "definition_ru": "Средство перевозки является главным объектом.",
+      "definition_en": "A means of transport is the primary object.",
+      "positive_examples": ["автомобиль", "самолёт"],
+      "negative_examples": ["дорога", "колесо отдельно"],
+      "status": "active"
+    }
+  ]
+}

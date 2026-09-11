@@ -1,0 +1,136 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "color_families",
+  "entries": [
+    {
+      "id": "beige",
+      "name_ru": "Бежевый",
+      "name_en": "Beige",
+      "definition_ru": "Светлый малонасыщенный жёлто-коричневый кластер по color-v1.",
+      "definition_en": "A light low-saturation yellow-brown cluster under color-v1.",
+      "positive_examples": ["песочный", "кремовый"],
+      "negative_examples": ["ярко-жёлтый", "тёмно-коричневый"],
+      "status": "active"
+    },
+    {
+      "id": "black",
+      "name_ru": "Чёрный",
+      "name_en": "Black",
+      "definition_ru": "Кластер с очень низкой светлотой по color-v1.",
+      "definition_en": "A cluster with very low lightness under color-v1.",
+      "positive_examples": ["чёрный", "почти чёрный"],
+      "negative_examples": ["тёмно-синий", "серый"],
+      "status": "active"
+    },
+    {
+      "id": "blue",
+      "name_ru": "Синий",
+      "name_en": "Blue",
+      "definition_ru": "Синий цветовой сектор по нормативной таблице color-v1.",
+      "definition_en": "The blue hue sector in the normative color-v1 mapping.",
+      "positive_examples": ["синий", "голубовато-синий"],
+      "negative_examples": ["циан", "фиолетовый"],
+      "status": "active"
+    },
+    {
+      "id": "brown",
+      "name_ru": "Коричневый",
+      "name_en": "Brown",
+      "definition_ru": "Тёмный или средний низкосветлый оранжевый сектор по color-v1.",
+      "definition_en": "A dark or medium low-lightness orange sector under color-v1.",
+      "positive_examples": ["каштановый", "шоколадный"],
+      "negative_examples": ["оранжевый", "бежевый"],
+      "status": "active"
+    },
+    {
+      "id": "cyan",
+      "name_ru": "Циан",
+      "name_en": "Cyan",
+      "definition_ru": "Сине-зелёный цветовой сектор по color-v1.",
+      "definition_en": "The blue-green hue sector in color-v1.",
+      "positive_examples": ["бирюзово-голубой", "циан"],
+      "negative_examples": ["чистый синий", "зелёный"],
+      "status": "active"
+    },
+    {
+      "id": "gray",
+      "name_ru": "Серый",
+      "name_en": "Gray",
+      "definition_ru": "Малонасыщенный кластер средней светлоты по color-v1.",
+      "definition_en": "A low-saturation mid-lightness cluster under color-v1.",
+      "positive_examples": ["серый", "серебристо-серый"],
+      "negative_examples": ["белый", "чёрный"],
+      "status": "active"
+    },
+    {
+      "id": "green",
+      "name_ru": "Зелёный",
+      "name_en": "Green",
+      "definition_ru": "Зелёный цветовой сектор по color-v1.",
+      "definition_en": "The green hue sector in color-v1.",
+      "positive_examples": ["зелёный", "лаймово-зелёный"],
+      "negative_examples": ["циан", "жёлтый"],
+      "status": "active"
+    },
+    {
+      "id": "orange",
+      "name_ru": "Оранжевый",
+      "name_en": "Orange",
+      "definition_ru": "Оранжевый цветовой сектор при достаточной светлоте по color-v1.",
+      "definition_en": "The orange hue sector at sufficient lightness under color-v1.",
+      "positive_examples": ["оранжевый", "янтарный"],
+      "negative_examples": ["коричневый", "жёлтый"],
+      "status": "active"
+    },
+    {
+      "id": "pink",
+      "name_ru": "Розовый",
+      "name_en": "Pink",
+      "definition_ru": "Светлый красно-пурпурный сектор по color-v1.",
+      "definition_en": "A light red-purple sector under color-v1.",
+      "positive_examples": ["розовый", "малиново-розовый"],
+      "negative_examples": ["красный", "фиолетовый"],
+      "status": "active"
+    },
+    {
+      "id": "purple",
+      "name_ru": "Фиолетовый",
+      "name_en": "Purple",
+      "definition_ru": "Фиолетовый цветовой сектор по color-v1.",
+      "definition_en": "The purple hue sector in color-v1.",
+      "positive_examples": ["фиолетовый", "пурпурный"],
+      "negative_examples": ["синий", "розовый"],
+      "status": "active"
+    },
+    {
+      "id": "red",
+      "name_ru": "Красный",
+      "name_en": "Red",
+      "definition_ru": "Красный цветовой сектор по color-v1.",
+      "definition_en": "The red hue sector in color-v1.",
+      "positive_examples": ["алый", "красный"],
+      "negative_examples": ["оранжевый", "розовый"],
+      "status": "active"
+    },
+    {
+      "id": "white",
+      "name_ru": "Белый",
+      "name_en": "White",
+      "definition_ru": "Кластер с очень высокой светлотой и низкой насыщенностью по color-v1.",
+      "definition_en": "A cluster with very high lightness and low saturation under color-v1.",
+      "positive_examples": ["белый", "почти белый"],
+      "negative_examples": ["светло-серый", "бежевый"],
+      "status": "active"
+    },
+    {
+      "id": "yellow",
+      "name_ru": "Жёлтый",
+      "name_en": "Yellow",
+      "definition_ru": "Жёлтый цветовой сектор по color-v1.",
+      "definition_en": "The yellow hue sector in color-v1.",
+      "positive_examples": ["жёлтый", "лимонный"],
+      "negative_examples": ["оранжевый", "зелёный"],
+      "status": "active"
+    }
+  ]
+}

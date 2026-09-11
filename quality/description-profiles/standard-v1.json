@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "standard-v1",
+  "languages": [
+    "ru",
+    "en"
+  ],
+  "recommended_text_length_codepoints": {
+    "minimum": 40,
+    "maximum": 220
+  },
+  "hard_text_limit_codepoints": 280,
+  "requirements": [
+    "name-primary-visible-object-or-symbol",
+    "state-key-expression-pose-or-condition-when-visible",
+    "state-primary-action-when-visible",
+    "include-only-distinguishing-visual-details",
+    "transcribe-meaningful-visible-text-literally",
+    "keep-motion-in-motion-field",
+    "keep-human-meanings-in-usage-field",
+    "never-infer-brand-or-character-from-pack-name",
+    "never-claim-platform-support-from-suggested-use"
+  ]
+}

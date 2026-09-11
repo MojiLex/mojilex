@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "platform": "telegram",
+  "adapter_contract": "telegram-v1",
+  "item_facts": {
+    "needs_repainting": {
+      "source": "bot-api-sticker",
+      "mapping": {
+        "false": "fixed",
+        "true": "platform-adaptive"
+      },
+      "applies_to": [
+        {
+          "role": "primary"
+        }
+      ]
+    }
+  },
+  "documented_contexts": [
+    {
+      "context": "message",
+      "adaptive_rendering": "documented",
+      "recommendation_catalog": "not-observed"
+    },
+    {
+      "context": "emoji-status",
+      "adaptive_rendering": "documented",
+      "recommendation_catalog": "not-observed"
+    },
+    {
+      "context": "topic-icon",
+      "adaptive_rendering": "documented",
+      "recommendation_catalog": "not-observed"
+    },
+    {
+      "context": "chat-photo",
+      "adaptive_rendering": "documented",
+      "recommendation_catalog": "requires-mtproto-observation"
+    },
+    {
+      "context": "profile-photo",
+      "adaptive_rendering": "documented",
+      "recommendation_catalog": "requires-mtproto-observation"
+    }
+  ],
+  "official_sources": [
+    "https://core.telegram.org/api/custom-emoji",
+    "https://core.telegram.org/api/files#sticker-profile-pictures",
+    "https://core.telegram.org/bots/api#sticker",
+    "https://core.telegram.org/stickers#custom-emoji"
+  ]
+}

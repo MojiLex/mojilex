@@ -1,0 +1,56 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "platform_contexts",
+  "entries": [
+    {
+      "id": "chat-photo",
+      "name_ru": "Фото чата",
+      "name_en": "Chat photo",
+      "definition_ru": "Контекст изображения группы, канала или иного чата, подтверждаемый платформой.",
+      "definition_en": "A group, channel, or other chat image context confirmed by the platform.",
+      "positive_examples": ["официальное наблюдение каталога для фото группы"],
+      "negative_examples": ["AI-рекомендация использовать как аватар"],
+      "status": "active"
+    },
+    {
+      "id": "emoji-status",
+      "name_ru": "Эмодзи-статус",
+      "name_en": "Emoji status",
+      "definition_ru": "Технический контекст emoji status, определённый документацией или API платформы.",
+      "definition_en": "The emoji-status technical context defined by platform documentation or API.",
+      "positive_examples": ["поддержка перекраски в emoji status"],
+      "negative_examples": ["семантическая пригодность для статуса"],
+      "status": "active"
+    },
+    {
+      "id": "message",
+      "name_ru": "Сообщение",
+      "name_en": "Message",
+      "definition_ru": "Технический контекст отображения custom emoji в сообщениях.",
+      "definition_en": "The technical context for rendering custom emoji in messages.",
+      "positive_examples": ["text_color для adaptive emoji"],
+      "negative_examples": ["декоративный акцент как AI-рекомендация"],
+      "status": "active"
+    },
+    {
+      "id": "profile-photo",
+      "name_ru": "Фото профиля",
+      "name_en": "Profile photo",
+      "definition_ru": "Контекст изображения профиля, подтверждаемый официальным наблюдением платформы.",
+      "definition_en": "A profile-image context confirmed by an official platform observation.",
+      "positive_examples": ["официальный каталог profile pictures"],
+      "negative_examples": ["визуальная пригодность для аватара"],
+      "status": "active"
+    },
+    {
+      "id": "topic-icon",
+      "name_ru": "Иконка темы",
+      "name_en": "Topic icon",
+      "definition_ru": "Технический контекст иконки темы форума, подтверждаемый платформой.",
+      "definition_en": "The forum-topic icon technical context confirmed by the platform.",
+      "positive_examples": ["поддержка adaptive custom emoji в topic icons"],
+      "negative_examples": ["визуальная рекомендация topic-icon"],
+      "status": "active"
+    }
+  ]
+}

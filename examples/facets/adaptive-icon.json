@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "emoji",
+  "id": "mxe_11799289-adb8-5d5f-acc2-b0368b468a74",
+  "platform": "telegram",
+  "native_namespace": "custom_emoji.id",
+  "scope_id": "global",
+  "native_id": "1000000000000000001",
+  "identity_epoch": 0,
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-11T00:00:00Z",
+    "last_changed_at": "2026-09-11T00:00:00Z",
+    "last_verified_at": "2026-09-11T00:00:00Z"
+  },
+  "media": [
+    {
+      "role": "primary",
+      "kind": "static",
+      "format": "webp",
+      "mime_type": "image/webp",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "byte_size": 512,
+      "width": 100,
+      "height": 100,
+      "animated": false
+    }
+  ],
+  "fingerprints": {
+    "status": "complete",
+    "profile": "dedupe-v1",
+    "input_media_digest": "7923d57059e9e436cb74c57599a75e08c57776f25c2a89d55192fc4647850f88",
+    "items": [
+      {
+        "role": "primary",
+        "decoded_payload_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "canonical_render_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "shape_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "perceptual": {
+          "encoding": "u64be-base64url-nopad",
+          "sample_count": 1,
+          "layout_phash64": "AAAAAAAAAAA",
+          "content_phash64": "MTIzNDU2Nzg",
+          "alpha_phash64": "__________8",
+          "edge_phash64": "AAAAAAAAAAA",
+          "temporal_energy_bp": 0,
+          "low_information": false
+        }
+      }
+    ]
+  },
+  "descriptions": {
+    "ru": {
+      "text": "Адаптивная контурная иконка шестерёнки.",
+      "motion_status": "not_applicable",
+      "usage": [
+        "настройка"
+      ]
+    },
+    "en": {
+      "text": "An adaptive outline icon of a gear.",
+      "motion_status": "not_applicable",
+      "usage": [
+        "configuration"
+      ]
+    }
+  },
+  "facets": {
+    "taxonomy_version": "1.0.0",
+    "rendering": {
+      "profile": "color-v1",
+      "items": [
+        {
+          "role": "primary",
+          "color_behavior": "platform-adaptive",
+          "palette_dynamics": "stable",
+          "alpha_mode": "translucent",
+          "visible_area_bp": 3840
+        }
+      ]
+    },
+    "text_content": {
+      "status": "none",
+      "dynamics": "stable",
+      "items": []
+    },
+    "content_types": [
+      "symbol",
+      "technical-icon"
+    ],
+    "styles": [
+      "flat",
+      "outline"
+    ],
+    "suggested_uses": [
+      "bot-interface",
+      "topic-icon"
+    ],
+    "uncertainties": []
+  },
+  "semantic_tags": [
+    "gear",
+    "settings"
+  ],
+  "content": {
+    "rating": "general",
+    "warnings": []
+  },
+  "provenance": {
+    "origin": "human",
+    "created_at": "2026-09-11T00:00:00Z",
+    "creator": "mojilex-example",
+    "tool": {
+      "name": "mojilex-cli",
+      "version": "0.1.0"
+    }
+  },
+  "review": {
+    "status": "unreviewed"
+  },
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "custom_emoji_id": "1000000000000000001",
+      "file_unique_id": "SyntheticAdaptiveExample",
+      "fallback_emoji": "⚙️",
+      "needs_repainting": true
+    }
+  }
+}

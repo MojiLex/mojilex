@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "routing-reasons-v1",
+  "entries": [
+    {
+      "id": "character-or-brand",
+      "definition": "A character, mascot, or brand may require a stronger model or human confirmation."
+    },
+    {
+      "id": "complex-motion",
+      "definition": "The animation contains multiple meaningful phases or a hard-to-summarize cycle."
+    },
+    {
+      "id": "facet-conflict",
+      "definition": "Semantic facets contain a rule conflict that the primary result did not resolve."
+    },
+    {
+      "id": "low-visibility",
+      "definition": "The visible object is small, low-contrast, or otherwise hard to inspect."
+    },
+    {
+      "id": "ocr-conflict",
+      "definition": "The semantic transcription conflicts with an independent OCR verifier signal."
+    },
+    {
+      "id": "partial-text",
+      "definition": "Some visible text is only partially recognized."
+    },
+    {
+      "id": "quality-control-sample",
+      "definition": "The item belongs to the deterministic quality-control sample for this run."
+    },
+    {
+      "id": "schema-retry-exhausted",
+      "definition": "The primary model exhausted the allowed schema repair attempt."
+    },
+    {
+      "id": "sensitive-content",
+      "definition": "Potential sensitive content requires stronger analysis or human review."
+    },
+    {
+      "id": "unqualified-model",
+      "definition": "The accepted model result has no exact active qualification for its generation tuple."
+    }
+  ]
+}

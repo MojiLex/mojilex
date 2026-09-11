@@ -1,0 +1,48 @@
+name: Public takedown request
+description: Request review of a non-sensitive copyright, trademark, privacy, impersonation, or data issue.
+title: "[takedown] "
+labels:
+  - takedown
+body:
+  - type: markdown
+    attributes:
+      value: If the report contains private evidence, credentials, personal data, or potentially illegal material, stop and use the private Security Advisory link instead.
+  - type: dropdown
+    id: reason
+    attributes:
+      label: Category
+      options:
+        - copyright
+        - trademark
+        - privacy
+        - impersonation
+        - mistakenly published data
+        - other legal concern
+    validations:
+      required: true
+  - type: input
+    id: entity
+    attributes:
+      label: Affected MojiLex ID or path
+    validations:
+      required: true
+  - type: textarea
+    id: basis
+    attributes:
+      label: Basis for the request
+      description: Provide only the minimum safe public facts; do not reproduce disputed media.
+    validations:
+      required: true
+  - type: input
+    id: relationship
+    attributes:
+      label: Your relationship to the affected material
+    validations:
+      required: true
+  - type: checkboxes
+    id: public
+    attributes:
+      label: Public-report confirmation
+      options:
+        - label: This issue contains no confidential evidence, secret, personal data, or prohibited media.
+          required: true

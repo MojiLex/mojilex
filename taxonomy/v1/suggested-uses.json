@@ -1,0 +1,156 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "suggested_uses",
+  "entries": [
+    {
+      "id": "app-interface",
+      "name_ru": "Интерфейс приложения",
+      "name_en": "App interface",
+      "definition_ru": "Визуально пригодно для элемента интерфейса приложения без утверждения поддержки платформой.",
+      "definition_en": "Visually suitable for an application interface element without claiming platform support.",
+      "positive_examples": ["понятная функциональная иконка", "индикатор состояния"],
+      "negative_examples": ["сложная сцена", "неразличимая миниатюра"],
+      "status": "active"
+    },
+    {
+      "id": "badge",
+      "name_ru": "Значок",
+      "name_en": "Badge",
+      "definition_ru": "Пригодно для компактной метки достижения, роли или состояния.",
+      "definition_en": "Suitable for a compact achievement, role, or state marker.",
+      "positive_examples": ["медаль", "значок проверки"],
+      "negative_examples": ["фоновый узор", "длинная фраза"],
+      "status": "active"
+    },
+    {
+      "id": "bot-interface",
+      "name_ru": "Интерфейс бота",
+      "name_en": "Bot interface",
+      "definition_ru": "Визуально пригодно как понятный элемент интерфейса бота, но не даёт боту технических возможностей.",
+      "definition_en": "Visually suitable as a clear bot interface element but grants no technical capability.",
+      "positive_examples": ["иконка настройки", "кнопка подтверждения"],
+      "negative_examples": ["детальная фотография", "неоднозначная реакция"],
+      "status": "active"
+    },
+    {
+      "id": "branding",
+      "name_ru": "Брендинг",
+      "name_en": "Branding",
+      "definition_ru": "Пригодно для визуальной идентичности при наличии прав и подтверждённого бренда.",
+      "definition_en": "Suitable for visual identity when rights and brand identity are confirmed.",
+      "positive_examples": ["подтверждённый логотип", "маскот организации"],
+      "negative_examples": ["неизвестный знак", "обычная пиктограмма"],
+      "status": "active"
+    },
+    {
+      "id": "button-icon",
+      "name_ru": "Иконка кнопки",
+      "name_en": "Button icon",
+      "definition_ru": "Сохраняет смысл и читаемость в малом размере внутри кнопки.",
+      "definition_en": "Keeps its meaning and legibility at button-icon size.",
+      "positive_examples": ["стрелка", "шестерёнка"],
+      "negative_examples": ["мелкий текст", "сложный пейзаж"],
+      "status": "active"
+    },
+    {
+      "id": "counter",
+      "name_ru": "Счётчик",
+      "name_en": "Counter",
+      "definition_ru": "Пригодно для отображения числового количества или этапа.",
+      "definition_en": "Suitable for displaying a numeric quantity or step.",
+      "positive_examples": ["цифра в круге", "404"],
+      "negative_examples": ["реакция без числа", "нечитаемый текст"],
+      "status": "active"
+    },
+    {
+      "id": "decoration",
+      "name_ru": "Декор",
+      "name_en": "Decoration",
+      "definition_ru": "Пригодно как декоративный акцент без обязательного функционального значения.",
+      "definition_en": "Suitable as a decorative accent without required functional meaning.",
+      "positive_examples": ["блёстки", "орнамент"],
+      "negative_examples": ["предупреждающий знак", "кнопка назад"],
+      "status": "active"
+    },
+    {
+      "id": "label",
+      "name_ru": "Метка",
+      "name_en": "Label",
+      "definition_ru": "Пригодно для краткой категоризации или подписи объекта.",
+      "definition_en": "Suitable for concise categorization or labeling of an object.",
+      "positive_examples": ["ON", "новое"],
+      "negative_examples": ["длинное предложение", "фон без смысла"],
+      "status": "active"
+    },
+    {
+      "id": "message-accent",
+      "name_ru": "Акцент сообщения",
+      "name_en": "Message accent",
+      "definition_ru": "Пригодно для смыслового или эмоционального выделения сообщения.",
+      "definition_en": "Suitable for semantic or emotional emphasis in a message.",
+      "positive_examples": ["восклицание", "эмоциональная реакция"],
+      "negative_examples": ["неразличимый фон", "случайный узор"],
+      "status": "active"
+    },
+    {
+      "id": "navigation",
+      "name_ru": "Навигация",
+      "name_en": "Navigation",
+      "definition_ru": "Направление или переход считывается однозначно в интерфейсе.",
+      "definition_en": "A direction or transition reads unambiguously in an interface.",
+      "positive_examples": ["стрелка назад", "иконка дома"],
+      "negative_examples": ["неоднозначный жест", "декоративная линия"],
+      "status": "active"
+    },
+    {
+      "id": "notification",
+      "name_ru": "Уведомление",
+      "name_en": "Notification",
+      "definition_ru": "Пригодно для привлечения внимания к событию или изменению состояния.",
+      "definition_en": "Suitable for drawing attention to an event or state change.",
+      "positive_examples": ["колокольчик", "новое сообщение"],
+      "negative_examples": ["нейтральный фон", "декоративный узор"],
+      "status": "active"
+    },
+    {
+      "id": "profile-avatar",
+      "name_ru": "Аватар профиля",
+      "name_en": "Profile avatar",
+      "definition_ru": "Читается как самостоятельный компактный аватар; это не утверждает официальную доступность.",
+      "definition_en": "Reads as a standalone compact avatar; this does not claim official availability.",
+      "positive_examples": ["крупный портрет", "чёткий маскот"],
+      "negative_examples": ["мелкий узор", "широкая сцена"],
+      "status": "active"
+    },
+    {
+      "id": "profile-background",
+      "name_ru": "Фон профиля",
+      "name_en": "Profile background",
+      "definition_ru": "Визуально пригодно как повторяемый или декоративный фон; это не утверждает поддержку платформой.",
+      "definition_en": "Visually suitable as a repeatable or decorative background; this does not claim platform support.",
+      "positive_examples": ["повторяемый паттерн", "мягкий декоративный мотив"],
+      "negative_examples": ["мелкий важный текст", "навигационная стрелка"],
+      "status": "active"
+    },
+    {
+      "id": "status",
+      "name_ru": "Статус",
+      "name_en": "Status",
+      "definition_ru": "Смыслово пригодно для краткого состояния пользователя без утверждения доступа или Premium.",
+      "definition_en": "Semantically suitable for a brief user status without claiming access or Premium availability.",
+      "positive_examples": ["занят", "в отпуске"],
+      "negative_examples": ["сложная история", "непонятный орнамент"],
+      "status": "active"
+    },
+    {
+      "id": "topic-icon",
+      "name_ru": "Иконка темы",
+      "name_en": "Topic icon",
+      "definition_ru": "Различимо обозначает тему в малом круглом или квадратном контейнере.",
+      "definition_en": "Distinctly represents a topic in a small circular or square container.",
+      "positive_examples": ["книга для темы обучения", "инструмент для темы разработки"],
+      "negative_examples": ["длинная фраза", "неразличимая сцена"],
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+# MojiLex format 1.0.0
+
+This document is an implementation guide to the normative JSON Schema in
+`schemas/v1/`. If prose and schema disagree, a schema-valid record plus the
+cross-record rules enforced by `tools/validate.py` define what may be published.
+
+## Common encoding
+
+- JSON Schema Draft 2020-12; `schema_version` is `1.0.0`.
+- UTF-8 without BOM, LF line endings, one final LF for non-empty text files.
+- Strings are Unicode NFC. Unknown optional values are omitted, not `null`.
+- Times are second-precision UTC: `YYYY-MM-DDTHH:MM:SSZ`.
+- SHA-256 is 64 lowercase hexadecimal characters.
+- Structured hashes use RFC 8785 JCS UTF-8 bytes. Schema v1 contains no
+  floating-point fields, and the reference implementation rejects floats.
+- External numeric identifiers are JSON strings.
+
+## Stable identifiers
+
+The namespace UUID is published in `dataset.json`. Each identity component is
+NFC-normalized, UTF-8 encoded, and must not contain U+0000. Components are joined
+with one U+0000 character before UUIDv5 is calculated:
+
+```text
+collection = platform NUL collection NUL native_namespace NUL scope_id NUL native_id NUL identity_epoch
+emoji      = platform NUL emoji      NUL native_namespace NUL scope_id NUL native_id NUL identity_epoch
+membership = collection_id NUL emoji_id
+```
+
+`identity_epoch` is unsigned decimal ASCII with no leading zero except `0`.
+Prefixes are `mxc_`, `mxe_`, and `mxm_`. Approved visual relations use the
+derived `visual_relation_namespace`, prefix `mxr_`, and the NUL-joined identity
+covered by the normative vector in `examples/test-vectors.json`.
+
+## Entities
+
+A collection identifies a platform collection and records availability and its
+count of active memberships. An emoji identifies one platform emoji independently
+of the collections containing it. A membership connects the two and preserves
+the last known position if it leaves a collection.
+
+For Telegram v1:
+
+- collection identity uses `sticker_set.name`, `global`, and the canonical
+  short name;
+- emoji identity uses `custom_emoji.id`, `global`, and the decimal ID string;
+- `extensions.telegram.short_name` equals collection `native_id`;
+- `extensions.telegram.custom_emoji_id` equals emoji `native_id`; and
+- only one primary WebP, TGS, or WebM media metadata object is stored.
+
+Media objects contain metadata and a source-file hash only. URLs, Telegram
+`file_id`, filesystem paths, and binary content are forbidden.
+
+Every active emoji has `facets` and `fingerprints`. Facets bind one rendering
+item to every media role/variant, keep literal text separate from translation,
+and use the versioned dictionaries under `taxonomy/v1/`. Fingerprints bind one
+item to every media role/variant, declare the active deterministic profile, and
+carry an `input_media_digest` equal to the current media digest. Canonical data
+forbids `partial`; `unavailable` is allowed only on a non-active record with no
+fingerprint items.
+
+`dataset.json` pins `color-v1`, `dedupe-v1`, and `collection-dedupe-v1` to
+their exact SHA-256 values. The immutable profile JSON files and their
+algorithmic test vectors live in `mojilex-cli`; they are not duplicated in this
+data repository.
+
+## Structured hashes
+
+The Telegram set fingerprint is SHA-256 over the JCS array of
+`{custom_emoji_id, file_unique_id}` for active memberships, ordered by those two
+fields.
+
+`media_digest` is SHA-256 over a JCS array containing only `role`, optional
+`variant_id`, and `sha256`, ordered by `role`, `variant_id`, then `sha256`.
+
+For a non-`unreviewed` record, `reviewed_content_sha256` is SHA-256 over this JCS
+object. Media contributes only the same sorted `role`, optional `variant_id`,
+and `sha256` projection used by `media_digest`; facets are covered, while
+deterministic fingerprints and derived media metadata are intentionally excluded:
+
+```json
+{
+  "media": [
+    {
+      "role": "primary",
+      "sha256": "..."
+    }
+  ],
+  "descriptions": {},
+  "facets": {},
+  "semantic_tags": [],
+  "content": {},
+  "provenance": {}
+}
+```
+
+Any change to the hashed fields invalidates review and requires status
+`unreviewed` until a reviewer approves the new content. A fingerprint-only
+profile migration does not reset semantic review.
+
+`reviewed_relation_sha256` covers the JCS object `{identity_epoch, subject_id,
+object_id, scope, relation_type, evidence}`. Binary and decoded exact groups are
+computed at build time. Only approved `same-artwork`, `variant-of`,
+`related-series`, and `not-duplicate` decisions are stored as relations; native
+emoji identities and memberships are never merged.
+
+Generated duplicate group IDs use prefix `mxdg_` and UUIDv5 in the published
+`visual_relation_namespace`. Exact group names are the NUL join of
+`["duplicate-group", group_type, scope, profile_or_empty, content_digest]`.
+For a binary media group, `content_digest` is SHA-256 of the JCS object
+`{byte_size, sha256}`; for a decoded media group it is the decoded payload hash.
+Entity-level digests hash the complete canonical role/variant signature, so a
+primary-only match cannot create an entity group when alternates differ. A
+reviewed component instead uses the NUL join of
+`["duplicate-group", "reviewed-same-artwork", "entity", "", ...sorted_ids]`.
+The exact byte/ID vectors are fixed in `examples/test-vectors.json`.
+
+Each `provenance.human_edits[]` item keeps the original `languages` field and
+may add a sorted, unique `changed_paths` array of JSON Pointers such as
+`/facets/styles`. The paths belong to that individual edit, not to the enclosing
+provenance object.
+
+## Availability and moderation
+
+Collections may be `active`, `unavailable`, `private`, `deleted`, or `unknown`.
+Emoji omit the collection-only `private` state. Removing an emoji from one pack
+changes only its membership status. Network/authentication failure is not proof
+of deletion.
+
+`general` plus `unreviewed` may be public only without warnings. A record with a
+`sensitive`, `adult`, or `unknown` rating, or any warning, requires `approved`.
+Potentially illegal/privacy-sensitive quarantine is never represented in the
+public repository.
+
+An unreviewed AI or mixed record additionally needs an exact active entry in
+`quality/model-qualifications.json` for its model/revision, prompt and request
+hashes, schema, taxonomy, pipeline, routing policy, languages, and generation
+time. Human approval permits an otherwise unqualified historical result while
+preserving its provenance.
+
+A policy takedown removes affected current records and cascading memberships.
+Only the fields allowed by `tombstone.schema.json` may remain. The same target ID
+cannot occur in both `data/` and `tombstones/`.
+
+## Aggregate index
+
+`tools/build_index.py` additionally produces `collection-facets.jsonl`,
+`duplicate-groups.jsonl`, `visual-relations.jsonl`, and `taxonomy.json`.
+Search rows expose normalized facets, literal text, and duplicate group IDs.
+The manifest includes the source Git SHA, profile and registry hashes, counts,
+status counts, and payload hashes, but no current time. Tombstones never restore
+withheld fields. Identical input and revision must produce identical bytes.

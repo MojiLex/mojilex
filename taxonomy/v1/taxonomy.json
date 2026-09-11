@@ -1,0 +1,30 @@
+{
+  "taxonomy_version": "1.0.0",
+  "status": "active",
+  "registries": [
+    {
+      "facet": "color_families",
+      "path": "color-families.json"
+    },
+    {
+      "facet": "content_types",
+      "path": "content-types.json"
+    },
+    {
+      "facet": "platform_contexts",
+      "path": "platform-contexts.json"
+    },
+    {
+      "facet": "styles",
+      "path": "styles.json"
+    },
+    {
+      "facet": "suggested_uses",
+      "path": "suggested-uses.json"
+    },
+    {
+      "facet": "uncertainties",
+      "path": "uncertainties.json"
+    }
+  ]
+}

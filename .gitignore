@@ -1,0 +1,37 @@
+# Generated indexes and local tooling
+dist/
+work/
+.venv/
+venv/
+.testdeps/
+.testprefix/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# IDE state is personal, not repository data
+.idea/
+.vscode/
+
+# Secrets, caches, and temporary media
+.env
+.env.*
+!.env.example
+credentials.json
+secrets.json
+/.mojilex/
+/.mojilex-atomic-write/
+.mojilex-dedupe/
+cache/
+tmp/
+temp/
+*.webp
+*.tgs
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4

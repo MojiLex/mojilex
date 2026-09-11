@@ -1,0 +1,156 @@
+{
+  "taxonomy_version": "1.0.0",
+  "facet": "styles",
+  "entries": [
+    {
+      "id": "anime",
+      "name_ru": "Аниме",
+      "name_en": "Anime",
+      "definition_ru": "Используется узнаваемая графическая стилистика японской анимации.",
+      "definition_en": "Uses recognizable visual conventions of Japanese animation.",
+      "positive_examples": ["аниме-портрет", "чиби-персонаж"],
+      "negative_examples": ["любой мультяшный рисунок", "фотореализм"],
+      "status": "active"
+    },
+    {
+      "id": "cartoon",
+      "name_ru": "Мультяшный",
+      "name_en": "Cartoon",
+      "definition_ru": "Формы и пропорции намеренно упрощены или преувеличены как в мультфильме.",
+      "definition_en": "Forms and proportions are deliberately simplified or exaggerated like a cartoon.",
+      "positive_examples": ["мультяшный кот", "карикатурное лицо"],
+      "negative_examples": ["реалистичное фото", "технический контур"],
+      "status": "active"
+    },
+    {
+      "id": "detailed",
+      "name_ru": "Детализированный",
+      "name_en": "Detailed",
+      "definition_ru": "Изображение содержит много визуально значимых мелких деталей.",
+      "definition_en": "The image contains many visually meaningful fine details.",
+      "positive_examples": ["сложный орнамент", "детальная иллюстрация"],
+      "negative_examples": ["простая пиктограмма", "одна плоская форма"],
+      "status": "active"
+    },
+    {
+      "id": "flat",
+      "name_ru": "Плоский",
+      "name_en": "Flat",
+      "definition_ru": "Объём не моделируется реалистичным светом или перспективой.",
+      "definition_en": "Volume is not modeled with realistic lighting or perspective.",
+      "positive_examples": ["плоская пиктограмма", "цветовые заливки"],
+      "negative_examples": ["объёмный рендер", "фотография"],
+      "status": "active"
+    },
+    {
+      "id": "gradient",
+      "name_ru": "Градиент",
+      "name_en": "Gradient",
+      "definition_ru": "Плавные переходы цвета являются заметной частью визуального стиля.",
+      "definition_en": "Smooth color transitions are a notable part of the visual style.",
+      "positive_examples": ["градиентная заливка", "цветовой переход"],
+      "negative_examples": ["однотонная заливка", "жёсткие полосы"],
+      "status": "active"
+    },
+    {
+      "id": "hand-drawn",
+      "name_ru": "Рисованный вручную",
+      "name_en": "Hand-drawn",
+      "definition_ru": "Линии или заливки намеренно сохраняют признаки ручного рисунка.",
+      "definition_en": "Lines or fills intentionally preserve hand-drawn characteristics.",
+      "positive_examples": ["карандашный штрих", "неровная кисть"],
+      "negative_examples": ["идеальная векторная иконка", "фотография"],
+      "status": "active"
+    },
+    {
+      "id": "minimal",
+      "name_ru": "Минималистичный",
+      "name_en": "Minimal",
+      "definition_ru": "Смысл передан небольшим количеством простых форм и деталей.",
+      "definition_en": "Meaning is conveyed with a small number of simple forms and details.",
+      "positive_examples": ["одна контурная иконка", "две простые формы"],
+      "negative_examples": ["насыщенная деталями сцена", "сложный орнамент"],
+      "status": "active"
+    },
+    {
+      "id": "neon",
+      "name_ru": "Неоновый",
+      "name_en": "Neon",
+      "definition_ru": "Яркое цветное свечение имитирует неоновый источник света.",
+      "definition_en": "Bright colored glow imitates a neon light source.",
+      "positive_examples": ["неоновый контур", "светящаяся вывеска"],
+      "negative_examples": ["яркий цвет без свечения", "мягкая тень"],
+      "status": "active"
+    },
+    {
+      "id": "ornamental",
+      "name_ru": "Орнаментальный",
+      "name_en": "Ornamental",
+      "definition_ru": "Декоративные повторяющиеся или усложнённые элементы формируют стиль.",
+      "definition_en": "Decorative repeated or elaborate elements define the style.",
+      "positive_examples": ["витиеватая рамка", "арабеска"],
+      "negative_examples": ["простая геометрия", "фотография"],
+      "status": "active"
+    },
+    {
+      "id": "outline",
+      "name_ru": "Контурный",
+      "name_en": "Outline",
+      "definition_ru": "Форма преимущественно задаётся линией контура.",
+      "definition_en": "The form is defined primarily by contour lines.",
+      "positive_examples": ["контурная пиктограмма", "линейный рисунок"],
+      "negative_examples": ["сплошной силуэт", "фотография"],
+      "status": "active"
+    },
+    {
+      "id": "photorealistic",
+      "name_ru": "Фотореалистичный",
+      "name_en": "Photorealistic",
+      "definition_ru": "Материалы, свет и форма стремятся выглядеть как фотография.",
+      "definition_en": "Materials, lighting, and form aim to resemble a photograph.",
+      "positive_examples": ["фотографический объект", "реалистичный рендер"],
+      "negative_examples": ["мультяшный персонаж", "плоская иконка"],
+      "status": "active"
+    },
+    {
+      "id": "pixel-art",
+      "name_ru": "Пиксель-арт",
+      "name_en": "Pixel art",
+      "definition_ru": "Видимая дискретная пиксельная сетка является намеренным художественным приёмом.",
+      "definition_en": "A visible discrete pixel grid is an intentional artistic technique.",
+      "positive_examples": ["8-битный спрайт", "пиксельная иконка"],
+      "negative_examples": ["случайно размытое маленькое изображение", "векторная иконка"],
+      "status": "active"
+    },
+    {
+      "id": "solid",
+      "name_ru": "Сплошной",
+      "name_en": "Solid",
+      "definition_ru": "Основные формы представлены сплошными залитыми областями.",
+      "definition_en": "Primary forms are represented by solid filled regions.",
+      "positive_examples": ["сплошной силуэт", "залитая пиктограмма"],
+      "negative_examples": ["только контур", "полупрозрачная дымка"],
+      "status": "active"
+    },
+    {
+      "id": "sticker-like",
+      "name_ru": "Как стикер",
+      "name_en": "Sticker-like",
+      "definition_ru": "Объект выглядит как вырезанный стикер с заметной внешней обводкой.",
+      "definition_en": "The object resembles a cut-out sticker with a visible outer border.",
+      "positive_examples": ["белая стикерная обводка", "вырезанный персонаж"],
+      "negative_examples": ["иконка без внешней рамки", "полноэкранная сцена"],
+      "status": "active"
+    },
+    {
+      "id": "three-dimensional",
+      "name_ru": "Трёхмерный",
+      "name_en": "Three-dimensional",
+      "definition_ru": "Объём явно передан перспективой, светом или моделированием поверхности.",
+      "definition_en": "Volume is clearly conveyed through perspective, lighting, or surface modeling.",
+      "positive_examples": ["3D-рендер", "объёмная кнопка"],
+      "negative_examples": ["плоская заливка", "контур без объёма"],
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "dataset": "mojilex",
+  "schema_version": "1.0.0",
+  "id_namespace": "47d42c76-38da-5ab5-90fe-7af0ba6c4a27",
+  "visual_relation_namespace": "4958ce2d-8120-5c3a-8755-a71d93c0c866",
+  "taxonomy_version": "1.0.0",
+  "color_profile": "color-v1",
+  "color_profile_sha256": "c30dcf7241037e3c1e4c4a16686c4e899c3f81bae19bd741eb257e458f9986ae",
+  "dedupe_profile": "dedupe-v1",
+  "dedupe_profile_sha256": "8f6eb6f68479897a8fe5be434ca2f081edcf4cb08cc1371308e732022f7c66c1",
+  "collection_dedupe_profile": "collection-dedupe-v1",
+  "collection_dedupe_profile_sha256": "a03a1979980c6e23323cac02459fa7a29bf68c858c45d2b52b9a54857766cf01",
+  "default_languages": [
+    "ru",
+    "en"
+  ],
+  "platforms": [
+    "telegram"
+  ],
+  "canonical_repository": "https://github.com/MojiLex/mojilex",
+  "licenses": {
+    "data": "CC0-1.0",
+    "code": "MIT"
+  }
+}
