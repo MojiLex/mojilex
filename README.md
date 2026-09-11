@@ -23,6 +23,9 @@ data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
 data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
 schemas/v1/
+schemas/distribution/v1/
+analysis-profiles/
+rights/
 taxonomy/v1/
 platforms/
 quality/
@@ -80,24 +83,47 @@ and relation review hashes, moderation/review-routing policy, canonical bytes,
 tombstone cascades, secret patterns, binary media/LFS pointers, normative test
 vectors, and a double deterministic index build.
 
-## Build an aggregate snapshot
+## Build and validate a distribution snapshot
 
 ```bash
-python tools/build_index.py . --output dist
+python tools/build_index.py . --output dist/index \
+  --revision 0123456789abcdef0123456789abcdef01234567 \
+  --snapshot-id data-2026.09.11.1 \
+  --source-date-epoch 1789171199
+python tools/validate_distribution.py . dist/index
 ```
 
-The output contains full canonical JSONL payloads, an active-only emoji index,
-Russian and English search rows with flattened facets, collection facet
-aggregates, exact/reviewed duplicate groups, approved visual relations, the
-complete taxonomy snapshot, an integrity manifest, and `SHA256SUMS`.
-`dist/` is generated and ignored on the main branch. The manifest contains the
-full Git commit SHA but no wall-clock timestamp, so the same tree and revision
-produce identical bytes.
+All three release identity inputs are mandatory: a full Git object ID, an
+immutable `data-YYYY.MM.DD.N` snapshot ID, and an integer
+`source_date_epoch`. The builder never consults the wall clock. Reusing the
+same source tree and all three inputs produces the same bytes.
+
+The output contains canonical JSONL payloads, active/search derived views,
+collection facets, exact/reviewed duplicate groups, registry singletons, an
+exact JCS `manifest.json`, and a complete sorted `SHA256SUMS`. Every artifact
+declares a schema. The snapshot also embeds byte-identical source copies of all
+canonical, derived, and transport schemas (including the read-only CLI JSON and
+JSONL contracts), analysis profiles, taxonomy sources, and platform profiles.
+`tools/validate_distribution.py` verifies the physical file set, paths,
+source/resource bytes, sizes, hashes, offline schema resolution, bindings,
+aliases, roots, counts, derived lineage, and projections without network
+access. `dist/` is generated and ignored on the main branch.
+
+Authority files under `analysis-profiles/` are exact JCS bytes without a final
+LF. All deterministic profiles except the direct concept-candidate profile use
+the `delegated-profile-v1` wrapper: readers verify the wrapper's referenced
+contract schema bytes and hash offline, validate `body`, then use that `body` as
+the effective algorithm configuration. The selector digest covers the complete
+wrapper, not only its body.
 
 Active/search files contain only active emoji connected by active memberships
 to active collections. Approved records of allowed ratings and unreviewed
 `general` records without warnings are eligible; `changes_requested` and
 `rejected` records are excluded.
+
+These snapshots currently use `trust_stage=pre-enforcement`: integrity and
+reproducibility are implemented, but an unsigned local snapshot is not an
+officially authenticated release and must not be marked safe by an agent.
 
 ## Contributing and safety
 

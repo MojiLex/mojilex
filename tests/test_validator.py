@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import copy
 import os
 import subprocess
@@ -7,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
+from urllib.parse import quote
 
 from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.common import (
@@ -449,6 +451,7 @@ class RepositoryValidatorTests(unittest.TestCase):
                 "reviewed_at": "2026-09-10T20:00:00Z",
                 "reviewer": "reviewer-one",
                 "reviewed_content_sha256": reviewed_content_sha256(emoji),
+                "review_hash_profile_id": "semantic-review-content-v3",
             }
             bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
@@ -487,6 +490,7 @@ class RepositoryValidatorTests(unittest.TestCase):
                 "reviewed_at": "2026-09-10T20:00:00Z",
                 "reviewer": "reviewer-one",
                 "reviewed_content_sha256": reviewed_content_sha256(emoji),
+                "review_hash_profile_id": "semantic-review-content-v3",
             }
             bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
@@ -533,6 +537,25 @@ class RepositoryValidatorTests(unittest.TestCase):
             )
             report = validate_repository(target, include_examples=True, check_build=False)
             self.assertTrue(any("still exists in public data" in item for item in report.errors))
+
+    def test_encoded_credentials_are_detected_without_echoing_values(self) -> None:
+        cases = {
+            "base64": base64.b64encode(("github" + "_pat_" + "A" * 40).encode()).decode(),
+            "percent": quote("123456" + ":" + "A" * 32, safe=""),
+        }
+        for label, payload in cases.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temporary:
+                target = Path(temporary)
+                copy_repository_contract(ROOT, target)
+                install_example_as_canonical(ROOT, target)
+                (target / "encoded.txt").write_text(payload + "\n", encoding="ascii", newline="")
+
+                report = validate_repository(target, include_examples=True, check_build=False)
+
+                findings = [item for item in report.errors if "encoded.txt" in item]
+                self.assertEqual(len(findings), 1, findings)
+                self.assertIn("possible", findings[0])
+                self.assertNotIn(payload, findings[0])
 
 
 if __name__ == "__main__":

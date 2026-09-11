@@ -11,7 +11,6 @@ from tools.common import (
     duplicate_group_id,
     expected_visual_relation_id,
     jcs_bytes,
-    jcs_sha256,
     load_json,
     media_digest,
     reviewed_content_sha256,
@@ -94,44 +93,35 @@ class NormativeVectorTests(unittest.TestCase):
     def test_duplicate_group_id_vectors(self) -> None:
         vectors = self.vectors["duplicate_group_ids"]
         namespace = uuid.UUID(vectors["namespace"])
-        binary = vectors["binary_media"]
-        self.assertEqual(
-            jcs_sha256({"byte_size": binary["byte_size"], "sha256": binary["source_sha256"]}),
-            binary["content_digest"],
-        )
-        for key in ("binary_media", "decoded_media"):
+        cases = {
+            "binary_media": {
+                "source_sha256": vectors["binary_media"]["source_sha256"],
+                "source_byte_size": vectors["binary_media"]["byte_size"],
+            },
+            "decoded_media": {
+                "decoded_profile_id": vectors["decoded_media"]["decoded_profile_id"],
+                "decoded_payload_sha256": vectors["decoded_media"]["decoded_payload_sha256"],
+            },
+            "binary_entity": {
+                "media_set_root_sha256": vectors["binary_entity"]["media_set_root_sha256"]
+            },
+            "decoded_entity": {
+                "decoded_profile_id": vectors["decoded_entity"]["decoded_profile_id"],
+                "media_set_root_sha256": vectors["decoded_entity"]["media_set_root_sha256"],
+            },
+            "reviewed_same_artwork": {"members": vectors["reviewed_same_artwork"]["members"]},
+        }
+        for key, extra in cases.items():
             vector = vectors[key]
-            encoded_name = "\0".join(
-                [
-                    "duplicate-group",
-                    vector["group_type"],
-                    vector["scope"],
-                    vector["profile"],
-                    vector["content_digest"],
-                ]
-            ).encode("utf-8")
-            self.assertEqual(encoded_name.hex(), vector["nul_joined_utf8_hex"])
-            self.assertEqual(
-                duplicate_group_id(
-                    namespace,
-                    vector["group_type"],
-                    vector["scope"],
-                    vector["profile"],
-                    vector["content_digest"],
-                ),
-                vector["expected_id"],
+            actual = duplicate_group_id(
+                namespace,
+                group_type=vector["group_type"],
+                scope=vector["scope"],
+                **extra,
             )
+            self.assertEqual(actual, vector["expected_id"])
+
         reviewed = vectors["reviewed_same_artwork"]
-        reviewed_name = "\0".join(
-            [
-                "duplicate-group",
-                "reviewed-same-artwork",
-                "entity",
-                "",
-                *sorted(reviewed["members"]),
-            ]
-        ).encode("utf-8")
-        self.assertEqual(reviewed_name.hex(), reviewed["nul_joined_utf8_hex"])
         self.assertEqual(
             reviewed_same_artwork_group_id(namespace, reviewed["members"]),
             reviewed["expected_id"],

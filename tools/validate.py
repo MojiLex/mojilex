@@ -5,6 +5,7 @@ import argparse
 import base64
 import binascii
 import codecs
+import contextlib
 import hashlib
 import os
 import re
@@ -19,6 +20,7 @@ from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import unquote_to_bytes
 
 try:
     from jsonschema import Draft202012Validator, FormatChecker
@@ -41,7 +43,6 @@ if __package__:
         expected_entity_id,
         expected_visual_relation_id,
         jcs_bytes,
-        jcs_sha256,
         load_json,
         media_digest,
         pretty_json,
@@ -63,7 +64,6 @@ else:
         expected_entity_id,
         expected_visual_relation_id,
         jcs_bytes,
-        jcs_sha256,
         load_json,
         media_digest,
         pretty_json,
@@ -82,6 +82,81 @@ SCHEMA_FILES = {
     "membership": "membership.schema.json",
     "tombstone": "tombstone.schema.json",
     "visual_relation": "visual-relation.schema.json",
+}
+
+DISTRIBUTION_SCHEMA_FILES = {
+    "agent-record.schema.json",
+    "analysis-profile.schema.json",
+    "artifact-descriptor.schema.json",
+    "bundle-descriptor.schema.json",
+    "bundling-profile-contract.schema.json",
+    "cli-command-result.schema.json",
+    "cli-jsonl-item.schema.json",
+    "cli-jsonl-metadata.schema.json",
+    "cli-jsonl-summary.schema.json",
+    "cli-read-envelope.schema.json",
+    "cli-request.schema.json",
+    "cli-resolution-candidate.schema.json",
+    "cli-similar-item.schema.json",
+    "collection-facet.schema.json",
+    "collection-dedupe-profile-contract.schema.json",
+    "color-profile-contract.schema.json",
+    "compression-profile-contract.schema.json",
+    "concept-candidate-profile.schema.json",
+    "concept.schema.json",
+    "concepts-registry.schema.json",
+    "distribution-common.schema.json",
+    "delegated-profile.schema.json",
+    "dedupe-profile-contract.schema.json",
+    "distribution-profile-contract.schema.json",
+    "duplicate-group-membership.schema.json",
+    "duplicate-group.schema.json",
+    "platform-profile.schema.json",
+    "platform-profiles-registry.schema.json",
+    "key-serialization-profile-contract.schema.json",
+    "language-canonicalization-profile-contract.schema.json",
+    "language-fallback-profile-contract.schema.json",
+    "lexical-search-profile-contract.schema.json",
+    "part-packing-profile-contract.schema.json",
+    "partitioning-profile-contract.schema.json",
+    "release-build-input.schema.json",
+    "release-manifest.schema.json",
+    "resource-descriptor.schema.json",
+    "rights-profile.schema.json",
+    "rights-profiles-registry.schema.json",
+    "search-request.schema.json",
+    "search-record.schema.json",
+    "taxonomy-dictionary.schema.json",
+    "taxonomy-registry.schema.json",
+    "taxonomy-source.schema.json",
+}
+
+ANALYSIS_PROFILE_FILES: dict[str, tuple[str, str | None]] = {
+    "bcp47-v1.json": (
+        "language-canonicalization",
+        "language-canonicalization-profile-contract.schema.json",
+    ),
+    "canonical-primary-key-v1.json": (
+        "key-serialization",
+        "key-serialization-profile-contract.schema.json",
+    ),
+    "collection-dedupe-v1.json": (
+        "collection-dedupe",
+        "collection-dedupe-profile-contract.schema.json",
+    ),
+    "color-v1.json": ("color", "color-profile-contract.schema.json"),
+    "compression-catalog-v1.json": ("compression", "compression-profile-contract.schema.json"),
+    "concept-candidates-v1.json": ("concept-candidate", None),
+    "dedupe-v1.json": ("dedupe", "dedupe-profile-contract.schema.json"),
+    "distribution-v1.json": ("distribution", "distribution-profile-contract.schema.json"),
+    "language-fallback-v1.json": (
+        "language-fallback",
+        "language-fallback-profile-contract.schema.json",
+    ),
+    "lexical-search-v1.json": ("lexical-search", "lexical-search-profile-contract.schema.json"),
+    "part-packing-v1.json": ("part-packing", "part-packing-profile-contract.schema.json"),
+    "sha256-jcs-routing-v1.json": ("partitioning", "partitioning-profile-contract.schema.json"),
+    "tar-zstd-bundle-v1.json": ("bundling", "bundling-profile-contract.schema.json"),
 }
 
 TAXONOMY_FILES = {
@@ -228,6 +303,9 @@ SECRET_PATTERNS = {
     ),
     "credential in URL": re.compile(r"https?://[^\s/@:]+:[^\s/@]+@", re.IGNORECASE),
 }
+BASE64_SECRET_CANDIDATE = re.compile(
+    r"(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{24,4096}={0,2}(?![A-Za-z0-9+/_=-])"
+)
 
 
 class Report:
@@ -245,7 +323,7 @@ class Report:
 def _schema_environment(
     root: Path, report: Report
 ) -> tuple[dict[str, Any], dict[str, Any], Registry[Any]]:
-    schema_root = root / "schemas" / "v1"
+    schema_root = root / "schemas"
     schemas: dict[str, Any] = {}
     registry: Registry[Any] = Registry()
     for path in sorted(schema_root.rglob("*.schema.json")):
@@ -257,7 +335,12 @@ def _schema_environment(
             schemas[path.name] = schema
         except Exception as exc:  # schema library exposes several specific subclasses
             report.add(path, f"invalid Draft 2020-12 schema: {exc}")
-    required = {"common.schema.json", "telegram.schema.json", *SCHEMA_FILES.values()}
+    required = {
+        "common.schema.json",
+        "telegram.schema.json",
+        *SCHEMA_FILES.values(),
+        *DISTRIBUTION_SCHEMA_FILES,
+    }
     for missing in sorted(required - schemas.keys()):
         report.add(schema_root, f"required schema is missing: {missing}")
     return (
@@ -272,11 +355,35 @@ def _validate_schema(
     entity_type: str,
     location: str,
     schema_by_type: dict[str, Any],
-    registry: Registry[Any],
+    schema_registry: Registry[Any],
     report: Report,
 ) -> bool:
     schema = schema_by_type.get(entity_type)
     if not schema:
+        return False
+    validator = Draft202012Validator(
+        schema,
+        registry=schema_registry,
+        format_checker=FormatChecker(),
+    )
+    errors = sorted(validator.iter_errors(value), key=lambda error: list(error.absolute_path))
+    for error in errors:
+        pointer = "".join(f"/{part}" for part in error.absolute_path) or "/"
+        report.add(location, f"schema {pointer}: {error.message}")
+    return not errors
+
+
+def _validate_document_schema(
+    value: Any,
+    schema_name: str,
+    location: str | Path,
+    schemas: dict[str, Any],
+    registry: Registry[Any],
+    report: Report,
+) -> bool:
+    schema = schemas.get(schema_name)
+    if not schema:
+        report.add(location, f"required schema is unavailable: {schema_name}")
         return False
     validator = Draft202012Validator(schema, registry=registry, format_checker=FormatChecker())
     errors = sorted(validator.iter_errors(value), key=lambda error: list(error.absolute_path))
@@ -284,6 +391,132 @@ def _validate_schema(
         pointer = "".join(f"/{part}" for part in error.absolute_path) or "/"
         report.add(location, f"schema {pointer}: {error.message}")
     return not errors
+
+
+def _schema_references(value: Any) -> list[str]:
+    references: list[str] = []
+    if isinstance(value, dict):
+        reference = value.get("$ref")
+        if isinstance(reference, str):
+            references.append(reference)
+        for child in value.values():
+            references.extend(_schema_references(child))
+    elif isinstance(value, list):
+        for child in value:
+            references.extend(_schema_references(child))
+    return references
+
+
+def _validate_analysis_profiles(
+    root: Path,
+    dataset: dict[str, Any],
+    schemas: dict[str, Any],
+    registry: Registry[Any],
+    report: Report,
+) -> None:
+    profile_root = root / "analysis-profiles"
+    actual_files = {path.name for path in profile_root.glob("*.json")}
+    expected_files = set(ANALYSIS_PROFILE_FILES)
+    if actual_files != expected_files:
+        report.add(
+            profile_root,
+            "analysis profile file set is not the exact Stage-A/B path map "
+            f"(missing={sorted(expected_files - actual_files)}, "
+            f"extra={sorted(actual_files - expected_files)})",
+        )
+
+    values: dict[str, dict[str, Any]] = {}
+    for filename, (profile_type, contract_filename) in ANALYSIS_PROFILE_FILES.items():
+        path = profile_root / filename
+        try:
+            raw = path.read_bytes()
+            value = load_json(path)
+            if not isinstance(value, dict):
+                raise DataError("analysis profile must be an object")
+            values[filename] = value
+            canonical = jcs_bytes(value)
+            if raw != canonical:
+                report.add(path, "authority analysis profile must be exact JCS bytes")
+            _validate_document_schema(
+                value,
+                "analysis-profile.schema.json",
+                path,
+                schemas,
+                registry,
+                report,
+            )
+            expected_id = filename.removesuffix(".json")
+            if value.get("profile_id") != expected_id:
+                report.add(path, f"profile_id must equal {expected_id!r}")
+
+            if contract_filename is None:
+                _validate_document_schema(
+                    value,
+                    "concept-candidate-profile.schema.json",
+                    path,
+                    schemas,
+                    registry,
+                    report,
+                )
+                continue
+
+            contract_path = root / "schemas" / "distribution" / "v1" / contract_filename
+            contract_ref = f"mlx://schemas/distribution/v1/{contract_filename}"
+            if value.get("profile_type") != profile_type:
+                report.add(path, f"profile_type must equal {profile_type!r}")
+            if value.get("contract_schema_ref") != contract_ref:
+                report.add(path, "contract_schema_ref does not name the class contract")
+            contract_bytes = contract_path.read_bytes()
+            contract_sha256 = hashlib.sha256(contract_bytes).hexdigest()
+            if value.get("contract_schema_sha256") != contract_sha256:
+                report.add(path, "contract_schema_sha256 does not match exact schema bytes")
+            contract = schemas.get(contract_filename)
+            if not isinstance(contract, dict):
+                report.add(path, f"contract schema is unavailable: {contract_filename}")
+                continue
+            if contract.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+                report.add(contract_path, "profile contract must use Draft 2020-12")
+            if contract.get("$id") != contract_ref:
+                report.add(contract_path, "profile contract $id mismatch")
+            if contract.get("unevaluatedProperties") is not False:
+                report.add(
+                    contract_path,
+                    "profile contract must close body with unevaluatedProperties:false",
+                )
+            for reference in _schema_references(contract):
+                if not re.fullmatch(r"#/\$defs/[A-Za-z0-9._~-]+(?:/[A-Za-z0-9._~-]+)*", reference):
+                    report.add(contract_path, f"forbidden non-fragment-local $ref {reference!r}")
+            _validate_document_schema(
+                value.get("body"),
+                contract_filename,
+                path,
+                schemas,
+                registry,
+                report,
+            )
+        except (OSError, DataError, TypeError, ValueError) as exc:
+            report.add(path, f"invalid analysis profile: {exc}")
+
+    dataset_pins = {
+        "color-v1.json": ("color_profile", "color_profile_sha256"),
+        "dedupe-v1.json": ("dedupe_profile", "dedupe_profile_sha256"),
+        "collection-dedupe-v1.json": (
+            "collection_dedupe_profile",
+            "collection_dedupe_profile_sha256",
+        ),
+    }
+    for filename, (id_field, digest_field) in dataset_pins.items():
+        value = values.get(filename)
+        if value is None:
+            continue
+        expected_digest = hashlib.sha256(jcs_bytes(value)).hexdigest()
+        if dataset.get(id_field) != value.get("profile_id"):
+            report.add(root / "dataset.json", f"{id_field} does not match {filename}")
+        if dataset.get(digest_field) != expected_digest:
+            report.add(
+                root / "dataset.json",
+                f"{digest_field} does not pin SHA-256(JCS({filename}))",
+            )
 
 
 def _walk_strings(value: Any, pointer: str = "") -> Iterable[tuple[str, str]]:
@@ -678,19 +911,30 @@ def _check_review_and_policy(emoji: dict[str, Any], location: str, report: Repor
 
 
 def _load_contract_registries(
-    root: Path, dataset: dict[str, Any], report: Report
-) -> tuple[dict[str, set[str]], dict[str, dict[str, Any]]]:
+    root: Path,
+    dataset: dict[str, Any],
+    schemas: dict[str, Any],
+    schema_registry: Registry[Any],
+    report: Report,
+) -> tuple[
+    dict[str, set[str]],
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+]:
     taxonomy: dict[str, set[str]] = {}
     taxonomy_root = root / "taxonomy" / "v1"
     try:
         manifest = load_json(taxonomy_root / "taxonomy.json")
         if not isinstance(manifest, dict):
             raise DataError("taxonomy manifest must be an object")
-        if set(manifest) != {"taxonomy_version", "status", "registries"}:
-            report.add(
-                taxonomy_root / "taxonomy.json",
-                "taxonomy manifest fields must be taxonomy_version, status, registries",
-            )
+        _validate_document_schema(
+            manifest,
+            "taxonomy-source.schema.json",
+            taxonomy_root / "taxonomy.json",
+            schemas,
+            schema_registry,
+            report,
+        )
         if manifest.get("taxonomy_version") != dataset.get("taxonomy_version"):
             report.add(
                 taxonomy_root / "taxonomy.json", "taxonomy version differs from dataset.json"
@@ -702,13 +946,17 @@ def _load_contract_registries(
             raise DataError("taxonomy registries must be an array")
         pairs: list[tuple[Any, Any]] = []
         for index, entry in enumerate(registries):
-            if not isinstance(entry, dict) or set(entry) != {"facet", "path"}:
+            if not isinstance(entry, dict) or set(entry) != {
+                "dictionary_id",
+                "path",
+                "sha256",
+            }:
                 report.add(
                     taxonomy_root / "taxonomy.json",
-                    f"registries/{index} must contain only facet and path",
+                    f"registries/{index} must contain dictionary_id, path, and sha256",
                 )
                 continue
-            facet_name, relative_path = entry.get("facet"), entry.get("path")
+            facet_name, relative_path = entry.get("dictionary_id"), entry.get("path")
             if not isinstance(facet_name, str) or not isinstance(relative_path, str):
                 report.add(
                     taxonomy_root / "taxonomy.json",
@@ -716,12 +964,25 @@ def _load_contract_registries(
                 )
                 continue
             pairs.append((facet_name, relative_path))
-        paths = [path for _, path in pairs]
-        if paths != sorted(paths):
-            report.add(taxonomy_root / "taxonomy.json", "registry paths must be sorted")
-        expected_pairs = sorted(TAXONOMY_FILES.items(), key=lambda item: item[1])
+            source_path = taxonomy_root / relative_path
+            try:
+                actual_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
+                if entry.get("sha256") != actual_sha256:
+                    report.add(
+                        taxonomy_root / "taxonomy.json",
+                        f"registries/{index}/sha256 mismatch; expected {actual_sha256}",
+                    )
+            except OSError as exc:
+                report.add(source_path, f"cannot hash taxonomy dictionary: {exc}")
+        ids = [facet for facet, _path in pairs]
+        if ids != sorted(ids, key=str.encode):
+            report.add(taxonomy_root / "taxonomy.json", "dictionary IDs must be bytewise sorted")
+        expected_pairs = sorted(TAXONOMY_FILES.items(), key=lambda item: item[0].encode())
         if pairs != expected_pairs:
-            report.add(taxonomy_root / "taxonomy.json", "registry facet/path set is incomplete")
+            report.add(
+                taxonomy_root / "taxonomy.json",
+                "registry dictionary/path set is incomplete",
+            )
     except (OSError, DataError, AttributeError) as exc:
         report.add(taxonomy_root / "taxonomy.json", f"invalid taxonomy manifest: {exc}")
 
@@ -731,6 +992,14 @@ def _load_contract_registries(
             registry = load_json(path)
             if not isinstance(registry, dict):
                 raise DataError("registry must be an object")
+            _validate_document_schema(
+                registry,
+                "taxonomy-dictionary.schema.json",
+                path,
+                schemas,
+                schema_registry,
+                report,
+            )
             if set(registry) != {"taxonomy_version", "facet", "entries"}:
                 report.add(path, "taxonomy registry contains missing or unknown top-level fields")
             if registry.get("taxonomy_version") != dataset.get("taxonomy_version"):
@@ -842,93 +1111,222 @@ def _load_contract_registries(
     except (OSError, DataError, KeyError, TypeError) as exc:
         report.add(root / "schemas" / "v1", f"cannot compare schema and taxonomy: {exc}")
 
+    concepts_by_id: dict[str, dict[str, Any]] = {}
+    concepts_path = taxonomy_root / "concepts.json"
+    try:
+        concepts_registry = load_json(concepts_path)
+        if not isinstance(concepts_registry, dict):
+            raise DataError("concept registry must be an object")
+        _validate_document_schema(
+            concepts_registry,
+            "concepts-registry.schema.json",
+            concepts_path,
+            schemas,
+            schema_registry,
+            report,
+        )
+        registry_id = concepts_registry.get("registry_id")
+        if not isinstance(registry_id, str) or not re.fullmatch(
+            r"concepts-v1\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[1-9][0-9]*",
+            registry_id,
+        ):
+            report.add(concepts_path, "registry_id must be a content-versioned concepts-v1 ID")
+        concepts = concepts_registry.get("concepts")
+        if not isinstance(concepts, list):
+            raise DataError("concepts must be an array")
+        concept_ids = [item.get("id") for item in concepts if isinstance(item, dict)]
+        if (
+            len(concept_ids) != len(concepts)
+            or any(not isinstance(identifier, str) for identifier in concept_ids)
+            or concept_ids != sorted(concept_ids, key=str.encode)
+            or len(concept_ids) != len(set(concept_ids))
+        ):
+            report.add(concepts_path, "concept IDs must be bytewise sorted and unique")
+        concepts_by_id = {
+            str(item["id"]): item
+            for item in concepts
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+        for identifier, concept in concepts_by_id.items():
+            for language, aliases in concept.get("aliases", {}).items():
+                if isinstance(aliases, list) and aliases != sorted(aliases, key=str.encode):
+                    report.add(
+                        concepts_path,
+                        f"concept {identifier!r} aliases/{language} must be bytewise sorted",
+                    )
+            parents = concept.get("parent_ids", [])
+            if isinstance(parents, list):
+                if parents != sorted(parents, key=str.encode):
+                    report.add(
+                        concepts_path,
+                        f"concept {identifier!r} parent_ids must be bytewise sorted",
+                    )
+                for parent in parents:
+                    if parent == identifier or parent not in concepts_by_id:
+                        report.add(
+                            concepts_path,
+                            f"concept {identifier!r} has an invalid parent {parent!r}",
+                        )
+            replacement = concept.get("replaced_by")
+            if replacement is not None and (
+                replacement not in concepts_by_id
+                or concepts_by_id[replacement].get("status") != "active"
+            ):
+                report.add(
+                    concepts_path,
+                    f"concept {identifier!r} replacement must name an active concept",
+                )
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit_concept(identifier: str) -> None:
+            if identifier in visiting:
+                raise DataError(f"concept hierarchy contains a cycle at {identifier!r}")
+            if identifier in visited:
+                return
+            visiting.add(identifier)
+            for parent in concepts_by_id[identifier].get("parent_ids", []):
+                if parent in concepts_by_id:
+                    visit_concept(parent)
+            visiting.remove(identifier)
+            visited.add(identifier)
+
+        for identifier in sorted(concepts_by_id, key=str.encode):
+            visit_concept(identifier)
+    except (OSError, DataError, AttributeError, TypeError) as exc:
+        report.add(concepts_path, f"invalid concept registry: {exc}")
+
+    rights_profiles: dict[str, dict[str, Any]] = {}
+    rights_path = root / "rights" / "profiles.json"
+    try:
+        rights_registry = load_json(rights_path)
+        if not isinstance(rights_registry, dict):
+            raise DataError("rights registry must be an object")
+        _validate_document_schema(
+            rights_registry,
+            "rights-profiles-registry.schema.json",
+            rights_path,
+            schemas,
+            schema_registry,
+            report,
+        )
+        registry_id = rights_registry.get("registry_id")
+        if not isinstance(registry_id, str) or not re.fullmatch(
+            r"rights-profiles-v1\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[1-9][0-9]*",
+            registry_id,
+        ):
+            report.add(rights_path, "registry_id must be a content-versioned rights-v1 ID")
+        profiles = rights_registry.get("profiles")
+        if not isinstance(profiles, list):
+            raise DataError("rights profiles must be an array")
+        profile_ids = [item.get("rights_profile_id") for item in profiles if isinstance(item, dict)]
+        if (
+            len(profile_ids) != len(profiles)
+            or any(not isinstance(identifier, str) for identifier in profile_ids)
+            or profile_ids != sorted(profile_ids, key=str.encode)
+            or len(profile_ids) != len(set(profile_ids))
+        ):
+            report.add(rights_path, "rights profile IDs must be bytewise sorted and unique")
+        rights_profiles = {
+            str(item["rights_profile_id"]): item
+            for item in profiles
+            if isinstance(item, dict) and isinstance(item.get("rights_profile_id"), str)
+        }
+        default_id = rights_registry.get("project_default_profile_id")
+        default_profile = rights_profiles.get(str(default_id))
+        if (
+            default_id != dataset.get("rights_defaults", {}).get("project_profile_id")
+            or default_profile is None
+            or default_profile.get("status") != "active"
+            or default_profile.get("applies_to") != {"project": "mojilex"}
+        ):
+            report.add(rights_path, "project default must resolve to the active project profile")
+        for profile_id, profile in rights_profiles.items():
+            start = _parse_timestamp(profile["effective_from"])
+            if (
+                "effective_until" in profile
+                and _parse_timestamp(profile["effective_until"]) <= start
+            ):
+                report.add(rights_path, f"rights profile {profile_id!r} has an invalid interval")
+            for operation, decision in profile.get("operations", {}).items():
+                conditions = decision.get("conditions", []) if isinstance(decision, dict) else []
+                if isinstance(conditions, list) and conditions != sorted(
+                    conditions, key=str.encode
+                ):
+                    report.add(
+                        rights_path,
+                        f"rights profile {profile_id!r} {operation} conditions are not sorted",
+                    )
+            for basis in profile.get("basis", []):
+                if not isinstance(basis, dict) or basis.get("kind") != "project-policy":
+                    continue
+                document = basis.get("document")
+                if not isinstance(document, str) or PurePosixPath(document).parts != (document,):
+                    report.add(rights_path, f"rights profile {profile_id!r} has unsafe basis path")
+                    continue
+                try:
+                    digest = hashlib.sha256((root / document).read_bytes()).hexdigest()
+                    if basis.get("document_sha256") != digest:
+                        report.add(
+                            rights_path,
+                            f"rights profile {profile_id!r} basis digest mismatch",
+                        )
+                except OSError as exc:
+                    report.add(rights_path, f"cannot resolve rights basis {document!r}: {exc}")
+    except (OSError, DataError, AttributeError, KeyError, TypeError, ValueError) as exc:
+        report.add(rights_path, f"invalid rights registry: {exc}")
+
     for platform in dataset.get("platforms", []):
         path = root / "platforms" / f"{platform}.json"
         try:
             registry = load_json(path)
             if not isinstance(registry, dict) or registry.get("platform") != platform:
                 raise DataError("platform registry identity mismatch")
-            if registry.get("schema_version") != dataset.get("schema_version"):
-                report.add(path, "platform registry schema_version differs from dataset")
-            if platform == "telegram":
-                expected_fields = {
-                    "schema_version",
-                    "platform",
-                    "adapter_contract",
-                    "item_facts",
-                    "documented_contexts",
-                    "official_sources",
-                }
-                if set(registry) != expected_fields:
-                    report.add(path, "Telegram registry fields are incomplete or unknown")
-                if registry.get("adapter_contract") != "telegram-v1":
-                    report.add(path, "Telegram adapter_contract must equal telegram-v1")
-                needs_repainting = registry.get("item_facts", {}).get("needs_repainting")
-                if needs_repainting != {
-                    "source": "bot-api-sticker",
-                    "mapping": {"false": "fixed", "true": "platform-adaptive"},
-                    "applies_to": [{"role": "primary"}],
-                }:
-                    report.add(path, "Telegram needs_repainting mapping differs from the contract")
-                contexts = registry.get("documented_contexts")
-                if not isinstance(contexts, list):
-                    report.add(path, "Telegram documented_contexts must be an array")
-                else:
-                    context_ids = [
-                        item.get("context") for item in contexts if isinstance(item, dict)
-                    ]
-                    valid_context_ids = all(
-                        isinstance(context_id, str) for context_id in context_ids
-                    )
-                    if (
-                        len(context_ids) != len(contexts)
-                        or not valid_context_ids
-                        or set(context_ids) != taxonomy.get("platform_contexts", set())
-                    ):
-                        report.add(path, "Telegram documented contexts differ from taxonomy")
-                    if valid_context_ids and len(context_ids) != len(set(context_ids)):
-                        report.add(path, "Telegram documented contexts must be unique")
-                    for index, item in enumerate(contexts):
-                        if not isinstance(item, dict) or set(item) != {
-                            "context",
-                            "adaptive_rendering",
-                            "recommendation_catalog",
-                        }:
-                            report.add(
-                                path,
-                                f"documented_contexts/{index} has invalid fields",
-                            )
-                            continue
-                        if item.get("adaptive_rendering") != "documented":
-                            report.add(
-                                path,
-                                f"documented_contexts/{index} must document adaptive rendering",
-                            )
-                        expected_catalog = (
-                            "requires-mtproto-observation"
-                            if item.get("context") in {"chat-photo", "profile-photo"}
-                            else "not-observed"
-                        )
-                        if item.get("recommendation_catalog") != expected_catalog:
-                            report.add(
-                                path,
-                                f"documented_contexts/{index} recommendation catalog is invalid",
-                            )
-                sources = registry.get("official_sources")
-                if (
-                    not isinstance(sources, list)
-                    or not sources
-                    or any(
-                        not isinstance(source, str)
-                        or not source.startswith("https://core.telegram.org/")
-                        for source in sources
-                    )
-                    or (
-                        all(isinstance(source, str) for source in sources)
-                        and len(sources) != len(set(sources))
-                    )
+            _validate_document_schema(
+                registry,
+                "platform-profile.schema.json",
+                path,
+                schemas,
+                schema_registry,
+                report,
+            )
+            capabilities = registry.get("capabilities")
+            if not isinstance(capabilities, list):
+                raise DataError("platform capabilities must be an array")
+            capability_ids = [
+                item.get("capability_id") for item in capabilities if isinstance(item, dict)
+            ]
+            if (
+                len(capability_ids) != len(capabilities)
+                or any(not isinstance(identifier, str) for identifier in capability_ids)
+                or capability_ids != sorted(capability_ids, key=str.encode)
+                or len(capability_ids) != len(set(capability_ids))
+            ):
+                report.add(path, "platform capabilities must be bytewise sorted and unique")
+            for index, capability in enumerate(capabilities):
+                if not isinstance(capability, dict):
+                    continue
+                if capability.get("authority_class") in {
+                    "official-api",
+                    "official-documentation",
+                } and not str(capability.get("evidence_url", "")).startswith(
+                    "https://core.telegram.org/"
                 ):
-                    report.add(path, "Telegram official_sources must be unique core.telegram URLs")
+                    report.add(
+                        path,
+                        f"capabilities/{index}: official Telegram evidence must use "
+                        "core.telegram.org",
+                    )
+            default_id = registry.get("default_rights_profile_id")
+            if isinstance(default_id, str):
+                selected = rights_profiles.get(default_id)
+                if (
+                    selected is None
+                    or selected.get("status") != "active"
+                    or selected.get("applies_to") != {"platform": platform}
+                ):
+                    report.add(path, "platform rights default must resolve to its active profile")
             _check_unicode(registry, str(path), report)
         except (OSError, DataError) as exc:
             report.add(path, f"invalid platform registry: {exc}")
@@ -1238,7 +1636,7 @@ def _load_contract_registries(
                 report.add(qualification_path, f"entries/{index}: invalid validity timestamp")
     except (OSError, DataError, AttributeError) as exc:
         report.add(qualification_path, f"invalid qualification registry: {exc}")
-    return taxonomy, qualifications
+    return taxonomy, qualifications, concepts_by_id
 
 
 def _qualification_matches(
@@ -1438,6 +1836,7 @@ def _check_identity_and_integrity(
     records: RepositoryRecords,
     valid_locations: set[str],
     qualifications: dict[str, dict[str, Any]],
+    concepts_by_id: dict[str, dict[str, Any]],
     report: Report,
 ) -> None:
     try:
@@ -1492,6 +1891,28 @@ def _check_identity_and_integrity(
                 )
             else:
                 native_keys[key] = record
+
+    for record in records.emojis:
+        emoji = record.value
+        concept_ids = emoji.get("concept_ids")
+        if not isinstance(concept_ids, list):
+            continue
+        if concept_ids != sorted(concept_ids, key=str.encode):
+            report.add(record.location, "concept_ids must be bytewise sorted")
+        for concept_id in concept_ids:
+            concept = concepts_by_id.get(concept_id) if isinstance(concept_id, str) else None
+            if concept is None:
+                report.add(record.location, f"unknown concept_id: {concept_id!r}")
+            elif (
+                emoji.get("availability", {}).get("status") == "active"
+                and concept.get("status") != "active"
+            ):
+                report.add(record.location, f"active emoji uses inactive concept: {concept_id!r}")
+        if (
+            emoji.get("availability", {}).get("status") == "active"
+            and emoji.get("concept_mapping_status") != "complete"
+        ):
+            report.add(record.location, "active emoji requires complete concept mapping")
 
     collections = {record.value.get("id"): record for record in records.collections}
     emojis = {record.value.get("id"): record for record in records.emojis}
@@ -1899,46 +2320,95 @@ def _check_examples(
                 report.add(vector_path, f"phash64/{index}: invalid vector: {exc}")
         group_vectors = vectors["duplicate_group_ids"]
         group_namespace = uuid.UUID(group_vectors["namespace"])
-        binary = group_vectors["binary_media"]
-        if (
-            jcs_sha256({"byte_size": binary["byte_size"], "sha256": binary["source_sha256"]})
-            != binary["content_digest"]
-        ):
-            report.add(vector_path, "binary duplicate group content digest differs")
-        for key in ("binary_media", "decoded_media"):
-            vector = group_vectors[key]
-            name = "\0".join(
+        group_cases = {
+            "binary_media": (
                 [
-                    "duplicate-group",
-                    vector["group_type"],
-                    vector["scope"],
-                    vector["profile"],
-                    vector["content_digest"],
-                ]
-            )
-            if name.encode("utf-8").hex() != vector["nul_joined_utf8_hex"]:
-                report.add(vector_path, f"{key} duplicate group name bytes differ")
+                    "duplicate-group-v1",
+                    "binary-exact",
+                    "media",
+                    {"present": False},
+                    group_vectors["binary_media"]["source_sha256"],
+                    group_vectors["binary_media"]["byte_size"],
+                ],
+                {
+                    "source_sha256": group_vectors["binary_media"]["source_sha256"],
+                    "source_byte_size": group_vectors["binary_media"]["byte_size"],
+                },
+            ),
+            "decoded_media": (
+                [
+                    "duplicate-group-v1",
+                    "decoded-exact",
+                    "media",
+                    {
+                        "present": True,
+                        "value": group_vectors["decoded_media"]["decoded_profile_id"],
+                    },
+                    group_vectors["decoded_media"]["decoded_payload_sha256"],
+                    {"present": False},
+                ],
+                {
+                    "decoded_profile_id": group_vectors["decoded_media"]["decoded_profile_id"],
+                    "decoded_payload_sha256": group_vectors["decoded_media"][
+                        "decoded_payload_sha256"
+                    ],
+                },
+            ),
+            "binary_entity": (
+                [
+                    "duplicate-group-v1",
+                    "binary-exact",
+                    "entity",
+                    {"present": False},
+                    group_vectors["binary_entity"]["media_set_root_sha256"],
+                    {"present": False},
+                ],
+                {"media_set_root_sha256": group_vectors["binary_entity"]["media_set_root_sha256"]},
+            ),
+            "decoded_entity": (
+                [
+                    "duplicate-group-v1",
+                    "decoded-exact",
+                    "entity",
+                    {
+                        "present": True,
+                        "value": group_vectors["decoded_entity"]["decoded_profile_id"],
+                    },
+                    group_vectors["decoded_entity"]["media_set_root_sha256"],
+                    {"present": False},
+                ],
+                {
+                    "decoded_profile_id": group_vectors["decoded_entity"]["decoded_profile_id"],
+                    "media_set_root_sha256": group_vectors["decoded_entity"][
+                        "media_set_root_sha256"
+                    ],
+                },
+            ),
+            "reviewed_same_artwork": (
+                [
+                    "duplicate-group-v1",
+                    "reviewed-same-artwork",
+                    "entity",
+                    {"present": False},
+                    {"present": False},
+                    sorted(group_vectors["reviewed_same_artwork"]["members"]),
+                ],
+                {"members": group_vectors["reviewed_same_artwork"]["members"]},
+            ),
+        }
+        for key, (preimage, arguments) in group_cases.items():
+            vector = group_vectors[key]
+            if jcs_bytes(preimage).hex() != vector["preimage_jcs_utf8_hex"]:
+                report.add(vector_path, f"{key} duplicate group preimage bytes differ")
             calculated = duplicate_group_id(
                 group_namespace,
-                vector["group_type"],
-                vector["scope"],
-                vector["profile"],
-                vector["content_digest"],
+                group_type=vector["group_type"],
+                scope=vector["scope"],
+                **arguments,
             )
             if calculated != vector["expected_id"]:
                 report.add(vector_path, f"{key} duplicate group ID mismatch; {calculated}")
         reviewed = group_vectors["reviewed_same_artwork"]
-        reviewed_name = "\0".join(
-            [
-                "duplicate-group",
-                "reviewed-same-artwork",
-                "entity",
-                "",
-                *sorted(reviewed["members"]),
-            ]
-        )
-        if reviewed_name.encode("utf-8").hex() != reviewed["nul_joined_utf8_hex"]:
-            report.add(vector_path, "reviewed group name bytes differ")
         calculated = reviewed_same_artwork_group_id(group_namespace, reviewed["members"])
         if calculated != reviewed["expected_id"]:
             report.add(vector_path, f"reviewed group ID mismatch; calculated {calculated}")
@@ -2164,8 +2634,25 @@ def _check_repository_file_contents(path: Path, relative: PurePosixPath, report:
     def scan_text(text: str) -> None:
         nonlocal overlap
         window = overlap + text
+        views = [window]
+        if re.search(r"%[0-9A-Fa-f]{2}", window):
+            with contextlib.suppress(UnicodeEncodeError, ValueError):
+                views.append(unquote_to_bytes(window).decode("utf-8", errors="ignore"))
+        decoded: list[str] = []
+        for view in views:
+            for match in BASE64_SECRET_CANDIDATE.finditer(view):
+                candidate = match.group(0).encode("ascii")
+                try:
+                    padding = b"=" * ((4 - len(candidate) % 4) % 4)
+                    value = base64.b64decode(candidate + padding, altchars=b"-_", validate=True)
+                except (ValueError, binascii.Error):
+                    continue
+                if len(value) >= 16:
+                    decoded.append(value.decode("utf-8", errors="ignore"))
         for name, pattern in SECRET_PATTERNS.items():
-            if name not in detected_secrets and pattern.search(window):
+            if name not in detected_secrets and any(
+                pattern.search(view) for view in (*views, *decoded)
+            ):
                 detected_secrets.add(name)
         overlap = window[-FILE_SCAN_OVERLAP:]
 
@@ -2205,9 +2692,12 @@ def _check_repository_file_contents(path: Path, relative: PurePosixPath, report:
         report.add(relative, "UTF-8 BOM is forbidden")
     if contains_cr:
         report.add(relative, "CR/CRLF line endings are forbidden")
-    if total_size and not tail.endswith(b"\n"):
+    is_canonical_analysis_profile = (
+        relative.parts[:1] == ("analysis-profiles",) and relative.name in ANALYSIS_PROFILE_FILES
+    )
+    if total_size and not tail.endswith(b"\n") and not is_canonical_analysis_profile:
         report.add(relative, "text file must end with exactly one LF")
-    elif tail.endswith(b"\n\n"):
+    elif not is_canonical_analysis_profile and tail.endswith(b"\n\n"):
         report.add(relative, "text file has more than one final LF")
     if invalid_utf8:
         report.add(relative, "non-UTF-8/binary file is forbidden")
@@ -2271,7 +2761,14 @@ def _check_repository_files(root: Path, report: Report) -> None:
             report.add(relative, "credential file is forbidden")
         lowered_parts = [part.lower() for part in relative.parts]
         forbidden_markers = ("candidate", "preview", "comparison", "lsh", "decoded")
-        if any(any(marker in part for marker in forbidden_markers) for part in lowered_parts):
+        normative_marker_paths = {
+            "analysis-profiles/concept-candidates-v1.json",
+            "schemas/distribution/v1/cli-resolution-candidate.schema.json",
+            "schemas/distribution/v1/concept-candidate-profile.schema.json",
+        }
+        if relative.as_posix() not in normative_marker_paths and any(
+            any(marker in part for marker in forbidden_markers) for part in lowered_parts
+        ):
             report.add(relative, "local dedupe candidate/preview/index artifact is forbidden")
         _check_repository_file_contents(path, relative, report)
 
@@ -2282,14 +2779,23 @@ def _check_deterministic_build(root: Path, report: Report) -> None:
             from .build_index import build_index
         else:
             from build_index import build_index  # type: ignore[no-redef]
+            from validate_distribution import validate_distribution  # type: ignore[no-redef]
+
+        if __package__:
+            from .validate_distribution import validate_distribution
 
         with tempfile.TemporaryDirectory(prefix="mojilex-index-check-") as temporary:
             base = Path(temporary)
             first = base / "first"
             second = base / "second"
             fixed_revision = "0" * 40
-            build_index(root, first, revision=fixed_revision)
-            build_index(root, second, revision=fixed_revision)
+            build_args = {
+                "revision": fixed_revision,
+                "snapshot_id": "data-2026.09.11.1",
+                "source_date_epoch": 1789171199,
+            }
+            build_index(root, first, **build_args)
+            build_index(root, second, **build_args)
             first_files = {
                 path.relative_to(first): path.read_bytes()
                 for path in first.rglob("*")
@@ -2302,6 +2808,9 @@ def _check_deterministic_build(root: Path, report: Report) -> None:
             }
             if first_files != second_files:
                 report.add(root, "build-index is not byte-for-byte deterministic")
+            distribution = validate_distribution(root, first)
+            for error in distribution.errors:
+                report.add(root, f"distribution conformance: {error}")
     except Exception as exc:
         report.add(root, f"build-index check failed: {exc}")
 
@@ -2314,7 +2823,6 @@ def validate_repository(
     if _check_tracked_transaction_artifacts(root, report):
         return report
     schemas, schema_by_type, registry = _schema_environment(root, report)
-    del schemas
 
     dataset: dict[str, Any] = {}
     try:
@@ -2330,7 +2838,11 @@ def validate_repository(
     except (OSError, DataError) as exc:
         report.add(root / "dataset.json", str(exc))
 
-    _, qualifications = _load_contract_registries(root, dataset, report)
+    _validate_analysis_profiles(root, dataset, schemas, registry, report)
+
+    _, qualifications, concepts_by_id = _load_contract_registries(
+        root, dataset, schemas, registry, report
+    )
 
     try:
         records = discover_records(root)
@@ -2340,7 +2852,14 @@ def validate_repository(
 
     valid_locations = _validate_record_schemas(records, schema_by_type, registry, report)
     _check_paths_and_canonical(root, records, report)
-    _check_identity_and_integrity(dataset, records, valid_locations, qualifications, report)
+    _check_identity_and_integrity(
+        dataset,
+        records,
+        valid_locations,
+        qualifications,
+        concepts_by_id,
+        report,
+    )
     if include_examples:
         _check_examples(root, dataset, schema_by_type, registry, report)
     _check_repository_files(root, report)

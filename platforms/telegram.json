@@ -1,52 +1,19 @@
 {
-  "schema_version": "1.0.0",
+  "profile_schema_version": "1.0.0",
   "platform": "telegram",
-  "adapter_contract": "telegram-v1",
-  "item_facts": {
-    "needs_repainting": {
-      "source": "bot-api-sticker",
-      "mapping": {
-        "false": "fixed",
-        "true": "platform-adaptive"
-      },
-      "applies_to": [
-        {
-          "role": "primary"
-        }
-      ]
+  "profile_version": "telegram-capabilities-v1",
+  "adapter_contract_version": "1.0.0",
+  "default_rights_profile_id": "telegram-index-only-v1",
+  "capabilities": [
+    {
+      "capability_id": "telegram.message-custom-emoji",
+      "surface": "message",
+      "status": "supported",
+      "applies_to": "custom_emoji",
+      "authority_class": "official-documentation",
+      "evidence_url": "https://core.telegram.org/stickers#custom-emoji",
+      "observed_at": "2026-09-11T00:00:00Z",
+      "freshness_period_seconds": 7776000
     }
-  },
-  "documented_contexts": [
-    {
-      "context": "message",
-      "adaptive_rendering": "documented",
-      "recommendation_catalog": "not-observed"
-    },
-    {
-      "context": "emoji-status",
-      "adaptive_rendering": "documented",
-      "recommendation_catalog": "not-observed"
-    },
-    {
-      "context": "topic-icon",
-      "adaptive_rendering": "documented",
-      "recommendation_catalog": "not-observed"
-    },
-    {
-      "context": "chat-photo",
-      "adaptive_rendering": "documented",
-      "recommendation_catalog": "requires-mtproto-observation"
-    },
-    {
-      "context": "profile-photo",
-      "adaptive_rendering": "documented",
-      "recommendation_catalog": "requires-mtproto-observation"
-    }
-  ],
-  "official_sources": [
-    "https://core.telegram.org/api/custom-emoji",
-    "https://core.telegram.org/api/files#sticker-profile-pictures",
-    "https://core.telegram.org/bots/api#sticker",
-    "https://core.telegram.org/stickers#custom-emoji"
   ]
 }

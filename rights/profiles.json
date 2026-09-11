@@ -1,0 +1,56 @@
+{
+  "registry_schema_version": "1.0.0",
+  "registry_type": "rights-profiles",
+  "registry_id": "rights-profiles-v1.2026-09-11.1",
+  "project_default_profile_id": "mojilex-metadata-only-v1",
+  "profiles": [
+    {
+      "rights_profile_id": "mojilex-metadata-only-v1",
+      "profile_version": "1.0.0",
+      "status": "active",
+      "applies_to": {"project": "mojilex"},
+      "dataset_grant": {
+        "metadata_and_annotations_license": "CC0-1.0",
+        "exclusions": ["characters", "logos", "source-media", "third-party-copyright", "trademarks"]
+      },
+      "operations": {
+        "publish-metadata": {"decision": "allow"},
+        "publish-generated-annotations": {"decision": "allow"},
+        "store-source-media": {"decision": "conditional", "conditions": ["transient-run-only"]},
+        "redistribute-source-media": {"decision": "not-granted"},
+        "publish-derived-preview": {"decision": "not-granted"},
+        "send-media-to-external-ai": {"decision": "conditional", "conditions": ["operator-explicit-consent", "provider-disclosed"]},
+        "use-media-in-public-benchmark": {"decision": "not-granted"}
+      },
+      "basis": [
+        {"kind": "project-policy", "document": "LICENSING.md", "document_sha256": "f4938cc6a29bce9410f9d2de9e351b9ba8ba830146d351c5c1e0bd6dac50b9e3"}
+      ],
+      "attribution_required": false,
+      "effective_from": "2026-09-11T00:00:00Z"
+    },
+    {
+      "rights_profile_id": "telegram-index-only-v1",
+      "profile_version": "1.0.0",
+      "status": "active",
+      "applies_to": {"platform": "telegram"},
+      "dataset_grant": {
+        "metadata_and_annotations_license": "CC0-1.0",
+        "exclusions": ["characters", "logos", "source-media", "third-party-copyright", "trademarks"]
+      },
+      "operations": {
+        "publish-metadata": {"decision": "allow"},
+        "publish-generated-annotations": {"decision": "allow"},
+        "store-source-media": {"decision": "conditional", "conditions": ["transient-run-only"]},
+        "redistribute-source-media": {"decision": "not-granted"},
+        "publish-derived-preview": {"decision": "not-granted"},
+        "send-media-to-external-ai": {"decision": "conditional", "conditions": ["operator-explicit-consent", "provider-disclosed"]},
+        "use-media-in-public-benchmark": {"decision": "not-granted"}
+      },
+      "basis": [
+        {"kind": "project-policy", "document": "LICENSING.md", "document_sha256": "f4938cc6a29bce9410f9d2de9e351b9ba8ba830146d351c5c1e0bd6dac50b9e3"}
+      ],
+      "attribution_required": false,
+      "effective_from": "2026-09-11T00:00:00Z"
+    }
+  ]
+}

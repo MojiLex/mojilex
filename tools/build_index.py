@@ -6,7 +6,6 @@ import os
 import re
 import shutil
 import stat
-import subprocess
 import sys
 import tempfile
 import uuid
@@ -29,6 +28,7 @@ if __package__:
         sha256_bytes,
         sha256_file,
     )
+    from .git_provenance import resolve_head_revision, verify_release_source
 else:
     from common import (  # type: ignore[no-redef]
         DataError,
@@ -43,6 +43,7 @@ else:
         sha256_bytes,
         sha256_file,
     )
+    from git_provenance import resolve_head_revision, verify_release_source
 
 
 PAYLOAD_NAMES = (
@@ -644,36 +645,42 @@ def build_index(root: Path, output: Path, *, revision: str) -> dict[str, Any]:
     return manifest
 
 
+# SPEC-003 owns the public builder contract.  The legacy helpers above remain temporarily
+# importable for migration diagnostics, while all callers of build_index/PAYLOAD_NAMES use
+# the closed Stage-A implementation.
+if __package__:
+    from .spec003_build import PAYLOAD_NAMES, build_index
+else:
+    from spec003_build import PAYLOAD_NAMES, build_index  # type: ignore[assignment,no-redef]
+
+
 def _git_revision(root: Path) -> str:
-    result = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=root,
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-    )
-    revision = result.stdout.strip().lower()
-    if result.returncode or not re.fullmatch(r"[0-9a-f]{40}", revision):
-        raise ValueError(
-            "repository has no commit; pass --revision with the intended full commit SHA"
-        )
-    return revision
+    return resolve_head_revision(root).commit
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Build deterministic MojiLex aggregate indexes")
+    parser = argparse.ArgumentParser(description="Build a deterministic SPEC-003 snapshot")
     parser.add_argument("root", nargs="?", default=".", type=Path)
     parser.add_argument("--output", type=Path, default=Path("dist"))
     parser.add_argument("--revision", help="full lowercase Git SHA (defaults to HEAD)")
+    parser.add_argument("--snapshot-id", help="immutable data-YYYY.MM.DD.N snapshot identity")
+    parser.add_argument("--source-date-epoch", type=int, help="immutable release/tag UTC epoch")
     parser.add_argument(
         "--skip-validation",
         action="store_true",
         help="build without the normal strict repository validation",
     )
     args = parser.parse_args(argv)
-    root = args.root.resolve()
+    root = Path(os.path.abspath(args.root))
     output = args.output if args.output.is_absolute() else root / args.output
+    if args.snapshot_id is None or args.source_date_epoch is None:
+        parser.error("--snapshot-id and --source-date-epoch are required immutable release inputs")
+    try:
+        revision = args.revision if args.revision else _git_revision(root)
+        provenance = verify_release_source(root, revision)
+    except (OSError, ValueError) as exc:
+        print(f"build-index failed: {exc}", file=sys.stderr)
+        return 1
     if not args.skip_validation:
         if __package__:
             from .validate import validate_repository
@@ -687,13 +694,24 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"- {error}", file=sys.stderr)
             return 1
     try:
-        revision = args.revision.lower() if args.revision else _git_revision(root)
-        manifest = build_index(root, output, revision=revision)
+        manifest = build_index(
+            root,
+            output,
+            revision=revision,
+            snapshot_id=args.snapshot_id,
+            source_date_epoch=args.source_date_epoch,
+        )
+        verify_release_source(root, revision)
+        if (
+            manifest["git"].get("commit") != provenance.commit
+            or manifest["git"].get("object_format") != provenance.object_format
+        ):
+            raise ValueError("manifest Git provenance differs from verified source commit")
     except (OSError, ValueError, KeyError) as exc:
         print(f"build-index failed: {exc}", file=sys.stderr)
         return 1
     print(
-        f"Built {output} for {manifest['git_commit']} "
+        f"Built {output} for {manifest['git']['commit']} "
         f"({manifest['counts']['emojis']} emoji records)."
     )
     return 0

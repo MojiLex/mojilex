@@ -20,9 +20,13 @@ env:
 
 jobs:
   schema-integrity-canonical-policy-no-media-secret-scan:
-    name: schema / integrity / canonical / policy / no-media / secret-scan
-    runs-on: ubuntu-latest
+    name: schema / integrity / policy / no-media (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -39,9 +43,13 @@ jobs:
         run: python tools/validate.py . --strict
 
   tests:
-    name: tests
-    runs-on: ubuntu-latest
+    name: tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -62,9 +70,13 @@ jobs:
         run: python -m unittest discover -s tests -v
 
   build-index:
-    name: build-index reproducibility
-    runs-on: ubuntu-latest
+    name: build-index reproducibility (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -79,6 +91,7 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
       - name: Build the same revision twice
         run: |
-          python tools/build_index.py . --output work/dist-first --revision "${GITHUB_SHA}"
-          python tools/build_index.py . --output work/dist-second --revision "${GITHUB_SHA}" --skip-validation
-          diff --recursive --brief work/dist-first work/dist-second
+          python tools/build_index.py . --output work/dist-first --revision "${{ github.sha }}" --snapshot-id data-2026.09.11.1 --source-date-epoch 1789171199
+          python tools/build_index.py . --output work/dist-second --revision "${{ github.sha }}" --snapshot-id data-2026.09.11.1 --source-date-epoch 1789171199 --skip-validation
+          python tools/validate_distribution.py . work/dist-first
+          python -c "from pathlib import Path; a=Path('work/dist-first'); b=Path('work/dist-second'); left={p.relative_to(a):p.read_bytes() for p in a.rglob('*') if p.is_file()}; right={p.relative_to(b):p.read_bytes() for p in b.rglob('*') if p.is_file()}; assert left == right, 'distribution builds differ'"

@@ -9,6 +9,7 @@ from pathlib import Path
 from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.build_index import build_index
 from tools.common import (
+    DataError,
     compact_json,
     entity_shard,
     expected_entity_id,
@@ -21,9 +22,15 @@ from tools.common import (
     reviewed_relation_sha256,
 )
 from tools.validate import validate_repository
+from tools.validate_distribution import validate_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = "fedcba9876543210fedcba9876543210fedcba98"
+BUILD_ARGS = {
+    "revision": REVISION,
+    "snapshot_id": "data-2026.09.11.1",
+    "source_date_epoch": 1789171199,
+}
 
 
 def _write_emoji(root: Path, emoji: dict) -> None:
@@ -331,13 +338,14 @@ class AddendumValidationTests(unittest.TestCase):
             second = _second_emoji(root, values["emoji"])
             _write_relation(root, values["emoji"], second)
             output = base / "dist"
-            manifest = build_index(root, output, revision=REVISION)
-            self.assertGreaterEqual(manifest["counts"]["duplicate_groups"], 4)
-            self.assertEqual(manifest["counts"]["visual_relations"], 1)
+            manifest = build_index(root, output, **BUILD_ARGS)
+            descriptors = {item["logical_name"]: item for item in manifest["artifacts"]}
+            self.assertGreaterEqual(descriptors["duplicate-groups"]["record_count"], 4)
+            self.assertEqual(descriptors["visual-relations"]["record_count"], 1)
             self.assertTrue((output / "collection-facets.jsonl").is_file())
             self.assertTrue((output / "duplicate-groups.jsonl").is_file())
             self.assertTrue((output / "visual-relations.jsonl").is_file())
-            self.assertEqual(load_json(output / "taxonomy.json")["taxonomy_version"], "1.0.0")
+            self.assertEqual(load_json(output / "taxonomy.json")["registry_type"], "facet-taxonomy")
             collection_facets = load_jsonl(output / "collection-facets.jsonl")[0]
             self.assertEqual(collection_facets["media_kind_counts"], {"video": 1})
             self.assertEqual(collection_facets["fixed_share_bp"], 10000)
@@ -347,6 +355,119 @@ class AddendumValidationTests(unittest.TestCase):
             search = load_jsonl(output / "search-en.jsonl")
             self.assertEqual(search[0]["facets"]["content_types"], ["animal", "reaction"])
             self.assertTrue(search[0]["duplicate_group_ids"])
+            distribution_report = validate_distribution(root, output)
+            self.assertEqual(
+                distribution_report.errors,
+                [],
+                "\n".join(distribution_report.errors),
+            )
+
+    def test_build_rejects_future_canonical_evidence_times(self) -> None:
+        mutations = {
+            "availability": lambda emoji: emoji["availability"].__setitem__(
+                "last_verified_at", "2026-09-12T00:00:00Z"
+            ),
+            "generation": lambda emoji: emoji["provenance"].__setitem__(
+                "generated_at", "2026-09-12T00:00:00Z"
+            ),
+            "review": lambda emoji: emoji["review"].__setitem__(
+                "reviewed_at", "2026-09-12T00:00:00Z"
+            ),
+        }
+        for field, mutate in mutations.items():
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
+                base = Path(temporary)
+                root = base / "repository"
+                root.mkdir()
+                copy_repository_contract(ROOT, root)
+                values = install_example_as_canonical(ROOT, root)
+                mutate(values["emoji"])
+                _write_emoji(root, values["emoji"])
+                with self.assertRaisesRegex(DataError, "future evidence"):
+                    build_index(root, base / "dist", **BUILD_ARGS)
+
+    def test_epoch_and_policy_inputs_are_explicit_in_every_eligibility_lineage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = base / "repository"
+            root.mkdir()
+            copy_repository_contract(ROOT, root)
+            values = install_example_as_canonical(ROOT, root)
+            second = _second_emoji(root, values["emoji"])
+            second["review"]["reviewed_content_sha256"] = reviewed_content_sha256(second)
+            _write_emoji(root, second)
+
+            before = build_index(root, base / "before", **BUILD_ARGS)
+
+            rights_path = root / "rights" / "profiles.json"
+            rights = load_json(rights_path)
+            telegram_rights = next(
+                profile
+                for profile in rights["profiles"]
+                if profile["rights_profile_id"] == "telegram-index-only-v1"
+            )
+            telegram_rights["effective_until"] = "2026-09-12T00:00:00Z"
+            rights_path.write_text(pretty_json(rights), encoding="utf-8", newline="")
+            rights_changed = build_index(root, base / "rights-changed", **BUILD_ARGS)
+
+            platform_path = root / "platforms" / "telegram.json"
+            platform = load_json(platform_path)
+            platform["capabilities"][0]["status"] = "unsupported"
+            platform_path.write_text(pretty_json(platform), encoding="utf-8", newline="")
+            platform_changed = build_index(root, base / "platform-changed", **BUILD_ARGS)
+
+            expired_args = {**BUILD_ARGS, "source_date_epoch": 1789171201}
+            expired = build_index(root, base / "expired", **expired_args)
+
+            affected = {
+                "emojis-active": set(),
+                "duplicate-groups": {"/profiles/dedupe"},
+                "duplicate-group-memberships": {"/profiles/dedupe"},
+                "collection-facets": {"/profiles/collection_dedupe"},
+                "search-en": {"/profiles/lexical_search"},
+                "search-ru": {"/profiles/lexical_search"},
+            }
+            common_policy_selectors = {
+                "/policies/platform_profiles",
+                "/policies/rights_profiles",
+            }
+
+            def descriptors(manifest: dict) -> dict[str, dict]:
+                return {item["logical_name"]: item for item in manifest["artifacts"]}
+
+            before_descriptors = descriptors(before)
+            rights_descriptors = descriptors(rights_changed)
+            platform_descriptors = descriptors(platform_changed)
+            expired_descriptors = descriptors(expired)
+            for logical_name, profile_selectors in affected.items():
+                with self.subTest(logical_name=logical_name):
+                    dependency = expired_descriptors[logical_name]["derived_from"]
+                    self.assertIn(
+                        "/build/source_date_epoch",
+                        {item["manifest_pointer"] for item in dependency["manifest_inputs"]},
+                    )
+                    self.assertEqual(
+                        {item["manifest_pointer"] for item in dependency["selectors"]},
+                        common_policy_selectors | profile_selectors,
+                    )
+                    self.assertNotEqual(
+                        before_descriptors[logical_name]["derived_from"],
+                        rights_descriptors[logical_name]["derived_from"],
+                    )
+                    self.assertNotEqual(
+                        rights_descriptors[logical_name]["derived_from"],
+                        platform_descriptors[logical_name]["derived_from"],
+                    )
+                    self.assertNotEqual(
+                        platform_descriptors[logical_name]["derived_from"],
+                        expired_descriptors[logical_name]["derived_from"],
+                    )
+                    self.assertNotEqual(
+                        platform_descriptors[logical_name]["payload_sha256"],
+                        expired_descriptors[logical_name]["payload_sha256"],
+                    )
+            report = validate_distribution(root, base / "expired")
+            self.assertEqual(report.errors, [], "\n".join(report.errors))
 
     def test_deprecated_taxonomy_id_has_unambiguous_replacement(self) -> None:
         registry = load_json(ROOT / "taxonomy" / "v1" / "content-types.json")
@@ -365,13 +486,13 @@ class AddendumValidationTests(unittest.TestCase):
                 pretty_json(taxonomy), encoding="utf-8", newline=""
             )
             telegram = load_json(root / "platforms" / "telegram.json")
-            telegram["item_facts"]["needs_repainting"]["mapping"]["true"] = "fixed"
+            telegram["capabilities"][0]["status"] = "invented"
             (root / "platforms" / "telegram.json").write_text(
                 pretty_json(telegram), encoding="utf-8", newline=""
             )
             report = validate_repository(root, include_examples=True, check_build=False)
-            self.assertTrue(any("facet/path set" in item for item in report.errors))
-            self.assertTrue(any("needs_repainting mapping" in item for item in report.errors))
+            self.assertTrue(any("taxonomy.json" in item for item in report.errors))
+            self.assertTrue(any("telegram.json" in item for item in report.errors))
 
 
 if __name__ == "__main__":

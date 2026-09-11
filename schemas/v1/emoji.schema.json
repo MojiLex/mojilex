@@ -17,6 +17,8 @@
     "facets",
     "fingerprints",
     "descriptions",
+    "concept_ids",
+    "concept_mapping_status",
     "semantic_tags",
     "content",
     "provenance",
@@ -83,6 +85,15 @@
     "descriptions": {
       "$ref": "https://schemas.mojilex.org/v1/common.schema.json#/$defs/descriptions"
     },
+    "concept_ids": {
+      "$ref": "https://schemas.mojilex.org/v1/common.schema.json#/$defs/conceptIds"
+    },
+    "concept_mapping_status": {
+      "enum": [
+        "pending",
+        "complete"
+      ]
+    },
     "semantic_tags": {
       "$ref": "https://schemas.mojilex.org/v1/common.schema.json#/$defs/semanticTags"
     },
@@ -106,6 +117,33 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "concept_mapping_status": {
+            "const": "pending"
+          }
+        },
+        "required": [
+          "concept_mapping_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "concept_ids": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "concept_ids": {
+            "minItems": 1,
+            "maxItems": 16
+          }
+        }
+      }
+    },
     {
       "if": {
         "properties": {

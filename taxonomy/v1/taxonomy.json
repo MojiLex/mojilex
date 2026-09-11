@@ -3,28 +3,34 @@
   "status": "active",
   "registries": [
     {
-      "facet": "color_families",
-      "path": "color-families.json"
+      "dictionary_id": "color_families",
+      "path": "color-families.json",
+      "sha256": "310319f326eff1c40c5cec9f6a0ab0bc0bba32a0633872ebe81752b7d324ee81"
     },
     {
-      "facet": "content_types",
-      "path": "content-types.json"
+      "dictionary_id": "content_types",
+      "path": "content-types.json",
+      "sha256": "81b8efb29f7ab66d521d68f1f9016a074868d800f09dc0ed93b49e64fb190199"
     },
     {
-      "facet": "platform_contexts",
-      "path": "platform-contexts.json"
+      "dictionary_id": "platform_contexts",
+      "path": "platform-contexts.json",
+      "sha256": "0847ae804df23c177f4e4789d090e757b0e0ad4cf1ce68703c501b215aa8ed16"
     },
     {
-      "facet": "styles",
-      "path": "styles.json"
+      "dictionary_id": "styles",
+      "path": "styles.json",
+      "sha256": "10269bcad518fae6eaa922253c255abd8dfaefc4c696d9c314f64fb8166b711b"
     },
     {
-      "facet": "suggested_uses",
-      "path": "suggested-uses.json"
+      "dictionary_id": "suggested_uses",
+      "path": "suggested-uses.json",
+      "sha256": "56414e0336cf076349405c3461540f16dc59eac8be4c07fe26d8257f7805e899"
     },
     {
-      "facet": "uncertainties",
-      "path": "uncertainties.json"
+      "dictionary_id": "uncertainties",
+      "path": "uncertainties.json",
+      "sha256": "d0a757153fb55e165a40b8c368c88695ec23e080591ebc82ea28d61a3e9a847b"
     }
   ]
 }

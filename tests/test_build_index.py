@@ -15,14 +15,22 @@ from tools.common import (
     compact_json,
     entity_shard,
     expected_entity_id,
+    jcs_bytes,
+    jcs_sha256,
     load_json,
     load_jsonl,
     pretty_json,
 )
 from tools.validate import validate_repository
+from tools.validate_distribution import validate_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = "0123456789abcdef0123456789abcdef01234567"
+BUILD_ARGS = {
+    "revision": REVISION,
+    "snapshot_id": "data-2026.09.11.1",
+    "source_date_epoch": 1789171199,
+}
 
 
 class BuildIndexTests(unittest.TestCase):
@@ -46,23 +54,23 @@ class BuildIndexTests(unittest.TestCase):
             copy_repository_contract(ROOT, repository)
             install_example_as_canonical(ROOT, repository)
             first, second = base / "first", base / "second"
-            build_index(repository, first, revision=REVISION)
-            build_index(repository, second, revision=REVISION)
+            build_index(repository, first, **BUILD_ARGS)
+            build_index(repository, second, **BUILD_ARGS)
             first_bytes = {
                 path.relative_to(first): path.read_bytes()
-                for path in first.iterdir()
+                for path in first.rglob("*")
                 if path.is_file()
             }
             second_bytes = {
                 path.relative_to(second): path.read_bytes()
-                for path in second.iterdir()
+                for path in second.rglob("*")
                 if path.is_file()
             }
             self.assertEqual(first_bytes, second_bytes)
-            build_index(repository, first, revision=REVISION)
+            build_index(repository, first, **BUILD_ARGS)
             rebuilt_bytes = {
                 path.relative_to(first): path.read_bytes()
-                for path in first.iterdir()
+                for path in first.rglob("*")
                 if path.is_file()
             }
             self.assertEqual(first_bytes, rebuilt_bytes)
@@ -74,7 +82,7 @@ class BuildIndexTests(unittest.TestCase):
             note = output / "notes.txt"
             note.write_text("keep me\n", encoding="utf-8", newline="")
             with self.assertRaisesRegex(ValueError, "non-build directory"):
-                build_index(ROOT, output, revision=REVISION)
+                build_index(ROOT, output, **BUILD_ARGS)
             self.assertEqual(note.read_text(encoding="utf-8"), "keep me\n")
 
     @unittest.skipUnless(os.name == "nt", "Windows junction regression")
@@ -89,7 +97,7 @@ class BuildIndexTests(unittest.TestCase):
             self._create_windows_junction(output, outside)
 
             with self.assertRaisesRegex(ValueError, "link or reparse point"):
-                build_index(ROOT, output, revision=REVISION)
+                build_index(ROOT, output, **BUILD_ARGS)
 
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep")
             self.assertFalse((outside / "manifest.json").exists())
@@ -104,7 +112,7 @@ class BuildIndexTests(unittest.TestCase):
             output = repository / "data" / "generated-index"
 
             with self.assertRaisesRegex(ValueError, "canonical data"):
-                build_index(repository, output, revision=REVISION)
+                build_index(repository, output, **BUILD_ARGS)
 
             self.assertFalse(output.exists())
 
@@ -119,7 +127,7 @@ class BuildIndexTests(unittest.TestCase):
             sentinel.write_text("keep", encoding="utf-8")
 
             with self.assertRaisesRegex(ValueError, "contain the dataset root"):
-                build_index(repository, base, revision=REVISION)
+                build_index(repository, base, **BUILD_ARGS)
 
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep")
             self.assertTrue((repository / "dataset.json").is_file())
@@ -132,7 +140,7 @@ class BuildIndexTests(unittest.TestCase):
             copy_repository_contract(ROOT, repository)
             expected = install_example_as_canonical(ROOT, repository)
             output = base / "dist"
-            manifest = build_index(repository, output, revision=REVISION)
+            manifest = build_index(repository, output, **BUILD_ARGS)
             active = load_jsonl(output / "emojis-active.jsonl")
             search_ru = load_jsonl(output / "search-ru.jsonl")
             self.assertEqual([item["id"] for item in active], [expected["emoji"]["id"]])
@@ -178,7 +186,7 @@ class BuildIndexTests(unittest.TestCase):
             report = validate_repository(repository, include_examples=True, check_build=False)
             self.assertEqual(report.errors, [], "\n".join(report.errors))
             output = base / "dist"
-            manifest = build_index(repository, output, revision=REVISION)
+            manifest = build_index(repository, output, **BUILD_ARGS)
             search = load_jsonl(output / "search-en.jsonl")
             self.assertEqual(manifest["counts"]["collections"], 2)
             self.assertEqual(manifest["counts"]["emojis"], 1)
@@ -190,15 +198,115 @@ class BuildIndexTests(unittest.TestCase):
     def test_manifest_and_sha256sums_cover_every_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "dist"
-            manifest = build_index(ROOT, output, revision=REVISION)
-            self.assertEqual(set(manifest["payload_sha256"]), set(PAYLOAD_NAMES))
-            for name in PAYLOAD_NAMES:
+            manifest = build_index(ROOT, output, **BUILD_ARGS)
+            descriptors = {item["path"]: item for item in manifest["artifacts"]}
+            self.assertEqual(set(descriptors), set(PAYLOAD_NAMES))
+            for name, descriptor in descriptors.items():
                 actual = hashlib.sha256((output / name).read_bytes()).hexdigest()
-                self.assertEqual(manifest["payload_sha256"][name], actual)
+                self.assertEqual(descriptor["payload_sha256"], actual)
             sums = (output / "SHA256SUMS").read_text(encoding="ascii").splitlines()
             names = [line.split("  ", 1)[1] for line in sums]
-            self.assertEqual(names, sorted([*PAYLOAD_NAMES, "manifest.json"]))
+            physical_paths = [
+                item["path"]
+                for item in manifest["resources"]
+                if item["resource_kind"] == "physical"
+            ]
+            self.assertEqual(names, sorted([*PAYLOAD_NAMES, *physical_paths, "manifest.json"]))
             self.assertNotIn("SHA256SUMS", names)
+            self.assertEqual((output / "manifest.json").read_bytes(), jcs_bytes(manifest))
+            self.assertFalse((output / "manifest.json").read_bytes().endswith(b"\n"))
+            report = validate_distribution(ROOT, output)
+            self.assertEqual(report.errors, [], "\n".join(report.errors))
+
+            embedded_schema = next(
+                item
+                for item in manifest["resources"]
+                if item.get("source_path")
+                == "schemas/distribution/v1/cli-read-envelope.schema.json"
+            )
+            (output / embedded_schema["path"]).write_bytes(b"{}")
+            tampered = validate_distribution(ROOT, output)
+            self.assertTrue(
+                any(
+                    "resource hash mismatch" in error
+                    or "resource bytes differ from canonical source_path" in error
+                    for error in tampered.errors
+                ),
+                "\n".join(tampered.errors),
+            )
+
+    def test_canonical_state_root_uses_exact_policy_entry_names(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest = build_index(ROOT, Path(temporary) / "dist", **BUILD_ARGS)
+        entries = []
+        for descriptor in manifest["artifacts"]:
+            if descriptor["semantic_role"] not in {"canonical", "normative"}:
+                continue
+            recordset = descriptor["content_model"] == "recordset-jsonl"
+            entries.append(
+                {
+                    "entry_type": "artifact",
+                    "entry_name": descriptor["logical_name"],
+                    "semantic_role": descriptor["semantic_role"],
+                    "digest_kind": "table-root" if recordset else "payload",
+                    "sha256": (
+                        descriptor["table_root_sha256"]
+                        if recordset
+                        else descriptor["payload_sha256"]
+                    ),
+                }
+            )
+        for field, selector in manifest["profiles"].items():
+            if selector["root_scope"] == "canonical":
+                entries.append(
+                    {
+                        "entry_type": "input",
+                        "entry_name": f"profile:{field}:{selector['id']}",
+                        "semantic_role": "normative",
+                        "digest_kind": "input",
+                        "sha256": selector["sha256"],
+                    }
+                )
+        for field, selector in manifest["policies"].items():
+            if selector["root_scope"] == "canonical":
+                entries.append(
+                    {
+                        "entry_type": "input",
+                        "entry_name": f"policy:{field}",
+                        "semantic_role": "normative",
+                        "digest_kind": "input",
+                        "sha256": selector["sha256"],
+                    }
+                )
+        entries.sort(
+            key=lambda entry: jcs_bytes(
+                [entry["semantic_role"], entry["entry_type"], entry["entry_name"]]
+            )
+        )
+        self.assertEqual(
+            manifest["canonical_state_root_sha256"],
+            jcs_sha256({"profile": "state-roots-v1", "entries": entries}),
+        )
+
+    def test_build_requires_immutable_release_identity_inputs(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as temporary,
+            self.assertRaisesRegex(ValueError, "snapshot_id and source_date_epoch"),
+        ):
+            build_index(ROOT, Path(temporary) / "dist", revision=REVISION)
+
+    def test_build_rejects_impossible_snapshot_calendar_date(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as temporary,
+            self.assertRaisesRegex(ValueError, "invalid UTC calendar date"),
+        ):
+            build_index(
+                ROOT,
+                Path(temporary) / "dist",
+                revision=REVISION,
+                snapshot_id="data-2026.02.31.1",
+                source_date_epoch=BUILD_ARGS["source_date_epoch"],
+            )
 
     def test_taxonomy_snapshot_defensively_accepts_repo_relative_paths(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -214,8 +322,8 @@ class BuildIndexTests(unittest.TestCase):
                 pretty_json(taxonomy_manifest), encoding="utf-8", newline=""
             )
             output = base / "dist"
-            build_index(repository, output, revision=REVISION)
-            self.assertEqual(load_json(output / "taxonomy.json")["taxonomy_version"], "1.0.0")
+            build_index(repository, output, **BUILD_ARGS)
+            self.assertEqual(load_json(output / "taxonomy.json")["registry_type"], "facet-taxonomy")
 
 
 if __name__ == "__main__":

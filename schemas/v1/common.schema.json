@@ -393,6 +393,19 @@
         "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
       }
     },
+    "conceptId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*(?:\\.[a-z0-9]+(?:-[a-z0-9]+)*)+$",
+      "maxLength": 128
+    },
+    "conceptIds": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/conceptId"
+      }
+    },
     "content": {
       "type": "object",
       "required": [
@@ -800,6 +813,9 @@
         },
         "reviewed_content_sha256": {
           "$ref": "#/$defs/sha256"
+        },
+        "review_hash_profile_id": {
+          "const": "semantic-review-content-v3"
         }
       },
       "if": {
@@ -829,6 +845,11 @@
               "required": [
                 "reviewed_content_sha256"
               ]
+            },
+            {
+              "required": [
+                "review_hash_profile_id"
+              ]
             }
           ]
         }
@@ -837,7 +858,8 @@
         "required": [
           "reviewed_at",
           "reviewer",
-          "reviewed_content_sha256"
+          "reviewed_content_sha256",
+          "review_hash_profile_id"
         ]
       },
       "additionalProperties": false

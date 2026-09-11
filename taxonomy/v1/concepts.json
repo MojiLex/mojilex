@@ -1,0 +1,72 @@
+{
+  "registry_schema_version": "1.0.0",
+  "registry_type": "concepts",
+  "registry_id": "concepts-v1.2026-09-11.1",
+  "concepts": [
+    {
+      "id": "animal.cat",
+      "status": "active",
+      "labels": {"en": "cat", "ru": "кот"},
+      "aliases": {"en": ["feline"], "ru": ["кошка"]},
+      "definitions": {
+        "en": "A domestic cat or a clearly stylized feline cat.",
+        "ru": "Домашний кот или явно стилизованное животное семейства кошачьих."
+      },
+      "parent_ids": [],
+      "positive_examples": {"en": ["a yellow cartoon cat"], "ru": ["жёлтый мультяшный кот"]},
+      "negative_examples": {"en": ["a generic paw print"], "ru": ["отдельный след лапы"]}
+    },
+    {
+      "id": "computing.not-found",
+      "status": "active",
+      "labels": {"en": "not found", "ru": "не найдено"},
+      "aliases": {"en": ["missing resource"], "ru": ["ресурс отсутствует"]},
+      "definitions": {
+        "en": "A computing state indicating that a requested resource was not found.",
+        "ru": "Состояние вычислительной системы, означающее, что запрошенный ресурс не найден."
+      },
+      "parent_ids": [],
+      "positive_examples": {"en": ["404 not found"], "ru": ["ошибка 404"]},
+      "negative_examples": {"en": ["a successful response"], "ru": ["успешный ответ"]}
+    },
+    {
+      "id": "emotion.skepticism",
+      "status": "active",
+      "labels": {"en": "skepticism", "ru": "скептицизм"},
+      "aliases": {"en": ["disbelief", "doubt", "suspicion"], "ru": ["недоверие", "подозрение", "сомнение"]},
+      "definitions": {
+        "en": "A doubtful or questioning reaction to a claim or situation.",
+        "ru": "Сомневающаяся или недоверчивая реакция на утверждение или ситуацию."
+      },
+      "parent_ids": [],
+      "positive_examples": {"en": ["raised eyebrow expressing doubt"], "ru": ["приподнятая бровь, выражающая сомнение"]},
+      "negative_examples": {"en": ["neutral expression"], "ru": ["нейтральное выражение"]}
+    },
+    {
+      "id": "object.gear",
+      "status": "active",
+      "labels": {"en": "gear", "ru": "шестерёнка"},
+      "aliases": {"en": ["cog"], "ru": ["зубчатое колесо"]},
+      "definitions": {
+        "en": "A toothed wheel or its conventional settings-interface symbol.",
+        "ru": "Зубчатое колесо или его условное обозначение настроек интерфейса."
+      },
+      "parent_ids": [],
+      "positive_examples": {"en": ["settings gear icon"], "ru": ["иконка настроек в виде шестерёнки"]},
+      "negative_examples": {"en": ["a plain circle"], "ru": ["обычный круг"]}
+    },
+    {
+      "id": "symbol.number",
+      "status": "active",
+      "labels": {"en": "number", "ru": "число"},
+      "aliases": {"en": ["numeric symbol"], "ru": ["числовой знак"]},
+      "definitions": {
+        "en": "A visible number used as meaningful symbolic content.",
+        "ru": "Видимое число, используемое как значимое символьное содержание."
+      },
+      "parent_ids": [],
+      "positive_examples": {"en": ["the digits 404"], "ru": ["цифры 404"]},
+      "negative_examples": {"en": ["four objects without digits"], "ru": ["четыре предмета без цифр"]}
+    }
+  ]
+}

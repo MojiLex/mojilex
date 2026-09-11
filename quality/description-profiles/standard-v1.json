@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "profile_id": "standard-v1",
   "languages": [
-    "ru",
-    "en"
+    "en",
+    "ru"
   ],
   "recommended_text_length_codepoints": {
     "minimum": 40,

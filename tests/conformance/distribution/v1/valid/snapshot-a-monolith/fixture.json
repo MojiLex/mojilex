@@ -1,0 +1,46 @@
+{
+  "fixture_schema_version": "1.0.0",
+  "fixture_id": "stage-ab-synthetic-monolith-v1",
+  "scope": "stage-a-b-monolith",
+  "origin": {
+    "kind": "synthetic-metadata",
+    "media_bytes_included": false,
+    "network_required": false
+  },
+  "rights": {
+    "profile_id": "telegram-index-only-v1",
+    "permitted_dataset_operations": [
+      "publish-generated-annotations",
+      "publish-metadata"
+    ]
+  },
+  "build": {
+    "revision": "0123456789abcdef0123456789abcdef01234567",
+    "snapshot_id": "data-2026.09.11.1",
+    "source_date_epoch": 1789171199
+  },
+  "source_records": [
+    {
+      "role": "collection",
+      "path": "examples/telegram/collection.json",
+      "sha256": "34633e2142f31fddc72d51bc2c4751c86264f95f84e388796e4b1534a94f3bc3"
+    },
+    {
+      "role": "emoji",
+      "path": "examples/telegram/emoji.json",
+      "sha256": "a7b1f820bca79191d85d2593d7a978228a35dca7aa4b08cdc0faee8748ae4d80"
+    },
+    {
+      "role": "membership",
+      "path": "examples/telegram/membership.json",
+      "sha256": "1ec5ce1f0ed11a60f7970b405e1dabb003333899a98147be510812314cf0dfb1"
+    }
+  ],
+  "expected_traversal": {
+    "platform": "telegram",
+    "native_namespace": "custom_emoji.id",
+    "scope_id": "global",
+    "native_id": "5368324170671202286",
+    "rights_profile_id": "telegram-index-only-v1"
+  }
+}

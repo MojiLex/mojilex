@@ -115,6 +115,11 @@
     ],
     "uncertainties": []
   },
+  "concept_ids": [
+    "animal.cat",
+    "emotion.skepticism"
+  ],
+  "concept_mapping_status": "complete",
   "semantic_tags": [
     "cat",
     "doubt",
@@ -151,7 +156,8 @@
     "status": "approved",
     "reviewed_at": "2026-09-10T19:00:00Z",
     "reviewer": "example-reviewer",
-    "reviewed_content_sha256": "6a81e7263af10b1aca3fd346205fb9c15f0bcc7fd1cca98b07b58b3c6bffd2fd"
+    "reviewed_content_sha256": "cbfc794d70e37e9c16e9281e9af4f0ff258f5ef8ba7775fce91a65d4299220e9",
+    "review_hash_profile_id": "semantic-review-content-v3"
   },
   "extensions": {
     "telegram": {

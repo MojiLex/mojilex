@@ -98,6 +98,10 @@
     ],
     "uncertainties": []
   },
+  "concept_ids": [
+    "object.gear"
+  ],
+  "concept_mapping_status": "complete",
   "semantic_tags": [
     "gear",
     "settings"

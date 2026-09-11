@@ -113,6 +113,8 @@ _KEY_ORDER = [
     "schema_version",
     "id_namespace",
     "visual_relation_namespace",
+    "duplicate_group_namespace",
+    "rights_assignment_namespace",
     "taxonomy_version",
     "color_profile",
     "color_profile_sha256",
@@ -122,6 +124,8 @@ _KEY_ORDER = [
     "collection_dedupe_profile_sha256",
     "default_languages",
     "platforms",
+    "rights_defaults",
+    "project_profile_id",
     "canonical_repository",
     "licenses",
     "data",
@@ -148,6 +152,8 @@ _KEY_ORDER = [
     "motion_status",
     "motion",
     "usage",
+    "concept_ids",
+    "concept_mapping_status",
     "semantic_tags",
     "content",
     "rating",
@@ -182,6 +188,7 @@ _KEY_ORDER = [
     "reviewed_at",
     "reviewer",
     "reviewed_content_sha256",
+    "review_hash_profile_id",
     "extensions",
     "telegram",
     "retrieved_via",
@@ -264,6 +271,8 @@ def _context_order(value: dict[str, Any]) -> list[str] | None:
             "fingerprints",
             "descriptions",
             "facets",
+            "concept_ids",
+            "concept_mapping_status",
             "semantic_tags",
             "content",
             "provenance",
@@ -427,6 +436,8 @@ def _context_order(value: dict[str, Any]) -> list[str] | None:
             "schema_version",
             "id_namespace",
             "visual_relation_namespace",
+            "duplicate_group_namespace",
+            "rights_assignment_namespace",
             "taxonomy_version",
             "color_profile",
             "color_profile_sha256",
@@ -436,6 +447,7 @@ def _context_order(value: dict[str, Any]) -> list[str] | None:
             "collection_dedupe_profile_sha256",
             "default_languages",
             "platforms",
+            "rights_defaults",
             "canonical_repository",
             "licenses",
         ]
@@ -505,9 +517,21 @@ def _context_order(value: dict[str, Any]) -> list[str] | None:
     if {"name", "version"}.issubset(value) and len(value) == 2:
         return ["name", "version"]
     if "status" in value and set(value).issubset(
-        {"status", "reviewed_at", "reviewer", "reviewed_content_sha256"}
+        {
+            "status",
+            "reviewed_at",
+            "reviewer",
+            "reviewed_content_sha256",
+            "review_hash_profile_id",
+        }
     ):
-        return ["status", "reviewed_at", "reviewer", "reviewed_content_sha256"]
+        return [
+            "status",
+            "reviewed_at",
+            "reviewer",
+            "reviewed_content_sha256",
+            "review_hash_profile_id",
+        ]
     if {"schema_version", "retrieved_via", "short_name"}.issubset(value):
         return [
             "schema_version",
@@ -621,6 +645,7 @@ def reviewed_content_sha256(emoji: dict[str, Any]) -> str:
         "media": projected_media(emoji["media"]),
         "descriptions": emoji["descriptions"],
         "facets": emoji["facets"],
+        "concept_ids": emoji["concept_ids"],
         "semantic_tags": emoji["semantic_tags"],
         "content": emoji["content"],
         "provenance": emoji["provenance"],
@@ -688,22 +713,85 @@ def reviewed_relation_sha256(relation: dict[str, Any]) -> str:
 
 def duplicate_group_id(
     namespace: uuid.UUID,
+    *,
     group_type: str,
     scope: str,
-    profile: str,
-    content_digest: str,
+    decoded_profile_id: str | None = None,
+    source_sha256: str | None = None,
+    source_byte_size: int | None = None,
+    decoded_payload_sha256: str | None = None,
+    media_set_root_sha256: str | None = None,
+    members: Iterable[str] | None = None,
 ) -> str:
-    components = ["duplicate-group", group_type, scope, profile, content_digest]
-    name = "\0".join(normalize_component(component) for component in components)
-    return "mxdg_" + str(uuid.uuid5(namespace, name))
+    absent = {"present": False}
+    if group_type == "binary-exact" and scope == "media":
+        if source_sha256 is None or source_byte_size is None:
+            raise DataError("binary media duplicate group requires source hash and byte size")
+        preimage: list[Any] = [
+            "duplicate-group-v1",
+            group_type,
+            scope,
+            absent,
+            source_sha256,
+            source_byte_size,
+        ]
+    elif group_type == "binary-exact" and scope == "entity":
+        if media_set_root_sha256 is None:
+            raise DataError("binary entity duplicate group requires media set root")
+        preimage = [
+            "duplicate-group-v1",
+            group_type,
+            scope,
+            absent,
+            media_set_root_sha256,
+            absent,
+        ]
+    elif group_type == "decoded-exact" and scope == "media":
+        if decoded_profile_id is None or decoded_payload_sha256 is None:
+            raise DataError("decoded media duplicate group requires profile and payload hash")
+        preimage = [
+            "duplicate-group-v1",
+            group_type,
+            scope,
+            {"present": True, "value": decoded_profile_id},
+            decoded_payload_sha256,
+            absent,
+        ]
+    elif group_type == "decoded-exact" and scope == "entity":
+        if decoded_profile_id is None or media_set_root_sha256 is None:
+            raise DataError("decoded entity duplicate group requires profile and media set root")
+        preimage = [
+            "duplicate-group-v1",
+            group_type,
+            scope,
+            {"present": True, "value": decoded_profile_id},
+            media_set_root_sha256,
+            absent,
+        ]
+    elif group_type == "reviewed-same-artwork" and scope == "entity":
+        normalized_members = sorted({normalize_component(emoji_id) for emoji_id in members or ()})
+        if len(normalized_members) < 2:
+            raise DataError("a reviewed same-artwork group requires at least two emoji IDs")
+        preimage = [
+            "duplicate-group-v1",
+            group_type,
+            scope,
+            absent,
+            absent,
+            normalized_members,
+        ]
+    else:
+        raise DataError(f"unsupported duplicate group branch: {group_type!r}/{scope!r}")
+    return "mxdg_" + str(uuid.uuid5(namespace, jcs_bytes(preimage).decode("utf-8")))
 
 
 def reviewed_same_artwork_group_id(namespace: uuid.UUID, emoji_ids: Iterable[str]) -> str:
-    members = sorted({normalize_component(emoji_id) for emoji_id in emoji_ids})
-    if len(members) < 2:
-        raise DataError("a reviewed same-artwork group requires at least two emoji IDs")
-    name = "\0".join(["duplicate-group", "reviewed-same-artwork", "entity", "", *members])
-    return "mxdg_" + str(uuid.uuid5(namespace, name))
+    return duplicate_group_id(
+        namespace,
+        group_type="reviewed-same-artwork",
+        scope="entity",
+        members=emoji_ids,
+    )
 
 
 def telegram_set_fingerprint(members: Iterable[dict[str, str]]) -> str:

@@ -7,7 +7,11 @@ cross-record rules enforced by `tools/validate.py` define what may be published.
 ## Common encoding
 
 - JSON Schema Draft 2020-12; `schema_version` is `1.0.0`.
-- UTF-8 without BOM, LF line endings, one final LF for non-empty text files.
+- UTF-8 without BOM and LF line endings; ordinary non-empty text files have one
+  final LF. The allowlisted immutable JSON files under `analysis-profiles/` are
+  the sole exception: they are stored as exact RFC 8785 JCS bytes without a
+  trailing LF so source bytes, snapshot resource bytes, and selector hashes are
+  identical.
 - Strings are Unicode NFC. Unknown optional values are omitted, not `null`.
 - Times are second-precision UTC: `YYYY-MM-DDTHH:MM:SSZ`.
 - SHA-256 is 64 lowercase hexadecimal characters.
@@ -60,9 +64,15 @@ forbids `partial`; `unavailable` is allowed only on a non-active record with no
 fingerprint items.
 
 `dataset.json` pins `color-v1`, `dedupe-v1`, and `collection-dedupe-v1` to
-their exact SHA-256 values. The immutable profile JSON files and their
-algorithmic test vectors live in `mojilex-cli`; they are not duplicated in this
-data repository.
+SHA-256 of the full canonical profile. Except for the direct
+`concept-candidates-v1` branch, each deterministic profile is a closed
+`delegated-profile-v1` wrapper. Its `contract_schema_ref` resolves to a
+separately embedded Draft 2020-12 schema, `contract_schema_sha256` pins that
+schema's exact bytes, and its `body` must validate with no unevaluated fields.
+Immutable profile JSON lives under `analysis-profiles/` as exact JCS and is
+copied byte-for-byte into a distribution snapshot. Algorithm implementations
+belong to `mojilex-cli`; normative digest/ID vectors remain in
+`examples/test-vectors.json` here.
 
 ## Structured hashes
 
@@ -142,11 +152,32 @@ A policy takedown removes affected current records and cascading memberships.
 Only the fields allowed by `tombstone.schema.json` may remain. The same target ID
 cannot occur in both `data/` and `tombstones/`.
 
-## Aggregate index
+## Distribution snapshot v1
 
-`tools/build_index.py` additionally produces `collection-facets.jsonl`,
-`duplicate-groups.jsonl`, `visual-relations.jsonl`, and `taxonomy.json`.
-Search rows expose normalized facets, literal text, and duplicate group IDs.
-The manifest includes the source Git SHA, profile and registry hashes, counts,
-status counts, and payload hashes, but no current time. Tombstones never restore
-withheld fields. Identical input and revision must produce identical bytes.
+`tools/build_index.py` requires the exact revision, snapshot ID, and
+`source_date_epoch`; it never supplies a time-dependent default. It emits the
+15 Stage-A monolith artifacts declared by `PAYLOAD_NAMES`, including canonical
+tables, registry singletons, `emojis-active`, collection facets, duplicate
+groups/memberships, and English/Russian search rows. Tombstones never restore
+withheld fields.
+
+The JCS manifest binds every artifact and physical resource by safe POSIX path,
+media type, byte size, SHA-256, schema URI, semantic role, and exact lineage.
+Canonical and derived state roots use logical table roots rather than incidental
+JSONL layout. `SHA256SUMS` lists every physical file except itself, including
+the manifest, in bytewise path order. Duplicate/case-colliding paths, links,
+reparse points, extra files, missing descriptors, and media are rejected.
+
+Schema resources under `schemas/distribution/v1/` define the release manifest,
+resource/artifact descriptors, concepts, rights, taxonomy, search and agent
+records, structured search input, and the closed read-only CLI envelope/result,
+request, resolution/similar items, and JSONL metadata/item/summary frames. A
+consumer resolves these schemas only from verified snapshot resources. The
+distribution validator checks embedded schema bytes against `source_path`,
+requires `$id` to equal the descriptor URI, and fails if any `$ref`, artifact
+`schema_ref`, or resource `content_schema_ref` is unavailable offline.
+
+Agent/search records are derived projections and do not replace canonical
+records. Visible text is untrusted content. Runtime trust and `safe_eligible`
+are consumer overlays; Stage A/B snapshots remain `pre-enforcement` until the
+post-MVP signed catalog, revocation, errata, and trust-root work is implemented.

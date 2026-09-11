@@ -1,4 +1,4 @@
-name: Release dataset snapshot
+name: Validate dataset release candidate
 
 on:
   push:
@@ -8,25 +8,25 @@ permissions:
   contents: read
 
 jobs:
-  build-once:
+  release-candidate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Check out immutable tag
+      - name: Check out immutable candidate tag
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Validate snapshot tag and source commit
+      - name: Validate candidate tag and source commit
         shell: bash
         run: |
-          if [[ ! "${GITHUB_REF_NAME}" =~ ^data-[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
-            echo "Invalid dataset snapshot tag" >&2
+          if [[ ! "${GITHUB_REF_NAME}" =~ ^data-[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[1-9][0-9]*$ ]]; then
+            echo "Invalid dataset snapshot candidate tag" >&2
             exit 1
           fi
           git fetch --no-tags origin main
           if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
-            echo "Dataset release tags must point to a commit reachable from origin/main" >&2
+            echo "Dataset candidate tags must point to a commit reachable from origin/main" >&2
             exit 1
           fi
       - name: Set up Python
@@ -36,47 +36,22 @@ jobs:
           cache: pip
       - name: Install validator dependencies
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Resolve immutable candidate inputs
+        shell: bash
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")" >> "${GITHUB_ENV}"
       - name: Validate canonical source
         run: |
           python tools/validate.py . --strict
           python -m unittest discover -s tests -v
-      - name: Build deterministic aggregate index
-        run: python tools/build_index.py . --output dist/index --revision "${GITHUB_SHA}"
-      - name: Create one reproducible compressed snapshot and checksum
-        env:
-          SNAPSHOT_NAME: mojilex-${{ github.ref_name }}
+      - name: Build and validate exact candidate tree
         run: |
-          find dist/index -type f -print0 | xargs -0 touch --date='@0'
-          tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
-            -cf - -C dist/index . | gzip -n > "dist/${SNAPSHOT_NAME}.tar.gz"
-          cd dist
-          sha256sum "${SNAPSHOT_NAME}.tar.gz" > SNAPSHOT-SHA256SUMS
-      - name: Upload the exact release assets
+          python tools/build_index.py . --output dist/index --revision "${GITHUB_SHA}" --snapshot-id "${GITHUB_REF_NAME}" --source-date-epoch "${SOURCE_DATE_EPOCH}"
+          python tools/validate_distribution.py . dist/index
+      - name: Upload CI-only candidate tree
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: dataset-release-assets
-          path: |
-            dist/*.tar.gz
-            dist/SNAPSHOT-SHA256SUMS
+          name: dataset-release-candidate-${{ github.ref_name }}
+          path: dist/index
           if-no-files-found: error
-
-  github-release:
-    needs: build-once
-    runs-on: ubuntu-latest
-    environment:
-      name: github-release
-      url: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
-    permissions:
-      contents: write
-    steps:
-      - name: Download the exact validated assets
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          name: dataset-release-assets
-          path: release-assets
-      - name: Publish immutable GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "${GITHUB_REF_NAME}" release-assets/*
-          --repo "${GITHUB_REPOSITORY}" --generate-notes --verify-tag
+          compression-level: 0
+          retention-days: 14
