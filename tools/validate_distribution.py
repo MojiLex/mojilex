@@ -795,12 +795,19 @@ def validate_distribution(source_root: Path, distribution_root: Path) -> Distrib
         report.add(manifest_path, "Stage A migrations and bundles must be empty")
     git_identity = manifest.get("git", {})
     build_identity = manifest.get("build", {})
+    canonical_repository = source_dataset.get("canonical_repository")
+    git_commit = git_identity.get("commit")
+    if git_identity.get("repository") != canonical_repository:
+        report.add(manifest_path, "Git repository identity differs from canonical source")
+    if isinstance(git_commit, str):
+        expected_object_format = "sha1" if len(git_commit) == 40 else "sha256"
+        if git_identity.get("object_format") != expected_object_format:
+            report.add(manifest_path, "Git object_format does not match commit length")
     if (
-        git_identity.get("repository") != source_dataset.get("canonical_repository")
-        or build_identity.get("tool_repository") != source_dataset.get("canonical_repository")
-        or build_identity.get("tool_commit") != git_identity.get("commit")
+        build_identity.get("tool_repository") == canonical_repository
+        and build_identity.get("tool_commit") != git_commit
     ):
-        report.add(manifest_path, "Git/builder repository or commit identity mismatch")
+        report.add(manifest_path, "in-repository builder commit differs from data commit")
     source_languages = sorted(source_dataset.get("default_languages", []), key=str.encode)
     language_contract = manifest.get("languages", {})
     if (

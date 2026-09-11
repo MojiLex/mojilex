@@ -10,8 +10,9 @@ from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
 from tools.build_index import build_index
-from tools.common import load_json
+from tools.common import jcs_bytes, jcs_sha256, load_json, sha256_bytes
 from tools.spec003_build import PROFILE_CONTRACT_SCHEMA_FILES
+from tools.validate_distribution import _build_input, validate_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = "0123456789abcdef0123456789abcdef01234567"
@@ -218,6 +219,47 @@ class DistributionTransportSchemaTests(unittest.TestCase):
         missing = copy.deepcopy(manifest)
         del missing["counts"]["emoji_review_by_status"]["rejected"]
         self.assertTrue(self.errors("release-manifest.schema.json", missing))
+
+    def test_validator_accepts_independent_cli_builder_provenance(self) -> None:
+        def write_manifest(output: Path, manifest: dict[str, Any]) -> None:
+            manifest["build"]["build_inputs_sha256"] = jcs_sha256(_build_input(manifest))
+            payload = jcs_bytes(manifest)
+            (output / "manifest.json").write_bytes(payload)
+            checksums = {}
+            for line in (output / "SHA256SUMS").read_text(encoding="ascii").splitlines():
+                digest, path = line.split("  ", 1)
+                checksums[path] = digest
+            checksums["manifest.json"] = sha256_bytes(payload)
+            (output / "SHA256SUMS").write_text(
+                "".join(f"{digest}  {path}\n" for path, digest in sorted(checksums.items())),
+                encoding="ascii",
+                newline="",
+            )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "dist"
+            manifest = build_index(ROOT, output, **BUILD_ARGS)
+            self.assertEqual(validate_distribution(ROOT, output).errors, [])
+            manifest["build"].update(
+                {
+                    "tool": "mojilex-cli",
+                    "tool_repository": "https://github.com/MojiLex/mojilex-cli",
+                    "tool_commit": "a" * 40,
+                }
+            )
+            write_manifest(output, manifest)
+            self.assertEqual(validate_distribution(ROOT, output).errors, [])
+
+            manifest["build"]["tool_repository"] = load_json(ROOT / "dataset.json")[
+                "canonical_repository"
+            ]
+            write_manifest(output, manifest)
+            self.assertTrue(
+                any(
+                    "in-repository builder commit differs" in error
+                    for error in validate_distribution(ROOT, output).errors
+                )
+            )
 
 
 if __name__ == "__main__":
