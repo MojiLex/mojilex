@@ -48,7 +48,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_build_is_byte_for_byte_deterministic(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)
@@ -77,7 +77,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_build_refuses_to_replace_an_unrecognized_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            output = Path(temporary) / "important"
+            output = Path(temporary).resolve() / "important"
             output.mkdir()
             note = output / "notes.txt"
             note.write_text("keep me\n", encoding="utf-8", newline="")
@@ -88,7 +88,7 @@ class BuildIndexTests(unittest.TestCase):
     @unittest.skipUnless(os.name == "nt", "Windows junction regression")
     def test_build_rejects_output_junction_without_touching_target(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             outside = base / "outside"
             output = base / "dist-link"
             outside.mkdir()
@@ -104,7 +104,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_build_rejects_canonical_dataset_subdirectory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)
@@ -118,7 +118,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_build_rejects_dataset_ancestor_without_deleting_it(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)
@@ -134,7 +134,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_active_and_search_indexes_follow_policy(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)
@@ -150,7 +150,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_one_emoji_can_belong_to_two_collections(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)
@@ -197,7 +197,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_manifest_and_sha256sums_cover_every_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            output = Path(temporary) / "dist"
+            output = Path(temporary).resolve() / "dist"
             manifest = build_index(ROOT, output, **BUILD_ARGS)
             descriptors = {item["path"]: item for item in manifest["artifacts"]}
             self.assertEqual(set(descriptors), set(PAYLOAD_NAMES))
@@ -237,7 +237,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_canonical_state_root_uses_exact_policy_entry_names(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            manifest = build_index(ROOT, Path(temporary) / "dist", **BUILD_ARGS)
+            manifest = build_index(ROOT, Path(temporary).resolve() / "dist", **BUILD_ARGS)
         entries = []
         for descriptor in manifest["artifacts"]:
             if descriptor["semantic_role"] not in {"canonical", "normative"}:
@@ -293,7 +293,7 @@ class BuildIndexTests(unittest.TestCase):
             tempfile.TemporaryDirectory() as temporary,
             self.assertRaisesRegex(ValueError, "snapshot_id and source_date_epoch"),
         ):
-            build_index(ROOT, Path(temporary) / "dist", revision=REVISION)
+            build_index(ROOT, Path(temporary).resolve() / "dist", revision=REVISION)
 
     def test_build_rejects_impossible_snapshot_calendar_date(self) -> None:
         with (
@@ -302,7 +302,7 @@ class BuildIndexTests(unittest.TestCase):
         ):
             build_index(
                 ROOT,
-                Path(temporary) / "dist",
+                Path(temporary).resolve() / "dist",
                 revision=REVISION,
                 snapshot_id="data-2026.02.31.1",
                 source_date_epoch=BUILD_ARGS["source_date_epoch"],
@@ -310,7 +310,7 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_taxonomy_snapshot_defensively_accepts_repo_relative_paths(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)

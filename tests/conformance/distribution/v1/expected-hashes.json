@@ -1,7 +1,7 @@
 {
   "fixture_id": "stage-ab-synthetic-monolith-v1",
   "files": {
-    "SHA256SUMS": "52b8d23ec553e6643f180a1d90e2291ec90b043ea5051270289f027948a12379",
+    "SHA256SUMS": "61dd1ec2ff263dc1a04e1af80e7c0a413f1360b52e6760f036a0968e5eabfd3e",
     "collection-facets.jsonl": "2fa556f634305fdfcc530be7842d619194111576f69ee0ab16d1426e338bba9f",
     "collections.jsonl": "76b085937120ebbe9dd4f33365a2d094b97ecc8d82c0d95d3af0dcc80c4edc9f",
     "concepts.json": "27696d77d300042806ab5021a6ef225b4a7295e10f390f3ca70e76535429e1ec",
@@ -9,7 +9,7 @@
     "duplicate-groups.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "emojis-active.jsonl": "d49b75583e1f30488e6e47b0c8a7bda9be3e18af6f63b8df0ff7e188cdc84dc9",
     "emojis.jsonl": "d49b75583e1f30488e6e47b0c8a7bda9be3e18af6f63b8df0ff7e188cdc84dc9",
-    "manifest.json": "83c22806e2a83c562357664122fa3b82ba4bf46e74cade5c7806308ccda0bf43",
+    "manifest.json": "074fa1a1381797762dffd13be35c9e5eea512fb813446b861424a33435f0ae29",
     "memberships.jsonl": "b7e057c80a562bf0557e89098fb77e0b702c7cf6bc55ac2f9a74a995cc8ffa68",
     "platform-profiles.json": "2397cfcfa5c6c72037f4a9507251feabf47131eccf949791e9b48529d21d39af",
     "resources/profiles/bcp47-v1.json": "a9d44c67ae56c6668d7dfcd0c27c9907f35ed152eba734b90f66abbf249c1fd4",
@@ -78,7 +78,7 @@
     "resources/schemas/distribution/v1/taxonomy-registry.schema.json": "e4582048b3739f608785f5eb5e1ede4785b118248f648f2144c2030319c7ecdc",
     "resources/schemas/distribution/v1/taxonomy-source.schema.json": "b6a69c6ef8c8466c909383258344d52fead6aad219a945dc70d4b12c623f530e",
     "resources/schemas/v1/collection.schema.json": "d7357f564092bc39919906387026bed120e41b3c127f3eb939a93d3b083a9e2d",
-    "resources/schemas/v1/common.schema.json": "d1b4979c1a70cf864af360128978c6f031518db22450d7168586bc614c329191",
+    "resources/schemas/v1/common.schema.json": "72be7aaf79789dc330649fb682366ab2f7eaddd800d7caf415c36a5c42f2b3e9",
     "resources/schemas/v1/dataset.schema.json": "aed81ae47e97156b2d555fdca1dcb7e69ce851e0c39421a340583a60b72f9096",
     "resources/schemas/v1/emoji.schema.json": "4a94a9ec4c3895a7a9c3204911cdcfc4c31450eeacbb2b806db7abf9f4ec61ed",
     "resources/schemas/v1/extensions/telegram.schema.json": "6b76db0ac0affa728cc13a760b140c211a001e939ee4416809173a6dfad091ef",

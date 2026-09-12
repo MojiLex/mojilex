@@ -58,7 +58,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
 
     def test_transport_schemas_are_embedded_as_exact_source_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            output = Path(temporary) / "dist"
+            output = Path(temporary).resolve() / "dist"
             manifest = build_index(ROOT, output, **BUILD_ARGS)
             resources = {
                 item["source_path"]: item
@@ -209,7 +209,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
 
     def test_manifest_histograms_require_every_closed_status_key(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            manifest = build_index(ROOT, Path(temporary) / "dist", **BUILD_ARGS)
+            manifest = build_index(ROOT, Path(temporary).resolve() / "dist", **BUILD_ARGS)
         self.assertEqual(self.errors("release-manifest.schema.json", manifest), [])
 
         bogus = copy.deepcopy(manifest)
@@ -237,7 +237,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
             )
 
         with tempfile.TemporaryDirectory() as temporary:
-            output = Path(temporary) / "dist"
+            output = Path(temporary).resolve() / "dist"
             manifest = build_index(ROOT, output, **BUILD_ARGS)
             self.assertEqual(validate_distribution(ROOT, output).errors, [])
             manifest["build"].update(

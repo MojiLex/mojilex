@@ -9,6 +9,16 @@
   ],
   "rules": [
     {
+      "reason_code": "cultural-reference-uncertainty",
+      "priority": "high",
+      "condition": "facets-uncertainties-contains-cultural-reference"
+    },
+    {
+      "reason_code": "text-uncertainty",
+      "priority": "high",
+      "condition": "facets-uncertainties-contains-text"
+    },
+    {
       "reason_code": "unqualified-model",
       "priority": "blocking",
       "condition": "ai-result-has-no-exact-active-qualification-and-review-is-not-approved"

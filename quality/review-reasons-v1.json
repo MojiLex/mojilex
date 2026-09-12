@@ -3,6 +3,10 @@
   "registry_id": "review-reasons-v1",
   "entries": [
     {
+      "id": "cultural-reference-uncertainty",
+      "definition": "A possible cultural reference is not reliably identified."
+    },
+    {
       "id": "exact-group-description-conflict",
       "definition": "Descriptions differ materially within an exact visual group."
     },
@@ -17,6 +21,10 @@
     {
       "id": "ocr-conflict",
       "definition": "Canonical literal text conflicts with the OCR verifier signal."
+    },
+    {
+      "id": "text-uncertainty",
+      "definition": "Visible literal text is uncertain or cannot be read reliably."
     },
     {
       "id": "unknown-character-or-brand",

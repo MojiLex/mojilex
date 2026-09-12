@@ -17,7 +17,7 @@ import unicodedata
 import uuid
 from collections import Counter, defaultdict
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import unquote_to_bytes
@@ -1357,10 +1357,12 @@ def _load_contract_registries(
         "unqualified-model",
     }
     expected_review_reasons = {
+        "cultural-reference-uncertainty",
         "exact-group-description-conflict",
         "moderation-uncertainty",
         "motion-uncertainty",
         "ocr-conflict",
+        "text-uncertainty",
         "unknown-character-or-brand",
         "unqualified-model",
     }
@@ -1422,6 +1424,8 @@ def _load_contract_registries(
             if isinstance(rule, dict)
         }
         expected_priorities = {
+            "cultural-reference-uncertainty": "high",
+            "text-uncertainty": "high",
             "unqualified-model": "blocking",
             "moderation-uncertainty": "blocking",
             "motion-uncertainty": "high",
@@ -1544,7 +1548,32 @@ def _load_contract_registries(
             ):
                 report.add(qualification_path, f"entries/{index}/qualification_id is invalid")
                 continue
-            allowed = required | {"model_revision", "valid_until"}
+            concept_binding_fields = {
+                "concept_registry_id",
+                "concept_registry_sha256",
+                "concept_candidate_set_sha256",
+                "concept_candidate_profile_id",
+                "concept_candidate_profile_sha256",
+                "model_routing_policy_id",
+                "model_routing_policy_sha256",
+            }
+            present_binding = concept_binding_fields & set(entry)
+            if present_binding:
+                if present_binding != concept_binding_fields:
+                    report.add(
+                        qualification_path,
+                        f"entries/{index}: incomplete concept generation binding",
+                    )
+                for key in present_binding:
+                    pattern = (
+                        r"[0-9a-f]{64}" if key.endswith("sha256") else r"[a-z0-9][a-z0-9._-]{0,127}"
+                    )
+                    if not isinstance(entry[key], str) or not re.fullmatch(pattern, entry[key]):
+                        report.add(
+                            qualification_path,
+                            f"entries/{index}/{key}: invalid concept generation binding",
+                        )
+            allowed = required | {"model_revision", "valid_until"} | concept_binding_fields
             extra = set(entry) - allowed
             if extra:
                 report.add(
@@ -1643,6 +1672,19 @@ def _qualification_matches(
     emoji: dict[str, Any], qualification: dict[str, Any], dataset: dict[str, Any]
 ) -> bool:
     provenance = emoji.get("provenance", {})
+    concept_binding_fields = (
+        "concept_registry_id",
+        "concept_registry_sha256",
+        "concept_candidate_set_sha256",
+        "concept_candidate_profile_id",
+        "concept_candidate_profile_sha256",
+        "model_routing_policy_id",
+        "model_routing_policy_sha256",
+    )
+    if emoji.get("concept_ids") and any(not provenance.get(key) for key in concept_binding_fields):
+        return False
+    if any(qualification.get(key) != provenance.get(key) for key in concept_binding_fields):
+        return False
     expected = {
         "provider": provenance.get("provider"),
         "model": provenance.get("model"),
@@ -2773,6 +2815,52 @@ def _check_repository_files(root: Path, report: Report) -> None:
         _check_repository_file_contents(path, relative, report)
 
 
+def _diagnostic_source_epoch(root: Path) -> int:
+    """Bind a local validation build to its exact evidence, never the wall clock.
+
+    This synthetic build is not a release. Production builds still require an
+    explicit immutable epoch and reject evidence later than that chosen epoch.
+    """
+
+    records = discover_records(root)
+    values = [
+        record.value
+        for group in (
+            records.collections,
+            records.emojis,
+            records.memberships,
+            records.tombstones,
+            records.visual_relations,
+        )
+        for record in group
+    ]
+    values.extend(load_json(path) for path in sorted((root / "platforms").glob("*.json")))
+    values.append(load_json(root / "rights" / "profiles.json"))
+    timestamp_fields = {
+        "first_seen_at",
+        "last_changed_at",
+        "last_verified_at",
+        "generated_at",
+        "reviewed_at",
+        "withheld_at",
+        "observed_at",
+        "effective_from",
+    }
+    epoch = 0
+    pending: list[Any] = list(values)
+    while pending:
+        value = pending.pop()
+        if isinstance(value, list):
+            pending.extend(value)
+        elif isinstance(value, dict):
+            for key, child in value.items():
+                if key in timestamp_fields and isinstance(child, str):
+                    epoch = max(epoch, int(_parse_timestamp(child).replace(tzinfo=UTC).timestamp()))
+                elif isinstance(child, (dict, list)):
+                    pending.append(child)
+    return epoch
+
+
 def _check_deterministic_build(root: Path, report: Report) -> None:
     try:
         if __package__:
@@ -2785,14 +2873,17 @@ def _check_deterministic_build(root: Path, report: Report) -> None:
             from .validate_distribution import validate_distribution
 
         with tempfile.TemporaryDirectory(prefix="mojilex-index-check-") as temporary:
-            base = Path(temporary)
+            # Normalize the OS-selected /var alias on macOS before handing our
+            # own temporary path to the builder's strict user-path checks.
+            base = Path(temporary).resolve()
             first = base / "first"
             second = base / "second"
             fixed_revision = "0" * 40
+            epoch = _diagnostic_source_epoch(root)
             build_args = {
                 "revision": fixed_revision,
-                "snapshot_id": "data-2026.09.11.1",
-                "source_date_epoch": 1789171199,
+                "snapshot_id": f"data-{datetime.fromtimestamp(epoch, UTC):%Y.%m.%d}.1",
+                "source_date_epoch": epoch,
             }
             build_index(root, first, **build_args)
             build_index(root, second, **build_args)

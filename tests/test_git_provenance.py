@@ -73,14 +73,14 @@ class GitProvenanceTests(unittest.TestCase):
 
     def test_accepts_exact_committed_source_and_reports_object_format(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             actual = verify_release_source(root, revision)
         self.assertEqual(actual.commit, revision)
         self.assertEqual(actual.object_format, "sha1")
 
     def test_resolves_sha256_repository_when_supported(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary), object_format="sha256")
+            root, revision = self._repository(Path(temporary).resolve(), object_format="sha256")
             actual = resolve_head_revision(root)
             verified = verify_release_source(root, revision)
         self.assertEqual(len(actual.commit), 64)
@@ -89,28 +89,28 @@ class GitProvenanceTests(unittest.TestCase):
 
     def test_rejects_modified_tracked_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             (root / "dataset.json").write_bytes(b'{"changed":true}\n')
             with self.assertRaisesRegex(ValueError, "differs from commit"):
                 verify_release_source(root, revision)
 
     def test_rejects_untracked_allowlisted_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             (root / "platforms" / "untracked.json").write_bytes(b"{}\n")
             with self.assertRaisesRegex(ValueError, "absent from commit"):
                 verify_release_source(root, revision)
 
     def test_rejects_missing_tracked_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             (root / "requirements-dev.txt").unlink()
             with self.assertRaisesRegex(ValueError, "missing from the worktree"):
                 verify_release_source(root, revision)
 
     def test_rejects_wrong_existing_revision(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, first_revision = self._repository(Path(temporary))
+            root, first_revision = self._repository(Path(temporary).resolve())
             (root / "dataset.json").write_bytes(b'{"version":2}\n')
             self._git(root, "add", "dataset.json")
             self._git(root, "commit", "-m", "change source")
@@ -119,21 +119,21 @@ class GitProvenanceTests(unittest.TestCase):
 
     def test_rejects_nonexistent_full_revision(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, _revision = self._repository(Path(temporary))
+            root, _revision = self._repository(Path(temporary).resolve())
             with self.assertRaisesRegex(ValueError, "Git provenance check failed"):
                 verify_release_source(root, "0" * 40)
 
     def test_rejects_repository_subdirectory_as_dataset_root(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             with self.assertRaisesRegex(ValueError, "exact Git worktree top"):
                 verify_release_source(root / "data", revision)
 
     def test_production_command_checks_source_before_building(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root, revision = self._repository(Path(temporary))
+            root, revision = self._repository(Path(temporary).resolve())
             (root / "dataset.json").write_bytes(b'{"changed":true}\n')
-            output = Path(temporary) / "dist"
+            output = Path(temporary).resolve() / "dist"
             stderr = io.StringIO()
             with contextlib.redirect_stderr(stderr):
                 result = build_main(

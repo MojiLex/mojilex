@@ -113,7 +113,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_missing_rendering_binding_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -124,7 +124,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_telegram_adaptive_mapping_and_palette_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -141,7 +141,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_static_text_dynamics_and_motion_uncertainty_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -176,7 +176,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_stale_partial_and_malformed_fingerprints_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -191,7 +191,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_facet_change_invalidates_approved_review_hash(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -204,7 +204,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_approved_review_can_confirm_intentional_style_contrast(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -216,7 +216,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_controlled_facet_is_not_repeated_in_semantic_tags(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -228,7 +228,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_unqualified_ai_is_blocking_until_human_approval(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
@@ -241,14 +241,25 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_exact_active_qualification_allows_unreviewed_ai(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             emoji = values["emoji"]
             emoji["review"] = {"status": "unreviewed"}
             emoji["provenance"]["qualification_id"] = "mq_standard-v1_example-001"
+            concept_binding = {
+                "concept_registry_id": "concepts-v1.synthetic-test",
+                "concept_registry_sha256": "6" * 64,
+                "concept_candidate_set_sha256": "7" * 64,
+                "concept_candidate_profile_id": "concept-candidates-v1",
+                "concept_candidate_profile_sha256": "8" * 64,
+                "model_routing_policy_id": "model-routing-local-v1",
+                "model_routing_policy_sha256": "9" * 64,
+            }
+            emoji["provenance"].update(concept_binding)
             _write_emoji(root, emoji)
             qualification = {
+                **concept_binding,
                 "qualification_id": "mq_standard-v1_example-001",
                 "provider": emoji["provenance"]["provider"],
                 "model": emoji["provenance"]["model"],
@@ -279,7 +290,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_visual_relation_stale_evidence_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             second = _second_emoji(root, values["emoji"])
@@ -294,7 +305,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_same_artwork_rejects_empty_text_against_approved_literal(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             values = install_example_as_canonical(ROOT, root)
             second = _second_emoji(root, values["emoji"])
@@ -330,7 +341,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_build_emits_facets_groups_relations_and_taxonomy(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             root = base / "repository"
             root.mkdir()
             copy_repository_contract(ROOT, root)
@@ -376,7 +387,7 @@ class AddendumValidationTests(unittest.TestCase):
         }
         for field, mutate in mutations.items():
             with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
-                base = Path(temporary)
+                base = Path(temporary).resolve()
                 root = base / "repository"
                 root.mkdir()
                 copy_repository_contract(ROOT, root)
@@ -388,7 +399,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_epoch_and_policy_inputs_are_explicit_in_every_eligibility_lineage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             root = base / "repository"
             root.mkdir()
             copy_repository_contract(ROOT, root)
@@ -478,7 +489,7 @@ class AddendumValidationTests(unittest.TestCase):
 
     def test_taxonomy_and_platform_registry_contracts_are_strict(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
             taxonomy = load_json(root / "taxonomy" / "v1" / "taxonomy.json")
             taxonomy["registries"][0]["facet"] = "styles"

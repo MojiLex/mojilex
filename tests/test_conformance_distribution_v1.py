@@ -80,7 +80,7 @@ class StageABDistributionConformanceTests(unittest.TestCase):
         records = _load_fixture_records(fixture)
 
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             repository = base / "repository"
             repository.mkdir()
             copy_repository_contract(ROOT, repository)

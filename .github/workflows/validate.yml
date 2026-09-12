@@ -90,8 +90,33 @@ jobs:
       - name: Install the pinned validator dependency
         run: python -m pip install -r requirements-dev.txt
       - name: Build the same revision twice
+        shell: python
         run: |
-          python tools/build_index.py . --output work/dist-first --revision "${{ github.sha }}" --snapshot-id data-2026.09.11.1 --source-date-epoch 1789171199
-          python tools/build_index.py . --output work/dist-second --revision "${{ github.sha }}" --snapshot-id data-2026.09.11.1 --source-date-epoch 1789171199 --skip-validation
-          python tools/validate_distribution.py . work/dist-first
-          python -c "from pathlib import Path; a=Path('work/dist-first'); b=Path('work/dist-second'); left={p.relative_to(a):p.read_bytes() for p in a.rglob('*') if p.is_file()}; right={p.relative_to(b):p.read_bytes() for p in b.rglob('*') if p.is_file()}; assert left == right, 'distribution builds differ'"
+          import os
+          import subprocess
+          import sys
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          revision = os.environ["GITHUB_SHA"]
+          epoch = int(subprocess.check_output(
+              ["git", "show", "-s", "--format=%ct", revision], text=True
+          ).strip())
+          snapshot_id = f"data-{datetime.fromtimestamp(epoch, UTC):%Y.%m.%d}.1"
+          build = [
+              sys.executable, "tools/build_index.py", ".",
+              "--revision", revision,
+              "--snapshot-id", snapshot_id,
+              "--source-date-epoch", str(epoch),
+          ]
+          subprocess.run([*build, "--output", "work/dist-first"], check=True)
+          subprocess.run([
+              *build, "--output", "work/dist-second", "--skip-validation"
+          ], check=True)
+          subprocess.run([
+              sys.executable, "tools/validate_distribution.py", ".", "work/dist-first"
+          ], check=True)
+          first, second = Path("work/dist-first"), Path("work/dist-second")
+          left = {p.relative_to(first): p.read_bytes() for p in first.rglob("*") if p.is_file()}
+          right = {p.relative_to(second): p.read_bytes() for p in second.rglob("*") if p.is_file()}
+          assert left == right, "distribution builds differ"

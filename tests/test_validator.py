@@ -58,7 +58,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_complete_canonical_example_passes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             install_example_as_canonical(ROOT, target)
             report = validate_repository(target, include_examples=True, check_build=True)
@@ -66,7 +66,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_ignored_runtime_transaction_tree_is_not_scanned(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             install_example_as_canonical(ROOT, target)
             _initialize_git_repository(target)
@@ -81,7 +81,7 @@ class RepositoryValidatorTests(unittest.TestCase):
     def test_force_tracked_transaction_artifact_is_rejected_before_file_reads(self) -> None:
         for tree in (".mojilex", ".mojilex-atomic-write"):
             with self.subTest(tree=tree), tempfile.TemporaryDirectory() as temporary:
-                target = Path(temporary)
+                target = Path(temporary).resolve()
                 copy_repository_contract(ROOT, target)
                 install_example_as_canonical(ROOT, target)
                 _initialize_git_repository(target)
@@ -115,7 +115,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_repository_scan_does_not_inherit_ancestor_git_excludes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            ancestor = Path(temporary)
+            ancestor = Path(temporary).resolve()
             (ancestor / ".gitignore").write_text("/dataset/\n", encoding="utf-8", newline="")
             subprocess.run(
                 ["git", "init", "--quiet", str(ancestor)],
@@ -145,7 +145,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_force_tracked_ignored_generated_tree_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             install_example_as_canonical(ROOT, target)
             _initialize_git_repository(target)
@@ -172,7 +172,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_textual_svg_is_rejected_by_no_media_policy(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             install_example_as_canonical(ROOT, target)
             payload = target / "payload.svg"
@@ -198,7 +198,7 @@ class RepositoryValidatorTests(unittest.TestCase):
             ("160000", "tracked Git submodules"),
         ):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as temporary:
-                target = Path(temporary)
+                target = Path(temporary).resolve()
                 copy_repository_contract(ROOT, target)
                 install_example_as_canonical(ROOT, target)
                 _initialize_git_repository(target)
@@ -262,7 +262,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_nested_git_repository_marker_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             install_example_as_canonical(ROOT, target)
             _initialize_git_repository(target)
@@ -287,7 +287,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_linked_worktree_git_file_preserves_transaction_preflight(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary) / "base"
+            base = Path(temporary).resolve() / "base"
             base.mkdir()
             _initialize_git_repository(base)
             _configure_git_identity(base)
@@ -297,7 +297,7 @@ class RepositoryValidatorTests(unittest.TestCase):
                 capture_output=True,
                 shell=False,
             )
-            worktree = Path(temporary) / "worktree"
+            worktree = Path(temporary).resolve() / "worktree"
             subprocess.run(
                 [
                     "git",
@@ -354,7 +354,7 @@ class RepositoryValidatorTests(unittest.TestCase):
     def test_large_files_are_streamed_and_secret_scanned(self) -> None:
         for tracked in (False, True):
             with self.subTest(tracked=tracked), tempfile.TemporaryDirectory() as temporary:
-                target = Path(temporary)
+                target = Path(temporary).resolve()
                 copy_repository_contract(ROOT, target)
                 install_example_as_canonical(ROOT, target)
                 _initialize_git_repository(target)
@@ -393,7 +393,7 @@ class RepositoryValidatorTests(unittest.TestCase):
     @unittest.skipUnless(os.name == "nt", "NTFS junction regression is Windows-specific")
     def test_untracked_junction_is_rejected_without_following_target(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve()
             target = base / "dataset"
             target.mkdir()
             outside = base / "outside"
@@ -424,7 +424,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_empty_membership_file_is_valid_for_empty_collection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             collection = values["collection"]
@@ -442,7 +442,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_review_hash_is_recomputed_independently(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             emoji = copy.deepcopy(values["emoji"])
@@ -467,7 +467,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_unreviewed_sensitive_content_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             emoji = values["emoji"]
@@ -480,7 +480,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_approved_sensitive_content_is_accepted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             emoji = values["emoji"]
@@ -499,7 +499,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_duplicate_active_position_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             collection_dir = (
@@ -518,7 +518,7 @@ class RepositoryValidatorTests(unittest.TestCase):
 
     def test_tombstone_requires_current_tree_cascade(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary)
+            target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             tombstone = {
@@ -545,7 +545,7 @@ class RepositoryValidatorTests(unittest.TestCase):
         }
         for label, payload in cases.items():
             with self.subTest(label=label), tempfile.TemporaryDirectory() as temporary:
-                target = Path(temporary)
+                target = Path(temporary).resolve()
                 copy_repository_contract(ROOT, target)
                 install_example_as_canonical(ROOT, target)
                 (target / "encoded.txt").write_text(payload + "\n", encoding="ascii", newline="")
