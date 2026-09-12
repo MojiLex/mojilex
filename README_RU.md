@@ -21,6 +21,34 @@ MojiLex — открытый машиночитаемый семантическ
 [MojiLex CLI](https://github.com/MojiLex/mojilex-cli). Код этого репозитория не
 обращается к Telegram, AI-провайдерам или URL из пользовательских данных.
 
+## Как добавить набор эмодзи
+
+Репозиторий данных вручную клонировать не требуется. Установите CLI из GitHub:
+
+```console
+uv tool install git+https://github.com/MojiLex/mojilex-cli.git@main
+```
+
+Один раз выполните настройку и вход в GitHub:
+
+```console
+gh auth login
+mojilex init --model gemini-3.8-flash --non-interactive
+```
+
+Затем передайте CLI публичную ссылку на набор:
+
+```console
+mojilex add https://t.me/addemoji/PackName
+```
+
+Команда скрыто запросит отсутствующие Telegram token и Gemini API key,
+проанализирует набор, проверит результат и откроет pull request в этот
+репозиторий. Ключи используются только в текущем запуске и не попадают в Git.
+Проверка без AI и публикации: `mojilex add URL --dry-run --check-media`.
+Подробная инструкция находится в
+[русском README MojiLex CLI](https://github.com/MojiLex/mojilex-cli/blob/main/README_RU.md).
+
 ## Структура данных
 
 ```text

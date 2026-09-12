@@ -14,6 +14,36 @@ executable product code live in the separate
 Nothing in this repository contacts Telegram, an AI provider, or a URL found in
 a contribution.
 
+## Add an emoji pack
+
+The data repository does not need to be cloned manually. Install the CLI from
+GitHub:
+
+```console
+uv tool install git+https://github.com/MojiLex/mojilex-cli.git@main
+```
+
+Authenticate and configure it once:
+
+```console
+gh auth login
+mojilex init --model gemini-3.8-flash --non-interactive
+```
+
+Then provide the public pack URL:
+
+```console
+mojilex add https://t.me/addemoji/PackName
+```
+
+The command requests missing Telegram and Gemini credentials through hidden
+prompts, analyzes and validates the pack, and opens a pull request in this
+repository. Credentials remain in memory only for the current command and are
+never committed. To check a pack without AI or publication, run
+`mojilex add URL --dry-run --check-media`. See the
+[MojiLex CLI quick start](https://github.com/MojiLex/mojilex-cli#quick-start)
+for prerequisites and troubleshooting.
+
 ## Data layout
 
 ```text
