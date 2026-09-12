@@ -1,5 +1,7 @@
 # MojiLex data
 
+English | [Русский](README_RU.md)
+
 MojiLex is an open, machine-readable semantic index for custom emoji. This
 repository is the source of truth for the current dataset and schema. It stores
 identifiers, technical metadata, hashes, multilingual descriptions, provenance,
@@ -86,10 +88,12 @@ vectors, and a double deterministic index build.
 ## Build and validate a distribution snapshot
 
 ```bash
+DATA_COMMIT="$(git rev-parse HEAD)"
+SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$DATA_COMMIT")"
 python tools/build_index.py . --output dist/index \
-  --revision 0123456789abcdef0123456789abcdef01234567 \
-  --snapshot-id data-2026.09.11.1 \
-  --source-date-epoch 1789171199
+  --revision "$DATA_COMMIT" \
+  --snapshot-id data-YYYY.MM.DD.N \
+  --source-date-epoch "$SOURCE_DATE_EPOCH"
 python tools/validate_distribution.py . dist/index
 ```
 
