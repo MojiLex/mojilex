@@ -74,6 +74,36 @@ copied byte-for-byte into a distribution snapshot. Algorithm implementations
 belong to `mojilex-cli`; normative digest/ID vectors remain in
 `examples/test-vectors.json` here.
 
+## Composition fragments
+
+`semantic_tags` reserves the English marker `fragment` for an emoji verified
+to be part of a larger picture made from several emoji. For example, a tile
+from an assembled tree may have this illustrative metadata excerpt:
+
+```json
+{"semantic_tags": ["fragment", "tree"]}
+```
+
+Consumers can display a label such as "Part of a larger image" or filter these
+records when they need standalone images. The marker does not mean the tile is
+unusable on its own. Its absence does not guarantee a standalone image: the
+analysis is conservative, and older or unexamined records may lack the marker.
+Do not assign it solely because an isolated image looks cropped or incomplete.
+
+Tags remain unique, lexicographically sorted lowercase kebab-case English.
+One to 12 descriptive tags are required, plus the optional `fragment` marker
+(13 total only when `fragment` is present). The marker preserves all existing
+descriptive tags and is carried into derived search records. Existing records
+remain valid and no new field is required. Consumers with an older validator
+that unconditionally limits tags to 12 must update it before accepting records
+with 12 descriptive tags plus `fragment`.
+
+Composition member lists, dimensions, coordinates, image evidence, and model
+checks remain local to the CLI and are not part of this public marker. It does
+not provide enough information to reconstruct the full picture. Adding or
+removing the marker changes semantic content and resets review to `unreviewed`
+under the same rules as other semantic tags.
+
 ## Structured hashes
 
 The Telegram set fingerprint is SHA-256 over the JCS array of

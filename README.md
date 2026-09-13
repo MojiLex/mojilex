@@ -89,10 +89,20 @@ accepted dataset.
 | A caption or text alternative | `descriptions.ru.text` / `descriptions.en.text` |
 | Motion and suggested contexts | Each language's `motion_status`, `motion`, and `usage` |
 | Categories and visual properties | `semantic_tags` and `facets` |
+| A verified part of a larger emoji picture | `fragment` in `semantic_tags` |
 | Content labels | `content.rating` and `content.warnings` |
 | Platform identity and pack membership | Emoji identifiers, `extensions.telegram`, and membership records |
 
-The [format guide](FORMAT.md) explains the fields, directory layout, and record
+An emoji with `"semantic_tags": ["fragment", "tree"]` is a verified part of a
+larger picture assembled from several emoji. Your application can label it
+"Part of a larger image"; it is not necessarily a standalone image. Absence of
+`fragment` does not guarantee that an emoji is standalone. The public data does
+not include the assembly's member list or tile positions; those stay local to
+the CLI. Up to 12 descriptive tags plus `fragment` are allowed. Consumers with
+an older fixed limit of 12 tags need the updated schema for 13-tag records.
+
+The [format guide](FORMAT.md#composition-fragments) explains the marker; the
+[full guide](FORMAT.md) explains the fields, directory layout, and record
 relationships; [JSON schemas](schemas/v1/) define the exact contract.
 The CLI's `show` command reads your locally analyzed packs. It is not a browser
 for every pack in this repository.
