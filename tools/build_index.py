@@ -101,15 +101,7 @@ def _eligible_for_public_index(emoji: dict[str, Any]) -> bool:
     if emoji["availability"]["status"] != "active":
         return False
     review_status = emoji["review"]["status"]
-    if review_status in {"changes_requested", "rejected"}:
-        return False
-    if review_status == "approved":
-        return True
-    return (
-        review_status == "unreviewed"
-        and emoji["content"]["rating"] == "general"
-        and not emoji["content"]["warnings"]
-    )
+    return review_status in {"approved", "unreviewed"}
 
 
 def _current_approved_relations(

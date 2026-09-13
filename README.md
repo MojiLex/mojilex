@@ -151,9 +151,9 @@ the effective algorithm configuration. The selector digest covers the complete
 wrapper, not only its body.
 
 Active/search files contain only active emoji connected by active memberships
-to active collections. Approved records of allowed ratings and unreviewed
-`general` records without warnings are eligible; `changes_requested` and
-`rejected` records are excluded.
+to active collections. Approved and unreviewed records are eligible regardless
+of rating or warnings; `changes_requested` and `rejected` records are excluded.
+Content labels remain available for consumer filters.
 
 These snapshots currently use `trust_stage=pre-enforcement`: integrity and
 reproducibility are implemented, but an unsigned local snapshot is not an

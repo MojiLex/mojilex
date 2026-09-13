@@ -16,7 +16,7 @@ Describe the narrowly scoped data/schema/policy change.
 - [ ] `python -m unittest discover -s tests -v`
 - [ ] The change is deterministic/no-op safe and `dist/` was not committed.
 - [ ] Russian and English descriptions express the same observable meaning.
-- [ ] Sensitive/adult/unknown or warned content is manually approved.
+- [ ] Content ratings, warnings, and actual review status are preserved accurately.
 - [ ] Facet values are sorted and come from the active taxonomy; rendering and
       fingerprints cover every media role/variant and use the manifest profiles.
 - [ ] Any unreviewed AI record exactly matches an active qualification, or a

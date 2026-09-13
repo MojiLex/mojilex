@@ -17,10 +17,10 @@ AI provider for analysis.
 ## Sensitive but lawful content
 
 Do not hide sensitive meaning behind euphemisms. Use a neutral factual
-description, accurate `content.rating` and warnings, and obtain `approved`
-manual review before publication. CI rejects sensitive, adult, unknown, or
-warned records unless approved. Unreviewed `general` content without warnings
-may be published with its review status visible.
+description and accurate `content.rating` and warnings. These content labels do
+not require manual approval before publication. Unreviewed records retain their
+visible review status, rating, and warnings; consumers can filter them using
+their own content preferences. Other provenance and publication checks still apply.
 
 Reviewers may approve the record, request changes, reject it, or initiate the
 takedown process. Decisions use the narrowest public reason code and comment

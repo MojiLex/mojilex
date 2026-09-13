@@ -904,10 +904,6 @@ def _check_review_and_policy(emoji: dict[str, Any], location: str, report: Repor
                 report.add(location, f"reviewed_content_sha256 mismatch; expected {expected}")
         except (KeyError, TypeError, DataError) as exc:
             report.add(location, f"cannot calculate reviewed_content_sha256: {exc}")
-    rating = content.get("rating")
-    warnings = content.get("warnings")
-    if (rating in {"sensitive", "adult", "unknown"} or warnings) and status != "approved":
-        report.add(location, "non-general or warned content must be approved before publication")
 
 
 def _load_contract_registries(

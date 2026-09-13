@@ -465,7 +465,7 @@ class RepositoryValidatorTests(unittest.TestCase):
                 any("reviewed_content_sha256 mismatch" in item for item in report.errors)
             )
 
-    def test_unreviewed_sensitive_content_is_rejected(self) -> None:
+    def test_unreviewed_sensitive_content_has_no_content_approval_gate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary).resolve()
             copy_repository_contract(ROOT, target)
@@ -476,7 +476,8 @@ class RepositoryValidatorTests(unittest.TestCase):
             bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             report = validate_repository(target, include_examples=True, check_build=False)
-            self.assertTrue(any("must be approved" in item for item in report.errors))
+            self.assertFalse(any("must be approved" in item for item in report.errors))
+            self.assertTrue(any("unqualified-model" in item for item in report.errors))
 
     def test_approved_sensitive_content_is_accepted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

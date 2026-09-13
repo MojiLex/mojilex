@@ -11,8 +11,8 @@ authorized maintainers.
    exceptional care. Do not add an importer to this repository.
 3. Do not commit original WebP/TGS/WebM files, frames, screenshots, contact
    sheets, archives, Git LFS pointers, caches, temporary files, or credentials.
-4. Do not publish quarantined, illegal, privacy-sensitive, or unreviewed
-   sensitive/adult/unknown content.
+4. Do not publish quarantined, illegal, or privacy-sensitive content. Preserve
+   accurate ratings and warnings; these labels do not require manual approval.
 5. Preserve manual approved descriptions when the referenced media hashes have
    not changed. A semantic/media/provenance change resets review to `unreviewed`.
 6. Keep candidate lists, comparison sheets, decoded media, and local LSH/BK-tree

@@ -325,11 +325,7 @@ def _platform_registry(root: Path) -> tuple[dict[str, Any], list[Path], str]:
 
 def _eligible_review(emoji: dict[str, Any]) -> bool:
     status = emoji["review"]["status"]
-    return status == "approved" or (
-        status == "unreviewed"
-        and emoji["content"]["rating"] == "general"
-        and emoji["content"]["warnings"] == []
-    )
+    return status in {"approved", "unreviewed"}
 
 
 def _rights_summary(

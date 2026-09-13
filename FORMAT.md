@@ -137,8 +137,10 @@ Emoji omit the collection-only `private` state. Removing an emoji from one pack
 changes only its membership status. Network/authentication failure is not proof
 of deletion.
 
-`general` plus `unreviewed` may be public only without warnings. A record with a
-`sensitive`, `adult`, or `unknown` rating, or any warning, requires `approved`.
+Content ratings and warnings do not require `approved` review for publication.
+Unreviewed records retain their ratings, warnings, and review status so consumers
+can apply their own filters. Active/search views exclude `changes_requested`
+and `rejected` records.
 Potentially illegal/privacy-sensitive quarantine is never represented in the
 public repository.
 
