@@ -2052,19 +2052,19 @@ def _check_identity_and_integrity(
         _check_text_quality(emoji, record.location, report)
         _check_review_and_policy(emoji, record.location, report)
         provenance = emoji.get("provenance")
-        review = emoji.get("review")
         if (
             isinstance(provenance, dict)
             and provenance.get("origin") in {"ai", "mixed"}
-            and isinstance(review, dict)
-            and review.get("status") != "approved"
+            and "qualification_id" in provenance
         ):
             qualification_id = provenance.get("qualification_id")
-            qualification = qualifications.get(qualification_id)
+            qualification = (
+                qualifications.get(qualification_id) if isinstance(qualification_id, str) else None
+            )
             if not qualification or not _qualification_matches(emoji, qualification, dataset):
                 report.add(
                     record.location,
-                    "blocking review reason unqualified-model: exact active qualification required",
+                    "declared qualification_id must match an exact active qualification",
                 )
 
     live_ids = set(ids)

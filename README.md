@@ -155,6 +155,10 @@ to active collections. Approved and unreviewed records are eligible regardless
 of rating or warnings; `changes_requested` and `rejected` records are excluded.
 Content labels remain available for consumer filters.
 
+AI qualification is optional: records without it retain their actual provenance
+and review status. A supplied qualification must match an exact active registry
+entry, including for records with human approval.
+
 These snapshots currently use `trust_stage=pre-enforcement`: integrity and
 reproducibility are implemented, but an unsigned local snapshot is not an
 officially authenticated release and must not be marked safe by an agent.

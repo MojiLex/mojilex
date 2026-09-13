@@ -226,7 +226,7 @@ class AddendumValidationTests(unittest.TestCase):
             report = validate_repository(root, include_examples=True, check_build=False)
             self.assertTrue(any("duplicates controlled facets" in item for item in report.errors))
 
-    def test_unqualified_ai_is_blocking_until_human_approval(self) -> None:
+    def test_ai_without_qualification_can_remain_unreviewed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
             copy_repository_contract(ROOT, root)
@@ -235,9 +235,24 @@ class AddendumValidationTests(unittest.TestCase):
             emoji["review"] = {"status": "unreviewed"}
             _write_emoji(root, emoji)
             report = validate_repository(root, include_examples=True, check_build=False)
-            self.assertTrue(
-                any("blocking review reason unqualified-model" in item for item in report.errors)
-            )
+            self.assertEqual(report.errors, [], "\n".join(report.errors))
+            self.assertNotIn("qualification_id", emoji["provenance"])
+            self.assertEqual(emoji["review"], {"status": "unreviewed"})
+
+    def test_declared_unknown_qualification_is_rejected_even_with_human_approval(self) -> None:
+        for approved in (False, True):
+            with self.subTest(approved=approved), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                copy_repository_contract(ROOT, root)
+                emoji = install_example_as_canonical(ROOT, root)["emoji"]
+                emoji["provenance"]["qualification_id"] = "mq_standard-v1_unknown-001"
+                if approved:
+                    emoji["review"]["reviewed_content_sha256"] = reviewed_content_sha256(emoji)
+                else:
+                    emoji["review"] = {"status": "unreviewed"}
+                _write_emoji(root, emoji)
+                report = validate_repository(root, include_examples=True, check_build=False)
+                self.assertTrue(any("declared qualification_id" in item for item in report.errors))
 
     def test_exact_active_qualification_allows_unreviewed_ai(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -287,6 +302,23 @@ class AddendumValidationTests(unittest.TestCase):
             )
             report = validate_repository(root, include_examples=True, check_build=False)
             self.assertEqual(report.errors, [], "\n".join(report.errors))
+
+            for field, mismatch in (
+                ("model", "different-model"),
+                ("prompt_sha256", "0" * 64),
+                ("concept_registry_sha256", "0" * 64),
+                ("valid_until", "2026-09-02T00:00:00Z"),
+            ):
+                with self.subTest(qualification_field=field):
+                    invalid = {**qualification, field: mismatch}
+                    registry["entries"] = [invalid]
+                    (root / "quality" / "model-qualifications.json").write_text(
+                        pretty_json(registry), encoding="utf-8", newline=""
+                    )
+                    report = validate_repository(root, include_examples=True, check_build=False)
+                    self.assertTrue(
+                        any("declared qualification_id" in item for item in report.errors)
+                    )
 
     def test_visual_relation_stale_evidence_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

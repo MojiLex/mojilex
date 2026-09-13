@@ -144,11 +144,12 @@ and `rejected` records.
 Potentially illegal/privacy-sensitive quarantine is never represented in the
 public repository.
 
-An unreviewed AI or mixed record additionally needs an exact active entry in
+AI and mixed records may omit `qualification_id` without requiring human approval.
+A declared qualification must match an exact active entry in
 `quality/model-qualifications.json` for its model/revision, prompt and request
 hashes, schema, taxonomy, pipeline, routing policy, languages, and generation
-time. Human approval permits an otherwise unqualified historical result while
-preserving its provenance.
+time, regardless of review status. Missing qualification is not an attestation;
+preserve the actual provenance and review status.
 
 A policy takedown removes affected current records and cascading memberships.
 Only the fields allowed by `tombstone.schema.json` may remain. The same target ID

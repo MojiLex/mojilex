@@ -19,8 +19,8 @@ Describe the narrowly scoped data/schema/policy change.
 - [ ] Content ratings, warnings, and actual review status are preserved accurately.
 - [ ] Facet values are sorted and come from the active taxonomy; rendering and
       fingerprints cover every media role/variant and use the manifest profiles.
-- [ ] Any unreviewed AI record exactly matches an active qualification, or a
-      human has approved it; no computed `blocking` review reason remains.
+- [ ] Any declared AI qualification matches an exact active registry entry;
+      absent qualifications and actual review status are represented honestly.
 - [ ] Visual relations are current human-approved decisions with fresh media
       digests and independently recomputed relation hashes.
 

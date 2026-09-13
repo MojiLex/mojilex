@@ -7,7 +7,7 @@ from pathlib import Path
 
 from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.build_index import _eligible_for_public_index, build_index
-from tools.common import compact_json, load_json, load_jsonl, pretty_json
+from tools.common import compact_json, load_jsonl
 from tools.spec003_build import _eligible_review
 from tools.validate import validate_repository
 from tools.validate_distribution import validate_distribution
@@ -41,51 +41,7 @@ class OptionalContentReviewTests(unittest.TestCase):
                 emoji = values["emoji"]
                 emoji["content"] = {"rating": rating, "warnings": warnings}
                 emoji["review"] = {"status": "unreviewed"}
-                # Keep the independent AI qualification gate satisfied with
-                # a synthetic exact fixture, never fabricated production evidence.
-                provenance = emoji["provenance"]
-                provenance["qualification_id"] = "mq_standard-v1_example-001"
-                binding = {
-                    "concept_registry_id": "concepts-v1.synthetic-test",
-                    "concept_registry_sha256": "6" * 64,
-                    "concept_candidate_set_sha256": "7" * 64,
-                    "concept_candidate_profile_id": "concept-candidates-v1",
-                    "concept_candidate_profile_sha256": "8" * 64,
-                    "model_routing_policy_id": "model-routing-local-v1",
-                    "model_routing_policy_sha256": "9" * 64,
-                }
-                provenance.update(binding)
-                qualification = {
-                    **binding,
-                    **{
-                        field: provenance[field]
-                        for field in (
-                            "qualification_id",
-                            "provider",
-                            "model",
-                            "prompt_sha256",
-                            "request_parameters_sha256",
-                            "pipeline_version",
-                        )
-                    },
-                    "description_profile": "standard-v1",
-                    "schema_version": "1.0.0",
-                    "taxonomy_version": "1.0.0",
-                    "routing_policy_version": "1.0.0",
-                    "languages": ["en", "ru"],
-                    "benchmark_id": "golden-v1",
-                    "benchmark_sha256": "3" * 64,
-                    "split_id": "holdout-v1",
-                    "split_sha256": "4" * 64,
-                    "report_sha256": "5" * 64,
-                    "valid_from": "2026-09-01T00:00:00Z",
-                    "valid_until": "2026-10-01T00:00:00Z",
-                    "status": "active",
-                }
-                registry_path = repository / "quality" / "model-qualifications.json"
-                registry = load_json(registry_path)
-                registry["entries"] = [qualification]
-                registry_path.write_text(pretty_json(registry), encoding="utf-8", newline="")
+                self.assertNotIn("qualification_id", emoji["provenance"])
                 before = copy.deepcopy(emoji)
                 bucket = next((repository / "data" / "telegram" / "emojis").rglob("*.jsonl"))
                 bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")

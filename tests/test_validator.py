@@ -476,8 +476,7 @@ class RepositoryValidatorTests(unittest.TestCase):
             bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             report = validate_repository(target, include_examples=True, check_build=False)
-            self.assertFalse(any("must be approved" in item for item in report.errors))
-            self.assertTrue(any("unqualified-model" in item for item in report.errors))
+            self.assertEqual(report.errors, [], "\n".join(report.errors))
 
     def test_approved_sensitive_content_is_accepted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

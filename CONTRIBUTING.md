@@ -38,8 +38,9 @@ authorized maintainers.
   `semantic_tags`; literal visible text stays in `facets.text_content`.
 - Do not copy a description between native IDs merely because fingerprints
   match, and never merge or delete native identities during deduplication.
-- Do not submit unreviewed AI output unless its full provenance tuple matches an
-  active qualification registry entry. Human approval is required otherwise.
+- AI qualification is optional. Omit `qualification_id` when no exact active
+  qualification exists; preserve the real provenance and review status. A
+  declared qualification must match its registry entry, even for approved records.
 - Record public provenance. Handles must be GitHub logins or stable project
   handles, never email addresses.
 - Do not update timestamps on a no-op import. `last_verified_at` changes only
