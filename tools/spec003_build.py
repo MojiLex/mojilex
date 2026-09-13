@@ -328,6 +328,10 @@ def _eligible_review(emoji: dict[str, Any]) -> bool:
     return status in {"approved", "unreviewed"}
 
 
+def _eligible_search(emoji: dict[str, Any]) -> bool:
+    return emoji["concept_mapping_status"] == "complete" and bool(emoji["concept_ids"])
+
+
 def _rights_summary(
     emoji: dict[str, Any],
     platform_by_id: dict[str, dict[str, Any]],
@@ -672,7 +676,12 @@ def _literal_text(emoji: dict[str, Any]) -> list[dict[str, Any]]:
     for item in emoji["facets"]["text_content"]["items"]:
         projected = {
             "value": item["value"],
-            "kind": item["kind"],
+            "kind": {
+                "letter": "symbol",
+                "punctuation": "symbol",
+                "code": "mixed",
+                "other": "mixed",
+            }.get(item["kind"], item["kind"]),
             "script": item["script"],
         }
         if "language" in item:
@@ -1598,6 +1607,8 @@ def build_index(
     }
     search_rows: dict[str, list[dict[str, Any]]] = {language: [] for language in REQUIRED_LANGUAGES}
     for emoji in eligible_emojis:
+        if not _eligible_search(emoji):
+            continue
         for language in REQUIRED_LANGUAGES:
             if language not in emoji["descriptions"]:
                 raise DataError(f"eligible emoji {emoji['id']} lacks required language {language}")

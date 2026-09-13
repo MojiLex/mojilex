@@ -1946,11 +1946,6 @@ def _check_identity_and_integrity(
                 and concept.get("status") != "active"
             ):
                 report.add(record.location, f"active emoji uses inactive concept: {concept_id!r}")
-        if (
-            emoji.get("availability", {}).get("status") == "active"
-            and emoji.get("concept_mapping_status") != "complete"
-        ):
-            report.add(record.location, "active emoji requires complete concept mapping")
 
     collections = {record.value.get("id"): record for record in records.collections}
     emojis = {record.value.get("id"): record for record in records.emojis}

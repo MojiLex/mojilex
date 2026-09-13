@@ -138,6 +138,10 @@ changes only its membership status. Network/authentication failure is not proof
 of deletion.
 
 Content ratings and warnings do not require `approved` review for publication.
+Concept mapping may remain `pending` with empty `concept_ids` in canonical
+records and active views. Derived search requires complete mapping and nonempty
+concept IDs. Its literal text projection maps `letter` and `punctuation` to
+`symbol`, and `code` and `other` to `mixed`, preserving canonical text metadata.
 Unreviewed records retain their ratings, warnings, and review status so consumers
 can apply their own filters. Active/search views exclude `changes_requested`
 and `rejected` records.

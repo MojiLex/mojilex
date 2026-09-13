@@ -155,6 +155,10 @@ to active collections. Approved and unreviewed records are eligible regardless
 of rating or warnings; `changes_requested` and `rejected` records are excluded.
 Content labels remain available for consumer filters.
 
+Records with `concept_mapping_status=pending` and empty concept IDs can be
+published in canonical data and active views. They enter derived search only
+after their mapping is complete; publication never invents concept IDs.
+
 AI qualification is optional: records without it retain their actual provenance
 and review status. A supplied qualification must match an exact active registry
 entry, including for records with human approval.

@@ -539,6 +539,8 @@ def build_index(root: Path, output: Path, *, revision: str) -> dict[str, Any]:
 
     search: dict[str, list[dict[str, Any]]] = {"ru": [], "en": []}
     for emoji in active_emojis:
+        if emoji["concept_mapping_status"] != "complete" or not emoji["concept_ids"]:
+            continue
         for language in search:
             if language in emoji["descriptions"]:
                 search[language].append(

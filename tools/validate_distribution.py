@@ -30,6 +30,7 @@ if __package__:
         REQUIRED_FEATURES,
         _collection_facets,
         _eligible_review,
+        _eligible_search,
         _media_set_root,
         _members_root,
         _present,
@@ -60,6 +61,7 @@ else:
         REQUIRED_FEATURES,
         _collection_facets,
         _eligible_review,
+        _eligible_search,
         _media_set_root,
         _members_root,
         _present,
@@ -671,7 +673,9 @@ def _validate_search(
         )
         for platform, profile in platforms.items()
     }
-    expected_ids = set(collections_by_emoji)
+    expected_ids = {
+        emoji_id for emoji_id in collections_by_emoji if _eligible_search(emojis[emoji_id])
+    }
     for language in manifest["languages"]["required"]:
         actual = records.get(f"search-{language}", [])
         if {row.get("emoji_id") for row in actual} != expected_ids:
