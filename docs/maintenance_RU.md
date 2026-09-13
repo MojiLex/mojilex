@@ -13,8 +13,8 @@ dataset.json
 data/<platform>/collections/<sha256(id)[0:2]>/<collection_id>/
   collection.json
   memberships.jsonl
-data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
-data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
+data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
+data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
 schemas/v1/
 schemas/distribution/v1/
@@ -33,6 +33,11 @@ Bucket-файлы эмодзи содержат по одному компакт
 сортируются по `id`. Записи membership сортируются по `status`, `position`,
 затем по `id`. Для всех текстовых файлов используются UTF-8 без BOM, окончания
 строк LF и детерминированное форматирование.
+
+Пути эмодзи и визуальных связей используют восемь символов SHA-256: два в имени
+каталога и шесть в имени файла. Старые пути с четырьмя символами остаются допустимыми
+для сохранённых запусков. При переносе ID и содержимое записей сохраняются;
+дубликаты ID между старыми и новыми файлами запрещены.
 
 Корневой UUID namespace зафиксирован в `dataset.json`. Идентификаторы Schema v1
 формируются как UUIDv5 из NFC-нормализованных компонентов, разделенных U+0000.
