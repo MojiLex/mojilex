@@ -9,6 +9,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
+from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.build_index import build_index
 from tools.common import jcs_bytes, jcs_sha256, load_json, sha256_bytes
 from tools.spec003_build import PROFILE_CONTRACT_SCHEMA_FILES
@@ -38,6 +39,12 @@ TRANSPORT_SCHEMAS = {
 class DistributionTransportSchemaTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        cls.fixture_root = Path(temporary.name).resolve()
+        # Keep fixed-epoch transport tests independent of the live canonical dataset.
+        copy_repository_contract(ROOT, cls.fixture_root)
+        install_example_as_canonical(ROOT, cls.fixture_root)
         cls.schemas: dict[str, dict[str, Any]] = {}
         cls.registry: Registry[Any] = Registry()
         for path in sorted(ROOT.glob("schemas/**/*.json")):
@@ -59,7 +66,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
     def test_transport_schemas_are_embedded_as_exact_source_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary).resolve() / "dist"
-            manifest = build_index(ROOT, output, **BUILD_ARGS)
+            manifest = build_index(self.fixture_root, output, **BUILD_ARGS)
             resources = {
                 item["source_path"]: item
                 for item in manifest["resources"]
@@ -209,7 +216,9 @@ class DistributionTransportSchemaTests(unittest.TestCase):
 
     def test_manifest_histograms_require_every_closed_status_key(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            manifest = build_index(ROOT, Path(temporary).resolve() / "dist", **BUILD_ARGS)
+            manifest = build_index(
+                self.fixture_root, Path(temporary).resolve() / "dist", **BUILD_ARGS
+            )
         self.assertEqual(self.errors("release-manifest.schema.json", manifest), [])
 
         bogus = copy.deepcopy(manifest)
@@ -238,8 +247,8 @@ class DistributionTransportSchemaTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary).resolve() / "dist"
-            manifest = build_index(ROOT, output, **BUILD_ARGS)
-            self.assertEqual(validate_distribution(ROOT, output).errors, [])
+            manifest = build_index(self.fixture_root, output, **BUILD_ARGS)
+            self.assertEqual(validate_distribution(self.fixture_root, output).errors, [])
             manifest["build"].update(
                 {
                     "tool": "mojilex-cli",
@@ -248,7 +257,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
                 }
             )
             write_manifest(output, manifest)
-            self.assertEqual(validate_distribution(ROOT, output).errors, [])
+            self.assertEqual(validate_distribution(self.fixture_root, output).errors, [])
 
             manifest["build"]["tool_repository"] = load_json(ROOT / "dataset.json")[
                 "canonical_repository"
@@ -257,7 +266,7 @@ class DistributionTransportSchemaTests(unittest.TestCase):
             self.assertTrue(
                 any(
                     "in-repository builder commit differs" in error
-                    for error in validate_distribution(ROOT, output).errors
+                    for error in validate_distribution(self.fixture_root, output).errors
                 )
             )
 

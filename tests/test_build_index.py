@@ -34,6 +34,15 @@ BUILD_ARGS = {
 
 
 class BuildIndexTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        cls.fixture_root = Path(temporary.name).resolve()
+        # A fixed release epoch must use fixed evidence, not newly submitted packs.
+        copy_repository_contract(ROOT, cls.fixture_root)
+        install_example_as_canonical(ROOT, cls.fixture_root)
+
     @staticmethod
     def _create_windows_junction(link: Path, target: Path) -> None:
         completed = subprocess.run(
@@ -82,7 +91,7 @@ class BuildIndexTests(unittest.TestCase):
             note = output / "notes.txt"
             note.write_text("keep me\n", encoding="utf-8", newline="")
             with self.assertRaisesRegex(ValueError, "non-build directory"):
-                build_index(ROOT, output, **BUILD_ARGS)
+                build_index(self.fixture_root, output, **BUILD_ARGS)
             self.assertEqual(note.read_text(encoding="utf-8"), "keep me\n")
 
     @unittest.skipUnless(os.name == "nt", "Windows junction regression")
@@ -97,7 +106,7 @@ class BuildIndexTests(unittest.TestCase):
             self._create_windows_junction(output, outside)
 
             with self.assertRaisesRegex(ValueError, "link or reparse point"):
-                build_index(ROOT, output, **BUILD_ARGS)
+                build_index(self.fixture_root, output, **BUILD_ARGS)
 
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep")
             self.assertFalse((outside / "manifest.json").exists())
@@ -198,7 +207,7 @@ class BuildIndexTests(unittest.TestCase):
     def test_manifest_and_sha256sums_cover_every_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary).resolve() / "dist"
-            manifest = build_index(ROOT, output, **BUILD_ARGS)
+            manifest = build_index(self.fixture_root, output, **BUILD_ARGS)
             descriptors = {item["path"]: item for item in manifest["artifacts"]}
             self.assertEqual(set(descriptors), set(PAYLOAD_NAMES))
             for name, descriptor in descriptors.items():
@@ -215,7 +224,7 @@ class BuildIndexTests(unittest.TestCase):
             self.assertNotIn("SHA256SUMS", names)
             self.assertEqual((output / "manifest.json").read_bytes(), jcs_bytes(manifest))
             self.assertFalse((output / "manifest.json").read_bytes().endswith(b"\n"))
-            report = validate_distribution(ROOT, output)
+            report = validate_distribution(self.fixture_root, output)
             self.assertEqual(report.errors, [], "\n".join(report.errors))
 
             embedded_schema = next(
@@ -225,7 +234,7 @@ class BuildIndexTests(unittest.TestCase):
                 == "schemas/distribution/v1/cli-read-envelope.schema.json"
             )
             (output / embedded_schema["path"]).write_bytes(b"{}")
-            tampered = validate_distribution(ROOT, output)
+            tampered = validate_distribution(self.fixture_root, output)
             self.assertTrue(
                 any(
                     "resource hash mismatch" in error
@@ -237,7 +246,9 @@ class BuildIndexTests(unittest.TestCase):
 
     def test_canonical_state_root_uses_exact_policy_entry_names(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            manifest = build_index(ROOT, Path(temporary).resolve() / "dist", **BUILD_ARGS)
+            manifest = build_index(
+                self.fixture_root, Path(temporary).resolve() / "dist", **BUILD_ARGS
+            )
         entries = []
         for descriptor in manifest["artifacts"]:
             if descriptor["semantic_role"] not in {"canonical", "normative"}:
@@ -293,7 +304,7 @@ class BuildIndexTests(unittest.TestCase):
             tempfile.TemporaryDirectory() as temporary,
             self.assertRaisesRegex(ValueError, "snapshot_id and source_date_epoch"),
         ):
-            build_index(ROOT, Path(temporary).resolve() / "dist", revision=REVISION)
+            build_index(self.fixture_root, Path(temporary).resolve() / "dist", revision=REVISION)
 
     def test_build_rejects_impossible_snapshot_calendar_date(self) -> None:
         with (
@@ -301,7 +312,7 @@ class BuildIndexTests(unittest.TestCase):
             self.assertRaisesRegex(ValueError, "invalid UTC calendar date"),
         ):
             build_index(
-                ROOT,
+                self.fixture_root,
                 Path(temporary).resolve() / "dist",
                 revision=REVISION,
                 snapshot_id="data-2026.02.31.1",
