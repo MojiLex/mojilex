@@ -622,6 +622,13 @@ def entity_shard(entity_id: str, length: int = 2) -> str:
     return sha256_bytes(entity_id.encode("utf-8"))[:length]
 
 
+def bucket_shard_matches(entity_id: str, directory: str, stem: str) -> bool:
+    """Accept current eight-character buckets and correctly hashed legacy buckets."""
+    if len(directory) != 2 or len(stem) not in (2, 6):
+        return False
+    return entity_shard(entity_id, len(directory) + len(stem)) == directory + stem
+
+
 def projected_media(media: Iterable[dict[str, Any]]) -> list[dict[str, str]]:
     projection: list[dict[str, str]] = []
     for item in media:

@@ -36,6 +36,7 @@ if __package__:
         DataError,
         LocatedRecord,
         RepositoryRecords,
+        bucket_shard_matches,
         compact_json,
         discover_records,
         duplicate_group_id,
@@ -57,6 +58,7 @@ else:
         DataError,
         LocatedRecord,
         RepositoryRecords,
+        bucket_shard_matches,
         compact_json,
         discover_records,
         duplicate_group_id,
@@ -1793,7 +1795,9 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
         value = record.value
         if value.get("platform") != platform:
             report.add(record.location, "record platform does not match path platform")
-        if isinstance(value.get("id"), str) and entity_shard(value["id"], 4) != shard_1 + shard_2:
+        if isinstance(value.get("id"), str) and not bucket_shard_matches(
+            value["id"], shard_1, shard_2
+        ):
             report.add(record.location, "emoji bucket path does not match SHA-256(id)")
     for path, values in emoji_files.items():
         if values != sorted(values, key=lambda value: value.get("id", "")):
@@ -1853,7 +1857,7 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
         parts = record.path.relative_to(root).parts
         shard_1, shard_2 = parts[3], record.path.stem
         relation_id = record.value.get("id")
-        if isinstance(relation_id, str) and entity_shard(relation_id, 4) != shard_1 + shard_2:
+        if isinstance(relation_id, str) and not bucket_shard_matches(relation_id, shard_1, shard_2):
             report.add(record.location, "visual relation bucket path does not match SHA-256(id)")
     for path, values in relation_files.items():
         if values != sorted(values, key=lambda value: value.get("id", "")):

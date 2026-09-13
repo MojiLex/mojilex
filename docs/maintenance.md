@@ -6,6 +6,8 @@ This guide is for contributors and application developers. To analyze and
 publish a pack through the menu, start with
 [MojiLex CLI](https://github.com/MojiLex/mojilex-cli/blob/main/README.md).
 
+For concurrent data submissions, see [automatic PR refresh and its limits](pr-refresh.md#english).
+
 ## Data layout
 
 ```text
@@ -13,8 +15,8 @@ dataset.json
 data/<platform>/collections/<sha256(id)[0:2]>/<collection_id>/
   collection.json
   memberships.jsonl
-data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
-data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:4]>.jsonl
+data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
+data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
 schemas/v1/
 schemas/distribution/v1/
@@ -32,6 +34,13 @@ tests/
 one compact object per line sorted by `id`. Membership files contain compact
 objects sorted by `status`, `position`, then `id`. All files use UTF-8 without a
 BOM, LF line endings, and deterministic formatting.
+
+Emoji and visual-relation file paths use the first eight characters of the
+ID's SHA-256: two for the directory and six for the filename. This reduces
+shared-file conflicts between independent pull requests. Correctly hashed legacy
+four-character paths remain valid for saved runs and open pull requests. New
+writes use eight characters; moving a record does not change its ID or content.
+Duplicate IDs across legacy and current files are rejected.
 
 The root namespace UUID is permanently fixed in `dataset.json`. Schema-v1 IDs
 are UUIDv5 values over NFC-normalized components separated by U+0000. Exact
