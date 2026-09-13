@@ -50,7 +50,13 @@ For Telegram v1:
 - emoji identity uses `custom_emoji.id`, `global`, and the decimal ID string;
 - `extensions.telegram.short_name` equals collection `native_id`;
 - `extensions.telegram.custom_emoji_id` equals emoji `native_id`; and
-- only one primary WebP, TGS, or WebM media metadata object is stored.
+- only one primary PNG, WebP, TGS, or WebM media metadata object is stored.
+
+PNG and WebP are static: `kind: "static"`, `animated: false`, and no
+`duration_ms`. PNG uses `format: "png"` and `mime_type: "image/png"`; WebP
+uses `format: "webp"` and `mime_type: "image/webp"`. Record the format of the
+original downloaded bytes and its SHA-256, regardless of the source filename.
+PNG support is additive; existing WebP, TGS, and WebM records remain valid.
 
 Media objects contain metadata and a source-file hash only. URLs, Telegram
 `file_id`, filesystem paths, and binary content are forbidden.

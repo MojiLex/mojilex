@@ -9,7 +9,7 @@ authorized maintainers.
 1. Work from an up-to-date branch of `MojiLex/mojilex`.
 2. Use `mojilex-cli` for imports when available, or edit textual records with
    exceptional care. Do not add an importer to this repository.
-3. Do not commit original WebP/TGS/WebM files, frames, screenshots, contact
+3. Do not commit original PNG/WebP/TGS/WebM files, frames, screenshots, contact
    sheets, archives, Git LFS pointers, caches, temporary files, or credentials.
 4. Do not publish quarantined, illegal, or privacy-sensitive content. Preserve
    accurate ratings and warnings; these labels do not require manual approval.

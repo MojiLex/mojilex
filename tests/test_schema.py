@@ -59,6 +59,32 @@ class SchemaTests(unittest.TestCase):
                     any(fixture["expected_fragment"] in message for message in messages), messages
                 )
 
+    def test_telegram_static_png_and_existing_webp_are_valid(self) -> None:
+        for media_format in ("png", "webp"):
+            with self.subTest(media_format=media_format):
+                emoji = copy.deepcopy(load_json(ROOT / "examples/facets/adaptive-icon.json"))
+                emoji["media"][0].update(format=media_format, mime_type=f"image/{media_format}")
+                self.assertEqual(list(self.validator("emoji").iter_errors(emoji)), [])
+
+    def test_telegram_png_keeps_static_metadata_constraints(self) -> None:
+        cases = [
+            {"kind": "animation", "animated": True, "duration_ms": 100},
+            {"kind": "video", "animated": True, "duration_ms": 100},
+            {"animated": True, "duration_ms": 100},
+            {"mime_type": "image/webp"},
+            {"duration_ms": 100},
+            {"width": 0},
+            {"height": 0},
+            {"sha256": "invalid"},
+            {"byte_size": 0},
+        ]
+        for mutation in cases:
+            with self.subTest(mutation=mutation):
+                emoji = copy.deepcopy(load_json(ROOT / "examples/facets/adaptive-icon.json"))
+                emoji["media"][0].update(format="png", mime_type="image/png")
+                emoji["media"][0].update(mutation)
+                self.assertTrue(list(self.validator("emoji").iter_errors(emoji)))
+
     def test_tombstone_cannot_leak_native_identifier(self) -> None:
         fixture = load_json(
             ROOT / "tests" / "fixtures" / "invalid" / "tombstone-with-native-id.json"
