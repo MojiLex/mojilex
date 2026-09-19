@@ -107,6 +107,10 @@ relationships; [JSON schemas](schemas/v1/) define the exact contract.
 The CLI's `show` command reads your locally analyzed packs. It is not a browser
 for every pack in this repository.
 
+Literal text in `facets.text_content` preserves symbols such as `</>`, `<3`,
+and `x>y`. HTML tags and control characters are forbidden. Applications must
+escape literal text when displaying it in HTML.
+
 ## Contribute or maintain the database
 
 - [Contribution rules](CONTRIBUTING.md) — editing records and opening a PR.
