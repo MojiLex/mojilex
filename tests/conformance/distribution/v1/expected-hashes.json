@@ -1,7 +1,6 @@
 {
-  "fixture_id": "stage-ab-synthetic-monolith-v1",
   "files": {
-    "SHA256SUMS": "7f40ad50b899895d220b551f81532511e3b3920a9cd2e95e4cc59a55e801fce0",
+    "SHA256SUMS": "a7f35ba194ddf2faa785ca94371600889893834a781ff378c23f50019e0ecd1e",
     "collection-facets.jsonl": "2fa556f634305fdfcc530be7842d619194111576f69ee0ab16d1426e338bba9f",
     "collections.jsonl": "76b085937120ebbe9dd4f33365a2d094b97ecc8d82c0d95d3af0dcc80c4edc9f",
     "concepts.json": "27696d77d300042806ab5021a6ef225b4a7295e10f390f3ca70e76535429e1ec",
@@ -9,7 +8,7 @@
     "duplicate-groups.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "emojis-active.jsonl": "d49b75583e1f30488e6e47b0c8a7bda9be3e18af6f63b8df0ff7e188cdc84dc9",
     "emojis.jsonl": "d49b75583e1f30488e6e47b0c8a7bda9be3e18af6f63b8df0ff7e188cdc84dc9",
-    "manifest.json": "f78745f0625ca26a0f78974f14699eab1dc4ebcb1b42d8cd3b625b9d2ffd8878",
+    "manifest.json": "55598aa036904307e1fd1a4d3a5827997ff000389fc5522bd7915da4124d8500",
     "memberships.jsonl": "b7e057c80a562bf0557e89098fb77e0b702c7cf6bc55ac2f9a74a995cc8ffa68",
     "platform-profiles.json": "2397cfcfa5c6c72037f4a9507251feabf47131eccf949791e9b48529d21d39af",
     "resources/profiles/bcp47-v1.json": "a9d44c67ae56c6668d7dfcd0c27c9907f35ed152eba734b90f66abbf249c1fd4",
@@ -82,7 +81,7 @@
     "resources/schemas/v1/dataset.schema.json": "aed81ae47e97156b2d555fdca1dcb7e69ce851e0c39421a340583a60b72f9096",
     "resources/schemas/v1/emoji.schema.json": "20647883f8cdd944a774864faac32f9a524ab69d84f9566e7ee7b699466668d2",
     "resources/schemas/v1/extensions/telegram.schema.json": "6b76db0ac0affa728cc13a760b140c211a001e939ee4416809173a6dfad091ef",
-    "resources/schemas/v1/facets.schema.json": "df28f9a4416d42c6e560a9d80bf860552255c9ab137930dcb027755aea1bd14d",
+    "resources/schemas/v1/facets.schema.json": "52df60d8f03549d9734abf7bdb0e7e6a51e70bb435dd04367b9cc870a8f2be25",
     "resources/schemas/v1/fingerprints.schema.json": "10ddfa83a1c0f1bc2b2edd62fe87f3bc6c16163fd89748d7bbf1a808ed403aed",
     "resources/schemas/v1/membership.schema.json": "94e3e69c71b581c21346517a089a047b86d9b8f108706014dbbaf93e0c242f20",
     "resources/schemas/v1/tombstone.schema.json": "763136da98d637a7691edcda42fb5f751c20ec8d111b1cdada33a829867e07e0",
@@ -93,5 +92,6 @@
     "taxonomy.json": "9662be8b7426813eb191029d1401cf341853606ff27a9bdbd59dd89eadd076dd",
     "tombstones.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "visual-relations.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  }
+  },
+  "fixture_id": "stage-ab-synthetic-monolith-v1"
 }
