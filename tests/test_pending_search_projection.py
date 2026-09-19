@@ -23,6 +23,16 @@ BUILD_ARGS = {
 
 
 class PendingSearchProjectionTests(unittest.TestCase):
+    def test_literal_symbols_preserved_but_markup_and_controls_rejected(self) -> None:
+        canonical = load_json(ROOT / "schemas/v1/facets.schema.json")
+        validator = Draft202012Validator(canonical["$defs"]["textItem"]["properties"]["value"])
+        for value in ("</>", "<3", "x>y", "<="):
+            with self.subTest(value=value):
+                self.assertTrue(validator.is_valid(value))
+        for value in ("<b>x</b>", "<script>", "x\x00", "x\x85"):
+            with self.subTest(value=value):
+                self.assertFalse(validator.is_valid(value))
+
     def test_every_canonical_text_kind_projects_to_existing_search_contract(self) -> None:
         expected = {
             "letter": "symbol",
