@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_7e2bd4a9-50f4-5486-adb5-1f2b0cddc6f8",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "CatsBigPack",
+  "identity_epoch": 0,
+  "title": "☆ @emoji1 ★",
+  "canonical_url": "https://t.me/addemoji/CatsBigPack",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-14T23:31:00Z",
+    "last_changed_at": "2026-09-14T23:31:00Z",
+    "last_verified_at": "2026-09-14T23:31:00Z"
+  },
+  "item_count": 200,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "CatsBigPack",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "d90219cea34000dc3cf49db360b9f908691fb21332d32b1257b7cb0e00db4713"
+    }
+  }
+}

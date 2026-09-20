@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_f01cc26b-fb7b-5eaa-801f-e6231975204e",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "HamtaroEmoji",
+  "identity_epoch": 0,
+  "title": "☆ @emoji1 ★",
+  "canonical_url": "https://t.me/addemoji/HamtaroEmoji",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T20:50:25Z",
+    "last_changed_at": "2026-09-19T20:50:25Z",
+    "last_verified_at": "2026-09-19T20:50:25Z"
+  },
+  "item_count": 129,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "HamtaroEmoji",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "2dd698ed90b5f7380a275ca0ff283fd7bb9e99f1f9068ffcf55aa2380ac3fa21"
+    }
+  }
+}

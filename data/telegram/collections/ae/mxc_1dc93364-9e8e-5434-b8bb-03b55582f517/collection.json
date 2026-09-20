@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_1dc93364-9e8e-5434-b8bb-03b55582f517",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "DecorationEmojiPack",
+  "identity_epoch": 0,
+  "title": "☆ @emoji1 ★",
+  "canonical_url": "https://t.me/addemoji/DecorationEmojiPack",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-14T23:31:21Z",
+    "last_changed_at": "2026-09-14T23:31:21Z",
+    "last_verified_at": "2026-09-14T23:31:21Z"
+  },
+  "item_count": 200,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "DecorationEmojiPack",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "cd05b74a2b408d7d1ed4e5c7d6ab87fdcac7f7c35acbab83d40cc3b7c770fea3"
+    }
+  }
+}

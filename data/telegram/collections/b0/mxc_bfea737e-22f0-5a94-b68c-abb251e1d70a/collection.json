@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_bfea737e-22f0-5a94-b68c-abb251e1d70a",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "Flags_kotletovv",
+  "identity_epoch": 0,
+  "title": "Flags · @kotletovvemoji",
+  "canonical_url": "https://t.me/addemoji/Flags_kotletovv",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T21:09:49Z",
+    "last_changed_at": "2026-09-19T21:09:49Z",
+    "last_verified_at": "2026-09-19T21:09:49Z"
+  },
+  "item_count": 175,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "Flags_kotletovv",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "13fce31748ea66ad58df4d9c75db87c724c8e3cdadcd2b65ee2f8ebba453cbe4"
+    }
+  }
+}

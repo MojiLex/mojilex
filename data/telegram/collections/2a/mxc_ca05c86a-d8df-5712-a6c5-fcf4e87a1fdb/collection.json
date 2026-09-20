@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_ca05c86a-d8df-5712-a6c5-fcf4e87a1fdb",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "ToroInoueEmojiSet",
+  "identity_epoch": 0,
+  "title": "☆ @emoji1 ★",
+  "canonical_url": "https://t.me/addemoji/ToroInoueEmojiSet",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-20T04:31:27Z",
+    "last_changed_at": "2026-09-20T04:31:27Z",
+    "last_verified_at": "2026-09-20T04:31:27Z"
+  },
+  "item_count": 36,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "ToroInoueEmojiSet",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "fe2b2bf030c0b35ad25828dd947054d81a4f59d36d85b29f9b2b1ccfd84fa387"
+    }
+  }
+}
