@@ -130,9 +130,10 @@ $sourceDateEpoch = (git show -s --format=%ct $dataCommit).Trim()
 .\.venv\Scripts\python.exe tools\validate_distribution.py . dist\index
 ```
 
-All three release identity inputs are mandatory: a full Git object ID, an
-immutable `data-YYYY.MM.DD.N` snapshot ID, and an integer
-`source_date_epoch`. The builder never consults the wall clock. Reusing the
+A snapshot binds three release identity inputs: a full Git object ID, an
+immutable `data-YYYY.MM.DD.N` snapshot ID, and an integer `source_date_epoch`.
+The CLI requires the snapshot ID and epoch; `--revision` defaults to HEAD.
+Pass all three explicitly for a reproducible release command. The builder never consults the wall clock. Reusing the
 same source tree and all three inputs produces the same bytes.
 
 The output contains canonical JSONL payloads, active/search derived views,
