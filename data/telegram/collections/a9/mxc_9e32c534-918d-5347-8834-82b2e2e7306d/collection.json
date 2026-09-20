@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_9e32c534-918d-5347-8834-82b2e2e7306d",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "Fire_Text",
+  "identity_epoch": 0,
+  "title": "🔥 HOT ➤ @technoprint_official",
+  "canonical_url": "https://t.me/addemoji/Fire_Text",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T21:02:52Z",
+    "last_changed_at": "2026-09-19T21:02:52Z",
+    "last_verified_at": "2026-09-19T21:02:52Z"
+  },
+  "item_count": 117,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "Fire_Text",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "68a56dee2a649b2d6e5145a8ccae500240a7192a3e29ee02e3a2cecf06a50044"
+    }
+  }
+}

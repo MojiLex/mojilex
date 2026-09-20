@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_13bdb70d-d3f4-51b5-a324-042e9e3378a6",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "CuteEmoji",
+  "identity_epoch": 0,
+  "title": "Cute Emoji",
+  "canonical_url": "https://t.me/addemoji/CuteEmoji",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T20:56:33Z",
+    "last_changed_at": "2026-09-19T20:56:33Z",
+    "last_verified_at": "2026-09-19T20:56:33Z"
+  },
+  "item_count": 200,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "CuteEmoji",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "c8c38442e8749456672e4df6c1be97a88d35185f90686d5413ffabba0aaee9ec"
+    }
+  }
+}

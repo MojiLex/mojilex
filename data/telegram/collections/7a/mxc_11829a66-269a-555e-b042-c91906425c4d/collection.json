@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_11829a66-269a-555e-b042-c91906425c4d",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "Darknessee_by_rrzbot",
+  "identity_epoch": 0,
+  "title": "Dark : @I1RRN",
+  "canonical_url": "https://t.me/addemoji/Darknessee_by_rrzbot",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-14T23:31:18Z",
+    "last_changed_at": "2026-09-14T23:31:18Z",
+    "last_verified_at": "2026-09-14T23:31:18Z"
+  },
+  "item_count": 48,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "Darknessee_by_rrzbot",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "65667e8ee43aa9f1bbf466b2ef55eb9c9d87c5b664d5c57f4fa40a0d4a91b595"
+    }
+  }
+}

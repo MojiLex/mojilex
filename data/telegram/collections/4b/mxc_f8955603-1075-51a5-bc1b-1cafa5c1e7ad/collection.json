@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_f8955603-1075-51a5-bc1b-1cafa5c1e7ad",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "IconsBlueEmoji",
+  "identity_epoch": 0,
+  "title": "Icons Pack (@istevedogs)",
+  "canonical_url": "https://t.me/addemoji/IconsBlueEmoji",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T20:58:47Z",
+    "last_changed_at": "2026-09-19T20:58:47Z",
+    "last_verified_at": "2026-09-19T20:58:47Z"
+  },
+  "item_count": 148,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "IconsBlueEmoji",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "25621b99517b3e2a5335db29a06303c376bcdb19e1e8b64511c427c55211328a"
+    }
+  }
+}
