@@ -6,6 +6,8 @@ This guide is for contributors and application developers. To analyze and
 publish a pack through the menu, start with
 [MojiLex CLI](https://github.com/MojiLex/mojilex-cli/blob/main/README.md).
 
+For concurrent data submissions, see [automatic PR refresh and its limits](pr-refresh.md#english).
+
 ## Data layout
 
 ```text
@@ -33,10 +35,12 @@ one compact object per line sorted by `id`. Membership files contain compact
 objects sorted by `status`, `position`, then `id`. All files use UTF-8 without a
 BOM, LF line endings, and deterministic formatting.
 
-Emoji and visual-relation paths use eight SHA-256 characters: two for the directory
-and six for the filename. Correctly hashed legacy four-character paths remain
-accepted for saved runs. Moving records preserves IDs and contents; duplicate IDs
-across old and new paths are rejected.
+Emoji and visual-relation file paths use the first eight characters of the
+ID's SHA-256: two for the directory and six for the filename. This reduces
+shared-file conflicts between independent pull requests. Correctly hashed legacy
+four-character paths remain valid for saved runs and open pull requests. New
+writes use eight characters; moving a record does not change its ID or content.
+Duplicate IDs across legacy and current files are rejected.
 
 The root namespace UUID is permanently fixed in `dataset.json`. Schema-v1 IDs
 are UUIDv5 values over NFC-normalized components separated by U+0000. Exact
@@ -126,9 +130,10 @@ $sourceDateEpoch = (git show -s --format=%ct $dataCommit).Trim()
 .\.venv\Scripts\python.exe tools\validate_distribution.py . dist\index
 ```
 
-All three release identity inputs are mandatory: a full Git object ID, an
-immutable `data-YYYY.MM.DD.N` snapshot ID, and an integer
-`source_date_epoch`. The builder never consults the wall clock. Reusing the
+A snapshot binds three release identity inputs: a full Git object ID, an
+immutable `data-YYYY.MM.DD.N` snapshot ID, and an integer `source_date_epoch`.
+The CLI requires the snapshot ID and epoch; `--revision` defaults to HEAD.
+Pass all three explicitly for a reproducible release command. The builder never consults the wall clock. Reusing the
 same source tree and all three inputs produces the same bytes.
 
 The output contains canonical JSONL payloads, active/search derived views,

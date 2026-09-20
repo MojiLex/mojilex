@@ -78,9 +78,9 @@ If you prefer to edit records directly, follow [CONTRIBUTING.md](CONTRIBUTING.md
 Accepted records are available in [data/](data/). For a stable input to your
 application, use a specific Git commit instead of following a changing branch.
 
-As of **13 September 2026**, there are no downloadable dataset releases on
-[GitHub Releases](https://github.com/MojiLex/mojilex/releases). You can read the
-source JSON/JSONL records or [build and validate a snapshot locally](docs/maintenance.md).
+Check [GitHub Releases](https://github.com/MojiLex/mojilex/releases) for published
+dataset snapshots. If no release is available, read the source JSON/JSONL records
+or [build and validate a snapshot locally](docs/maintenance.md).
 Files in [examples/](examples/) are illustrative fixtures, separate from the
 accepted dataset.
 
