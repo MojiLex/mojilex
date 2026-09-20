@@ -73,7 +73,8 @@ jobs:
   build-index:
     name: build-index reproducibility (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    # Two complete builds of the full dataset exceed 10 minutes on Windows.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:

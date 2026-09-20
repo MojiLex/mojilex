@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_2e6e0771-ac39-5535-9f52-42da01a7b60e",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "GojillEmojiPack1",
+  "identity_epoch": 0,
+  "title": "☆ @emoji1 ★",
+  "canonical_url": "https://t.me/addemoji/GojillEmojiPack1",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T21:12:37Z",
+    "last_changed_at": "2026-09-19T21:12:37Z",
+    "last_verified_at": "2026-09-19T21:12:37Z"
+  },
+  "item_count": 200,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "GojillEmojiPack1",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "d6b40031c14c33f00f69d96be1179f893a2a56a7ccfa24e468e8d9aa01058a30"
+    }
+  }
+}

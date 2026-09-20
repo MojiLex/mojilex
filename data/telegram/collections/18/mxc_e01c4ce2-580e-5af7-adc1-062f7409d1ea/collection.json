@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_e01c4ce2-580e-5af7-adc1-062f7409d1ea",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "Top_Style",
+  "identity_epoch": 0,
+  "title": "🦎 Top Style @MERCHSTORE_Official",
+  "canonical_url": "https://t.me/addemoji/Top_Style",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-20T04:51:16Z",
+    "last_changed_at": "2026-09-20T04:51:16Z",
+    "last_verified_at": "2026-09-20T04:51:16Z"
+  },
+  "item_count": 96,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "Top_Style",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "3cbe66152aa02435da2431614f14c32e455184a2f88f0cf8da244aed6b18ad04"
+    }
+  }
+}

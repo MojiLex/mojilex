@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "entity_type": "collection",
+  "id": "mxc_b42580fd-0282-560a-a8fe-cbe60791f8f3",
+  "platform": "telegram",
+  "kind": "custom_emoji_set",
+  "native_namespace": "sticker_set.name",
+  "scope_id": "global",
+  "native_id": "DClickEmoji",
+  "identity_epoch": 0,
+  "title": "Эмодзи от @domclick_pro",
+  "canonical_url": "https://t.me/addemoji/DClickEmoji",
+  "availability": {
+    "status": "active",
+    "first_seen_at": "2026-09-19T20:56:59Z",
+    "last_changed_at": "2026-09-19T20:56:59Z",
+    "last_verified_at": "2026-09-19T20:56:59Z"
+  },
+  "item_count": 77,
+  "extensions": {
+    "telegram": {
+      "schema_version": "1.0.0",
+      "retrieved_via": "bot_api",
+      "short_name": "DClickEmoji",
+      "sticker_type": "custom_emoji",
+      "set_fingerprint_sha256": "f1a0fcb859b6b0492acd2fe538b46c02265fdb5aa14d9c32e0e4ad487bdfd2c9"
+    }
+  }
+}
