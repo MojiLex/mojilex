@@ -15,6 +15,7 @@ Original emoji files, extracted frames, and other binary media are not stored he
 | I want to… | Start here |
 |---|---|
 | See what an emoji record looks like | [A readable example](#what-a-record-looks-like) |
+| Find a Telegram pack by its title or short name | [Pack catalog](data/telegram/collections/README.md) |
 | Analyze and contribute a Telegram pack | [Add a pack](#add-a-pack) |
 | Use the descriptions in my application | [Use the data](#use-the-data) |
 

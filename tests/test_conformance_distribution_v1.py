@@ -40,15 +40,7 @@ def _install_fixture(repository: Path, records: dict[str, dict[str, Any]]) -> No
     collection = records["collection"]
     emoji = records["emoji"]
     membership = records["membership"]
-    collection_shard = entity_shard(collection["id"], 2)
-    collection_dir = (
-        repository
-        / "data"
-        / collection["platform"]
-        / "collections"
-        / collection_shard
-        / collection["id"]
-    )
+    collection_dir = repository / "data" / collection["platform"] / "collections" / collection["id"]
     collection_dir.mkdir(parents=True)
     (collection_dir / "collection.json").write_text(
         pretty_json(collection), encoding="utf-8", newline=""

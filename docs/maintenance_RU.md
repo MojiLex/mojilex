@@ -12,9 +12,10 @@
 
 ```text
 dataset.json
-data/<platform>/collections/<sha256(id)[0:2]>/<collection_id>/
+data/<platform>/collections/<collection_id>/
   collection.json
   memberships.jsonl
+data/telegram/collections/README.md  # автоматически создаваемый каталог паков
 data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
@@ -31,6 +32,13 @@ tests/
 ```
 
 Файлы `collection.json` и tombstone используют JSON с отступом в два пробела.
+В [каталоге паков](../data/telegram/collections/README.md) показаны названия,
+короткие Telegram-имена и ссылки на папки. После ручной правки коллекций обновите
+его командой `python -m tools.collection_catalog . --write` и проверьте
+`python -m tools.collection_catalog . --check`. CLI обновляет каталог автоматически.
+Каждый пак лежит в собственном каталоге `collections/<collection_id>` без
+промежуточного каталога по хешу. Хешированные bucket-пути ниже относятся только
+к эмодзи и визуальным связям.
 Bucket-файлы эмодзи содержат по одному компактному JSON-объекту на строку и
 сортируются по `id`. Записи membership сортируются по `status`, `position`,
 затем по `id`. Для всех текстовых файлов используются UTF-8 без BOM, окончания
