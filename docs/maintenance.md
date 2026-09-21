@@ -136,6 +136,14 @@ The CLI requires the snapshot ID and epoch; `--revision` defaults to HEAD.
 Pass all three explicitly for a reproducible release command. The builder never consults the wall clock. Reusing the
 same source tree and all three inputs produces the same bytes.
 
+When replacing an existing generated output directory, the builder retains its
+previous contents in a sibling backup until the new snapshot is installed. If
+installation fails, it restores the previous directory. If restoration is also
+blocked, the error reports the preserved backup path; keep it for recovery.
+If only backup cleanup fails, the error explicitly says the new snapshot is
+already installed. Replacement is not an atomic directory exchange: readers can
+briefly see no output, so do not rebuild a directory actively served to clients.
+
 The output contains canonical JSONL payloads, active/search derived views,
 collection facets, exact/reviewed duplicate groups, registry singletons, an
 exact JCS `manifest.json`, and a complete sorted `SHA256SUMS`. Every artifact

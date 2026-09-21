@@ -29,6 +29,7 @@ if __package__:
         sha256_file,
     )
     from .git_provenance import resolve_head_revision, verify_release_source
+    from .staged_output import install_staged_directory
 else:
     from common import (  # type: ignore[no-redef]
         DataError,
@@ -44,6 +45,7 @@ else:
         sha256_file,
     )
     from git_provenance import resolve_head_revision, verify_release_source
+    from staged_output import install_staged_directory
 
 
 PAYLOAD_NAMES = (
@@ -463,11 +465,9 @@ def _write_staged(output: Path, files: dict[str, bytes]) -> None:
         for name, content in files.items():
             path = staging / name
             path.write_bytes(content)
-        if output.exists():
-            if _is_link_or_reparse_point(output):
-                raise ValueError(f"output must be a real directory: {output}")
-            shutil.rmtree(output)
-        os.replace(staging, output)
+        if output.exists() and _is_link_or_reparse_point(output):
+            raise ValueError(f"output must be a real directory: {output}")
+        install_staged_directory(staging, output)
     except Exception:
         shutil.rmtree(staging, ignore_errors=True)
         raise
