@@ -66,6 +66,13 @@ class EntityMergeTests(unittest.TestCase):
         ]
         self.assertEqual(memberships, [b""])
 
+    def test_renderer_updates_catalog_from_merged_collections(self):
+        collection = load_json(ROOT / "examples/telegram/collection.json")
+        files = render_records({("collection", collection["id"]): collection}, include_catalog=True)
+        catalog = files["data/telegram/collections/README.md"].decode("utf-8")
+        self.assertIn(collection["title"], catalog)
+        self.assertIn(f"({collection['id']}/)", catalog)
+
     def test_non_data_edits_and_symlinks_rejected(self):
         for path, mode in (
             ("tools/validate.py", "100644"),
@@ -81,6 +88,7 @@ class EntityMergeTests(unittest.TestCase):
             {
                 "data/telegram/emojis/ab/cd.jsonl": ("100644", "old"),
                 "data/telegram/emojis/ab/cdef01.jsonl": ("100644", "new"),
+                "data/telegram/collections/README.md": ("100644", "catalog"),
             },
         )
 

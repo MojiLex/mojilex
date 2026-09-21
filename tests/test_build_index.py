@@ -13,7 +13,6 @@ from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.build_index import PAYLOAD_NAMES, build_index
 from tools.common import (
     compact_json,
-    entity_shard,
     expected_entity_id,
     jcs_bytes,
     jcs_sha256,
@@ -176,14 +175,7 @@ class BuildIndexTests(unittest.TestCase):
             second_membership["collection_id"] = second["id"]
             second_membership["id"] = expected_entity_id(second_membership, namespace)
 
-            second_dir = (
-                repository
-                / "data"
-                / "telegram"
-                / "collections"
-                / entity_shard(second["id"])
-                / second["id"]
-            )
+            second_dir = repository / "data" / "telegram" / "collections" / second["id"]
             second_dir.mkdir(parents=True)
             (second_dir / "collection.json").write_text(
                 pretty_json(second), encoding="utf-8", newline=""

@@ -15,6 +15,15 @@
 
 ## Устройство и инварианты
 
+- Для поиска пака по названию или Telegram short name начни с
+  `data/telegram/collections/README.md`: там ссылки на каталоги с устойчивыми ID.
+  `collection.json` — источник названия и метаданных, `memberships.jsonl` связывает
+  пак с ID эмодзи. Записи эмодзи общие для паков и лежат в `data/telegram/emojis/`;
+  ищи ID через `rg`, а не угадывай путь по названию.
+- Для кода импорта, AI, меню и публикации переходи в отдельный репозиторий
+  `mojilex-cli` (`src/mojilex_cli/pipeline/`, `commands/`, `dataset/`, `git/`, `github/`).
+  Схемы и офлайн-валидатор находятся здесь: `schemas/`, `tools/validate.py`.
+
 - `dataset.json` задаёт корневой контракт; `data/` содержит коллекции, эмодзи,
   memberships и подтверждённые визуальные связи; `tombstones/` — записи удаления.
 - `schemas/v1/` задаёт канонические записи, `schemas/distribution/v1/` — снимки
@@ -46,6 +55,7 @@
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe tools/validate.py . --strict
+.\.venv\Scripts\python.exe -m tools.collection_catalog . --check
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\python.exe -m ruff check tools tests
 .\.venv\Scripts\python.exe -m ruff format --check tools tests

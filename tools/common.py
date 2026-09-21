@@ -840,13 +840,13 @@ def discover_records(root: Path) -> RepositoryRecords:
     tombstones: list[LocatedRecord] = []
     visual_relations: list[LocatedRecord] = []
 
-    for path in sorted((root / "data").glob("*/collections/*/*/collection.json")):
+    for path in sorted((root / "data").glob("*/collections/*/collection.json")):
         value = load_json(path)
         if not isinstance(value, dict):
             raise DataError(f"{path}: collection must be a JSON object")
         collections.append(LocatedRecord(path, None, value))
 
-    for path in sorted((root / "data").glob("*/collections/*/*/memberships.jsonl")):
+    for path in sorted((root / "data").glob("*/collections/*/memberships.jsonl")):
         for line, value in enumerate(load_jsonl(path), start=1):
             memberships.append(LocatedRecord(path, line, value))
 

@@ -1744,7 +1744,7 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
         record.path.resolve() for record in records.collections + records.tombstones
     }
     expected_jsonl_paths = (
-        {path.resolve() for path in (root / "data").glob("*/collections/*/*/memberships.jsonl")}
+        {path.resolve() for path in (root / "data").glob("*/collections/*/memberships.jsonl")}
         | {path.resolve() for path in (root / "data").glob("*/emojis/*/*.jsonl")}
         | {path.resolve() for path in (root / "data" / "relations" / "visual").glob("*/*.jsonl")}
     )
@@ -1771,14 +1771,12 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
 
     for record in records.collections:
         parts = record.path.relative_to(root).parts
-        platform, shard, directory_id = parts[1], parts[3], parts[4]
+        platform, directory_id = parts[1], parts[3]
         value = record.value
         if value.get("platform") != platform:
             report.add(record.path, "record platform does not match path platform")
         if value.get("id") != directory_id:
             report.add(record.path, "collection ID does not match directory name")
-        if isinstance(value.get("id"), str) and entity_shard(value["id"]) != shard:
-            report.add(record.path, "collection shard does not match SHA-256(id)")
         if not (record.path.parent / "memberships.jsonl").is_file():
             report.add(record.path, "collection directory is missing memberships.jsonl")
         try:
@@ -1816,7 +1814,7 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
     for record in records.memberships:
         membership_files[record.path].append(record.value)
         parts = record.path.relative_to(root).parts
-        collection_id = parts[4]
+        collection_id = parts[3]
         if record.value.get("collection_id") != collection_id:
             report.add(record.location, "membership collection_id does not match directory")
     for path, values in membership_files.items():

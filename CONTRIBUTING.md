@@ -22,8 +22,12 @@ authorized maintainers.
    ```bash
    python -m pip install -r requirements-dev.txt
    python tools/validate.py . --strict
+   python -m tools.collection_catalog . --check
    python -m unittest discover -s tests -v
    ```
+
+   After manually changing a collection, first run
+   `python -m tools.collection_catalog . --write` to refresh the pack index.
 
 ## Data rules
 

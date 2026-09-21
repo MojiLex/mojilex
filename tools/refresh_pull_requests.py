@@ -19,6 +19,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from tools.collection_catalog import render_catalog
 from tools.common import compact_json, entity_shard, parse_json, pretty_json
 from tools.validate import validate_repository
 
@@ -26,7 +27,8 @@ RecordKey = tuple[str, str]
 Records = dict[RecordKey, dict[str, Any]]
 DATA_PATH = re.compile(
     r"(?:data/[a-z0-9_-]+/(?:emojis/[0-9a-f]{2}/(?:[0-9a-f]{2}|[0-9a-f]{6})\.jsonl"
-    r"|collections/[0-9a-f]{2}/mxc_[a-z0-9-]+/(?:collection\.json|memberships\.jsonl))"
+    r"|collections/(?:[0-9a-f]{2}/)?mxc_[a-z0-9-]+/(?:collection\.json|memberships\.jsonl))"
+    r"|data/telegram/collections/README\.md"
     r"|data/relations/visual/[0-9a-f]{2}/(?:[0-9a-f]{2}|[0-9a-f]{6})\.jsonl"
     r"|tombstones/[0-9a-f]{2}/[a-z0-9_-]+\.json)\Z"
 )
@@ -90,6 +92,8 @@ def read_records(root: Path, files: dict[str, tuple[str, str]]) -> Records:
     for path, (mode, blob) in sorted(files.items()):
         if not DATA_PATH.fullmatch(path):
             continue
+        if path == "data/telegram/collections/README.md":
+            continue
         if mode != "100644":
             raise RefreshError("data must be ordinary non-executable files")
         raw = blob_bytes(root, blob)
@@ -136,7 +140,7 @@ def merge_records(base: Records, head: Records, latest: Records) -> Records:
     return merged
 
 
-def render_records(records: Records) -> dict[str, bytes]:
+def render_records(records: Records, *, include_catalog: bool = False) -> dict[str, bytes]:
     paths: dict[str, list[dict[str, Any]]] = defaultdict(list)
     collections = {
         identity: value for (kind, identity), value in records.items() if kind == "collection"
@@ -158,9 +162,7 @@ def render_records(records: Records) -> dict[str, bytes]:
                 path = f"data/{platform}/emojis/{shard[:2]}/{shard[2:]}.jsonl"
             else:
                 collection_id = value["collection_id"] if kind == "membership" else identity
-                folder = (
-                    f"data/{platform}/collections/{entity_shard(collection_id)}/{collection_id}"
-                )
+                folder = f"data/{platform}/collections/{collection_id}"
                 name = "memberships.jsonl" if kind == "membership" else "collection.json"
                 path = f"{folder}/{name}"
         if not DATA_PATH.fullmatch(path):
@@ -188,6 +190,12 @@ def render_records(records: Records) -> dict[str, bytes]:
             else pretty_json(values[0])
         )
         result[path] = text.encode("utf-8")
+    if include_catalog:
+        result["data/telegram/collections/README.md"] = render_catalog(
+            value
+            for (kind, _), value in records.items()
+            if kind == "collection" and value.get("platform") == "telegram"
+        )
     return result
 
 
@@ -198,7 +206,13 @@ def prepare_refresh(root: Path, base: str, head: str, latest: str) -> dict[str, 
         merged = merge_records(
             *(read_records(root, files) for files in (base_files, head_files, latest_files))
         )
-        rendered = render_records(merged)
+        rendered = render_records(
+            merged,
+            include_catalog=any(
+                "data/telegram/collections/README.md" in files
+                for files in (head_files, latest_files)
+            ),
+        )
     except (TypeError, KeyError) as exc:
         raise RefreshError("malformed data record; refresh skipped") from exc
     changes: dict[str, bytes | None] = {}

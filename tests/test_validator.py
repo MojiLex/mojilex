@@ -64,6 +64,21 @@ class RepositoryValidatorTests(unittest.TestCase):
             report = validate_repository(target, include_examples=True, check_build=True)
             self.assertEqual(report.errors, [], "\n".join(report.errors))
 
+    def test_hash_prefixed_collection_directory_is_not_canonical(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary).resolve()
+            copy_repository_contract(ROOT, target)
+            values = install_example_as_canonical(ROOT, target)
+            flat = target / "data" / "telegram" / "collections" / values["collection"]["id"]
+            legacy = flat.parent / "02" / flat.name
+            legacy.parent.mkdir()
+            flat.rename(legacy)
+            report = validate_repository(target, include_examples=True, check_build=False)
+            self.assertTrue(
+                any("outside the canonical path layout" in error for error in report.errors),
+                "\n".join(report.errors),
+            )
+
     def test_ignored_runtime_transaction_tree_is_not_scanned(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary).resolve()
@@ -432,7 +447,7 @@ class RepositoryValidatorTests(unittest.TestCase):
             collection["extensions"]["telegram"]["set_fingerprint_sha256"] = (
                 telegram_set_fingerprint([])
             )
-            collection_dir = target / "data" / "telegram" / "collections" / "02" / collection["id"]
+            collection_dir = target / "data" / "telegram" / "collections" / collection["id"]
             (collection_dir / "collection.json").write_text(
                 pretty_json(collection), encoding="utf-8", newline=""
             )
@@ -503,7 +518,7 @@ class RepositoryValidatorTests(unittest.TestCase):
             copy_repository_contract(ROOT, target)
             values = install_example_as_canonical(ROOT, target)
             collection_dir = (
-                target / "data" / "telegram" / "collections" / "02" / values["collection"]["id"]
+                target / "data" / "telegram" / "collections" / values["collection"]["id"]
             )
             line = compact_json(values["membership"])
             (collection_dir / "memberships.jsonl").write_text(

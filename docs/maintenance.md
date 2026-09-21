@@ -12,9 +12,10 @@ For concurrent data submissions, see [automatic PR refresh and its limits](pr-re
 
 ```text
 dataset.json
-data/<platform>/collections/<sha256(id)[0:2]>/<collection_id>/
+data/<platform>/collections/<collection_id>/
   collection.json
   memberships.jsonl
+data/telegram/collections/README.md  # generated pack catalog
 data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
@@ -34,6 +35,12 @@ tests/
 one compact object per line sorted by `id`. Membership files contain compact
 objects sorted by `status`, `position`, then `id`. All files use UTF-8 without a
 BOM, LF line endings, and deterministic formatting.
+
+The [Telegram pack catalog](../data/telegram/collections/README.md) is generated
+from collection titles, native short names, and item counts. Regenerate it after
+manual collection edits with `python -m tools.collection_catalog . --write`, then
+check it with `python -m tools.collection_catalog . --check`. CLI writes update it
+automatically. Stable collection IDs, not titles, determine directory paths.
 
 Emoji and visual-relation file paths use the first eight characters of the
 ID's SHA-256: two for the directory and six for the filename. This reduces

@@ -29,7 +29,7 @@ def install_example_as_canonical(source_root: Path, target_root: Path) -> dict[s
     emoji = load_json(source_root / "examples" / "telegram" / "emoji.json")
     membership = load_json(source_root / "examples" / "telegram" / "membership.json")
 
-    collection_dir = target_root / "data" / "telegram" / "collections" / "02" / collection["id"]
+    collection_dir = target_root / "data" / "telegram" / "collections" / collection["id"]
     collection_dir.mkdir(parents=True)
     (collection_dir / "collection.json").write_text(
         pretty_json(collection), encoding="utf-8", newline=""
