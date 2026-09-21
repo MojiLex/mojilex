@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import tempfile
+from contextlib import suppress
 from pathlib import Path
 
 
@@ -22,8 +23,13 @@ def install_staged_directory(staging: Path, output: Path) -> None:
     previous = backup / "previous"
     try:
         os.replace(output, previous)
-    except BaseException:
-        shutil.rmtree(backup, ignore_errors=True)
+    except BaseException as backup_error:
+        if previous.exists():
+            raise OSError(
+                f"snapshot backup move was interrupted; previous snapshot preserved at {previous}"
+            ) from backup_error
+        with suppress(OSError):
+            backup.rmdir()
         raise
 
     try:

@@ -90,6 +90,25 @@ class StagedOutputTests(unittest.TestCase):
         self.assertIn(str(backups[0]), str(failure.exception))
         self.assertFalse(output.exists())
 
+    def test_interrupted_completed_backup_move_preserves_previous_snapshot(self) -> None:
+        output = self.root / "snapshot"
+        write_staged(output, self.files(b"old"))
+        replace = os.replace
+
+        def interrupt_after_move(source: Path, destination: Path) -> None:
+            replace(source, destination)
+            if source == output:
+                raise KeyboardInterrupt("interrupted after completed backup rename")
+
+        with (
+            patch("tools.staged_output.os.replace", side_effect=interrupt_after_move),
+            self.assertRaisesRegex(OSError, "backup move was interrupted") as failure,
+        ):
+            write_staged(output, self.files(b"new"))
+        backup = next(self.root.glob(".snapshot-backup-*/previous"))
+        self.assertEqual((backup / "emojis.jsonl").read_bytes(), b"old")
+        self.assertIn(str(backup), str(failure.exception))
+
     def test_cleanup_failure_keeps_new_output_and_reports_backup(self) -> None:
         output = self.root / "snapshot"
         write_staged(output, self.files(b"old"))
