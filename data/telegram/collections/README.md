@@ -3,7 +3,7 @@
 Названия берутся из карточек паков. Каталог не является источником данных.
 Titles come from `collection.json`; the records remain the source of truth.
 
-Паков / Packs: 68
+Паков / Packs: 68<br>
 Эмодзи в паках / Emojis across packs: 7127
 
 | Название / Title | Имя Telegram / Telegram name | Эмодзи / Emojis |
