@@ -25,6 +25,7 @@ if __package__:
         sha256_bytes,
         sha256_file,
     )
+    from .staged_output import install_staged_directory
 else:
     from common import (  # type: ignore[no-redef]
         DataError,
@@ -37,6 +38,7 @@ else:
         sha256_bytes,
         sha256_file,
     )
+    from staged_output import install_staged_directory
 
 
 MANIFEST_VERSION = "1.0.0"
@@ -1111,9 +1113,7 @@ def write_staged(output: Path, files: dict[str, bytes]) -> None:
             destination = staging / PurePosixPath(relative)
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(content)
-        if output.exists():
-            shutil.rmtree(output)
-        os.replace(staging, output)
+        install_staged_directory(staging, output)
     except Exception:
         shutil.rmtree(staging, ignore_errors=True)
         raise
