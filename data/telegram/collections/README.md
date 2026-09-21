@@ -4,6 +4,7 @@
 Titles come from `collection.json`; the records remain the source of truth.
 
 Паков / Packs: 68
+Эмодзи в паках / Emojis across packs: 7127
 
 | Название / Title | Имя Telegram / Telegram name | Эмодзи / Emojis |
 |---|---|---:|
