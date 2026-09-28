@@ -16,6 +16,7 @@ Original emoji files, extracted frames, and other binary media are not stored he
 |---|---|
 | See what an emoji record looks like | [A readable example](#what-a-record-looks-like) |
 | Find a Telegram pack by its title or short name | [Pack catalog](data/telegram/collections/README.md) |
+| Read the source as an AI agent | [Plain-text agent guide](AGENT_GUIDE.txt) |
 | Analyze and contribute a Telegram pack | [Add a pack](#add-a-pack) |
 | Use the descriptions in my application | [Use the data](#use-the-data) |
 
@@ -87,16 +88,15 @@ accepted dataset.
 
 To read a pack directly from Git, open the
 [Telegram pack catalog](data/telegram/collections/README.md) and follow its
-short-name link. The pack's `collection.json` identifies it;
-`memberships.jsonl` lists its emoji IDs and membership statuses. For an active
-membership, find the shared emoji record by its `emoji_id` under
-`data/telegram/emojis/`. In a local clone, replace `EMOJI_ID_FROM_MEMBERSHIP`
-in `rg -F 'EMOJI_ID_FROM_MEMBERSHIP' data/telegram/emojis` to locate it without
-calculating the bucket path (`git grep -F` also works). If you
+short-name link. The pack page shows each member's position, Russian and English
+descriptions, and a direct link to its canonical emoji JSONL record. The pack's
+`collection.json` and `memberships.jsonl` remain the source of its metadata and
+membership statuses. Each emoji file is named with the complete SHA-256 of its
+stable `emoji_id`, so different IDs never share a shortened bucket. If you
 start with a decimal Telegram custom emoji ID, search those files for an exact
 `native_id` match with `platform: telegram`. Match the record's `id` inside the
 JSONL file before using it. The [data directory guide](data/README.md) gives the
-bucket rule and explains how to interpret a record safely.
+full filename rule and explains how to interpret a record safely.
 
 Read `descriptions.ru.text` or `descriptions.en.text` for a caption. Check
 `availability.status`, `review.status`, `provenance`, and `content.rating` /

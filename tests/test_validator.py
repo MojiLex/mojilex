@@ -13,6 +13,7 @@ from urllib.parse import quote
 from tests.helpers import copy_repository_contract, install_example_as_canonical
 from tools.common import (
     compact_json,
+    entity_shard,
     pretty_json,
     reviewed_content_sha256,
     telegram_set_fingerprint,
@@ -468,7 +469,9 @@ class RepositoryValidatorTests(unittest.TestCase):
                 "reviewed_content_sha256": reviewed_content_sha256(emoji),
                 "review_hash_profile_id": "semantic-review-content-v3",
             }
-            bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
+            bucket = (
+                target / "data" / "telegram" / "emojis" / f"{entity_shard(emoji['id'], 64)}.jsonl"
+            )
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             clean = validate_repository(target, include_examples=True, check_build=False)
             self.assertEqual(clean.errors, [], "\n".join(clean.errors))
@@ -488,7 +491,9 @@ class RepositoryValidatorTests(unittest.TestCase):
             emoji = values["emoji"]
             emoji["content"]["rating"] = "sensitive"
             emoji["review"] = {"status": "unreviewed"}
-            bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
+            bucket = (
+                target / "data" / "telegram" / "emojis" / f"{entity_shard(emoji['id'], 64)}.jsonl"
+            )
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             report = validate_repository(target, include_examples=True, check_build=False)
             self.assertEqual(report.errors, [], "\n".join(report.errors))
@@ -507,7 +512,9 @@ class RepositoryValidatorTests(unittest.TestCase):
                 "reviewed_content_sha256": reviewed_content_sha256(emoji),
                 "review_hash_profile_id": "semantic-review-content-v3",
             }
-            bucket = target / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
+            bucket = (
+                target / "data" / "telegram" / "emojis" / f"{entity_shard(emoji['id'], 64)}.jsonl"
+            )
             bucket.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             report = validate_repository(target, include_examples=True, check_build=False)
             self.assertEqual(report.errors, [], "\n".join(report.errors))

@@ -1,19 +1,21 @@
 # Canonical records
 
 This directory contains canonical collection, emoji, and membership records.
-Records are added when validated contributions are accepted. Empty shard
-directories and empty bucket files are not committed.
+Records are added when validated contributions are accepted.
 
-Start with the [Telegram pack catalog](telegram/collections/README.md), open a
-collection directory, and read `collection.json` plus `memberships.jsonl`.
-An active membership's `emoji_id` points to a shared record under
-`telegram/emojis/`. For the current layout, compute SHA-256 of the UTF-8
-`emoji_id` string: use the first two hex characters as the directory and the
-next six as the `.jsonl` filename. Older valid buckets use the next two hex
-characters as the filename. Match the full `id` within that file; a bucket can
-contain multiple records. If only a decimal Telegram custom emoji ID is known,
-scan emoji records for an exact `native_id` match and confirm `platform` is
-`telegram`.
+For human browsing, start with the [Telegram pack catalog](telegram/collections/README.md)
+and follow a pack link. Each pack's generated `README.md` lists its members in
+order with Russian and English descriptions and direct links to the canonical
+emoji records. `collection.json` and `memberships.jsonl` remain the source of
+pack metadata and membership status.
+
+Each shared emoji is stored in one file at
+`telegram/emojis/<sha256(emoji_id)>.jsonl`, where the filename is the **complete**
+64-character lowercase SHA-256 of the UTF-8 stable `mxe_...` ID string, not a
+media or content hash. The file contains exactly one compact JSON record. Check
+that its full `id` equals the membership's `emoji_id`. If only a decimal Telegram
+custom emoji ID is known, search for an exact `native_id` match and confirm
+`platform` is `telegram`.
 
 From a fresh clone, pin the full Git commit you intend to use and search the
 source files directly. Replace both uppercase placeholders before running:
@@ -25,7 +27,7 @@ git switch --detach FULL_COMMIT_SHA
 rg -F 'EMOJI_ID_FROM_MEMBERSHIP' data/telegram/emojis
 ```
 
-The match gives a JSONL path and line; parse the line and confirm its `id`.
+The match gives the JSONL path; parse its single line and confirm its `id`.
 `git grep -F 'EMOJI_ID_FROM_MEMBERSHIP' -- data/telegram/emojis` is an alternative
 when ripgrep (`rg`) is unavailable. For a known decimal Telegram ID, run
 `rg -F 'TELEGRAM_CUSTOM_EMOJI_ID' data/telegram/emojis` and confirm an exact

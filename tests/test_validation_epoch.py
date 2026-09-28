@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from tests.helpers import copy_repository_contract, install_example_as_canonical
-from tools.common import compact_json
+from tools.common import compact_json, entity_shard
 from tools.validate import _diagnostic_source_epoch, validate_repository
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,7 +20,7 @@ class ValidationEpochTests(unittest.TestCase):
             records = install_example_as_canonical(ROOT, root)
             emoji = records["emoji"]
             emoji["availability"]["last_verified_at"] = "2026-10-01T12:34:56Z"
-            shard = root / "data" / "telegram" / "emojis" / "a8" / "3e.jsonl"
+            shard = root / "data" / "telegram" / "emojis" / f"{entity_shard(emoji['id'], 64)}.jsonl"
             shard.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
             expected = int(datetime(2026, 10, 1, 12, 34, 56, tzinfo=UTC).timestamp())
             self.assertEqual(_diagnostic_source_epoch(root), expected)

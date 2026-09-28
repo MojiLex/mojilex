@@ -34,18 +34,9 @@ BUILD_ARGS = {
 
 
 def _write_emoji(root: Path, emoji: dict) -> None:
-    shard = entity_shard(emoji["id"], 4)
-    path = root / "data" / emoji["platform"] / "emojis" / shard[:2] / f"{shard[2:]}.jsonl"
+    path = root / "data" / emoji["platform"] / "emojis" / f"{entity_shard(emoji['id'], 64)}.jsonl"
     path.parent.mkdir(parents=True, exist_ok=True)
-    values = load_jsonl(path) if path.exists() else []
-    values = [value for value in values if value["id"] != emoji["id"]]
-    values.append(emoji)
-    values.sort(key=lambda value: value["id"])
-    path.write_text(
-        "".join(compact_json(value) + "\n" for value in values),
-        encoding="utf-8",
-        newline="",
-    )
+    path.write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
 
 
 def _second_emoji(root: Path, first: dict) -> dict:
