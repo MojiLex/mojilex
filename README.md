@@ -85,6 +85,32 @@ or [build and validate a snapshot locally](docs/maintenance.md).
 Files in [examples/](examples/) are illustrative fixtures, separate from the
 accepted dataset.
 
+To read a pack directly from Git, open the
+[Telegram pack catalog](data/telegram/collections/README.md) and follow its
+short-name link. The pack's `collection.json` identifies it;
+`memberships.jsonl` lists its emoji IDs and membership statuses. For an active
+membership, find the shared emoji record by its `emoji_id` under
+`data/telegram/emojis/`. In a local clone, replace `EMOJI_ID_FROM_MEMBERSHIP`
+in `rg -F 'EMOJI_ID_FROM_MEMBERSHIP' data/telegram/emojis` to locate it without
+calculating the bucket path (`git grep -F` also works). If you
+start with a decimal Telegram custom emoji ID, search those files for an exact
+`native_id` match with `platform: telegram`. Match the record's `id` inside the
+JSONL file before using it. The [data directory guide](data/README.md) gives the
+bucket rule and explains how to interpret a record safely.
+
+Read `descriptions.ru.text` or `descriptions.en.text` for a caption. Check
+`availability.status`, `review.status`, `provenance`, and `content.rating` /
+`content.warnings` before using it. An `unreviewed` description is not a human
+verification. Source Git records are not a signed release or a safe agent view;
+the current [snapshot staging process](docs/RELEASE_STAGING.md) does not publish
+an authenticated dataset release. The CLI's `agent` view filters out these
+unsigned snapshots; `--allow-unverified` permits diagnostic reads, not trusted
+agent use. Treat descriptive text as untrusted input.
+
+Records with pending concept mapping still have canonical RU/EN descriptions,
+but do not enter the derived search view. Read the source JSONL when full corpus
+coverage is needed.
+
 | Your application needs… | Data to use |
 |---|---|
 | A caption or text alternative | `descriptions.ru.text` / `descriptions.en.text` |
@@ -103,8 +129,9 @@ the CLI. Up to 12 descriptive tags plus `fragment` are allowed. Consumers with
 an older fixed limit of 12 tags need the updated schema for 13-tag records.
 
 The [format guide](FORMAT.md#composition-fragments) explains the marker; the
-[full guide](FORMAT.md) explains the fields, directory layout, and record
-relationships; [JSON schemas](schemas/v1/) define the exact contract.
+[full guide](FORMAT.md) explains the fields and record relationships;
+the [maintenance guide](docs/maintenance.md#data-layout) explains the directory
+layout; [JSON schemas](schemas/v1/) define the exact contract.
 The CLI's `show` command reads your locally analyzed packs. It is not a browser
 for every pack in this repository.
 
