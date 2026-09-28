@@ -27,6 +27,7 @@ _REQUIRED_SOURCE_FILES = {
     "tools/git_provenance.py",
     "tools/spec003_build.py",
 }
+_BLOB_BATCH_SIZE = 256
 
 
 @dataclass(frozen=True)
@@ -35,7 +36,9 @@ class GitSourceProvenance:
     object_format: str
 
 
-def _git(root: Path, *arguments: str, text: bool = False) -> subprocess.CompletedProcess:
+def _git(
+    root: Path, *arguments: str, text: bool = False, input_data: bytes | None = None
+) -> subprocess.CompletedProcess:
     command = [
         "git",
         "-c",
@@ -48,6 +51,7 @@ def _git(root: Path, *arguments: str, text: bool = False) -> subprocess.Complete
         command,
         check=False,
         capture_output=True,
+        input=input_data,
         text=text,
         encoding="utf-8" if text else None,
         errors="strict" if text else None,
@@ -230,6 +234,7 @@ def verify_release_source(root: Path, revision: str) -> GitSourceProvenance:
     if untracked:
         raise ValueError(f"source paths are absent from commit {revision}: {untracked!r}")
 
+    blobs: list[tuple[str, Path, str]] = []
     for relative in sorted(current_paths, key=lambda item: item.encode("utf-8")):
         path = root / PurePosixPath(relative)
         if _is_link_or_reparse(path) or not path.is_file():
@@ -238,10 +243,39 @@ def verify_release_source(root: Path, revision: str) -> GitSourceProvenance:
         object_type, object_id = typed_object.split(":", 1)
         if object_type != "blob" or mode not in {"100644", "100755"}:
             raise ValueError(f"source path is not a regular Git blob at {revision}: {relative}")
-        blob = _git(root, "cat-file", "blob", object_id)
-        if blob.returncode:
-            detail = blob.stderr.decode("utf-8", errors="replace").strip()
-            raise ValueError(f"cannot read committed source path {relative!r}: {detail}")
-        if path.read_bytes() != blob.stdout:
-            raise ValueError(f"source path differs from commit {revision}: {relative}")
+        blobs.append((relative, path, object_id))
+
+    for offset in range(0, len(blobs), _BLOB_BATCH_SIZE):
+        batch = blobs[offset : offset + _BLOB_BATCH_SIZE]
+        requests = b"".join(object_id.encode("ascii") + b"\n" for _, _, object_id in batch)
+        result = _git(root, "cat-file", "--batch", input_data=requests)
+        if result.returncode:
+            detail = result.stderr.decode("utf-8", errors="replace").strip()
+            raise ValueError(f"cannot read committed source blobs: {detail}")
+        position = 0
+        for relative, path, object_id in batch:
+            end_of_header = result.stdout.find(b"\n", position)
+            if end_of_header < 0:
+                raise ValueError(f"malformed Git blob response for {relative!r}")
+            header = result.stdout[position:end_of_header].split(b" ")
+            if (
+                len(header) != 3
+                or header[0] != object_id.encode("ascii")
+                or header[1] != b"blob"
+                or not header[2].isdigit()
+            ):
+                raise ValueError(f"unexpected Git blob response for {relative!r}")
+            size = int(header[2])
+            start_of_blob = end_of_header + 1
+            end_of_blob = start_of_blob + size
+            if (
+                end_of_blob >= len(result.stdout)
+                or result.stdout[end_of_blob : end_of_blob + 1] != b"\n"
+            ):
+                raise ValueError(f"truncated Git blob response for {relative!r}")
+            if path.read_bytes() != result.stdout[start_of_blob:end_of_blob]:
+                raise ValueError(f"source path differs from commit {revision}: {relative}")
+            position = end_of_blob + 1
+        if position != len(result.stdout):
+            raise ValueError("unexpected trailing Git blob response")
     return GitSourceProvenance(commit=revision, object_format=object_format)

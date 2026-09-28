@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import contextlib
 import io
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from tools import git_provenance
 from tools.build_index import main as build_main
 from tools.git_provenance import resolve_head_revision, verify_release_source
 
@@ -57,9 +60,9 @@ class GitProvenanceTests(unittest.TestCase):
             "rights/profiles.json": b"{}\n",
             "taxonomy/v1/taxonomy.json": b"{}\n",
             "data/telegram/emojis/00/00.jsonl": b"{}\n",
-            "data/telegram/collections/README.md": b"# Catalog\n",
+            "data/telegram/collections/README.md": b"# Catalog\n\nMore lines\n",
             "data/telegram/collections/example/collection.json": b"{}\n",
-            "data/telegram/collections/example/memberships.jsonl": b"{}\n",
+            "data/telegram/collections/example/memberships.jsonl": b"",
             "data/relations/visual/00/00.jsonl": b"{}\n",
             "examples/test-vectors.json": b"{}\n",
             "quality/model-qualifications.json": b"{}\n",
@@ -82,6 +85,21 @@ class GitProvenanceTests(unittest.TestCase):
         self.assertEqual(actual.commit, revision)
         self.assertEqual(actual.object_format, "sha1")
 
+    def test_reads_exact_blob_bytes_across_batches(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root, revision = self._repository(Path(temporary).resolve())
+            source_count = len(git_provenance._walk_source_candidates(root))
+            with (
+                patch.object(git_provenance, "_BLOB_BATCH_SIZE", 3),
+                patch.object(git_provenance, "_git", wraps=git_provenance._git) as git,
+            ):
+                self.assertEqual(verify_release_source(root, revision).commit, revision)
+            batch_calls = [
+                call for call in git.call_args_list if call.args[1:3] == ("cat-file", "--batch")
+            ]
+        self.assertGreater(len(batch_calls), 1)
+        self.assertEqual(len(batch_calls), (source_count + 2) // 3)
+
     def test_resolves_sha256_repository_when_supported(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root, revision = self._repository(Path(temporary).resolve(), object_format="sha256")
@@ -96,6 +114,25 @@ class GitProvenanceTests(unittest.TestCase):
             root, revision = self._repository(Path(temporary).resolve())
             (root / "dataset.json").write_bytes(b'{"changed":true}\n')
             with self.assertRaisesRegex(ValueError, "differs from commit"):
+                verify_release_source(root, revision)
+
+    def test_rejects_modified_blob_with_unchanged_size(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root, revision = self._repository(Path(temporary).resolve())
+            (root / "quality/model-qualifications.json").write_bytes(b"[]\n")
+            with self.assertRaisesRegex(ValueError, "differs from commit"):
+                verify_release_source(root, revision)
+
+    def test_rejects_linked_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root, revision = self._repository(Path(temporary).resolve())
+            path = root / "data/telegram/collections/example/collection.json"
+            path.unlink()
+            try:
+                os.symlink(root / "dataset.json", path)
+            except (NotImplementedError, OSError) as exc:
+                self.skipTest(f"symlinks are unavailable: {exc}")
+            with self.assertRaisesRegex(ValueError, "link or reparse point"):
                 verify_release_source(root, revision)
 
     def test_rejects_modified_collection_and_validation_inputs(self) -> None:
