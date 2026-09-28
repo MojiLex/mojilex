@@ -22,33 +22,35 @@ Original emoji files, extracted frames, and other binary media are not stored he
 
 ## What a record looks like
 
-This excerpt from the [full example](examples/telegram/emoji.json) describes a
-yellow cat raising an eyebrow:
+This excerpt from a [real emoji record](data/telegram/emojis/e15ccc4e470a16ca1ce68a82e179d5b6b49e47d7cae8a56a28ff5d68faf076cd.jsonl)
+in the [EffectEmoji pack](data/telegram/collections/mxc_03605639-75ad-5e87-9d76-3ef32dabbebd/README.md)
+describes animated pink blush stripes:
 
 ```json
 {
+  "id": "mxe_bfd60047-faa7-5cda-94d4-5ddd3e906248",
   "descriptions": {
     "ru": {
-      "text": "Жёлтый кот подозрительно приподнимает одну бровь.",
+      "text": "Три наклонные розовые полоски румянца на фоне мягкого светящегося круга.",
       "motion_status": "described",
-      "motion": "Кот медленно поднимает бровь и замирает.",
-      "usage": ["подозрение", "недоверие"]
+      "motion": "Полоски и круглое свечение мягко пульсируют, меняя размер и интенсивность.",
+      "usage": ["румянец", "смущение", "милота"]
     },
     "en": {
-      "text": "A yellow cat suspiciously raises one eyebrow.",
+      "text": "Three diagonal pink blush stripes over a soft glowing circular background.",
       "motion_status": "described",
-      "motion": "The cat slowly raises an eyebrow and pauses.",
-      "usage": ["suspicion", "doubt"]
+      "motion": "The stripes and circular glow gently pulse, fluctuating in size and intensity.",
+      "usage": ["blush", "shyness", "cute"]
     }
   },
-  "semantic_tags": ["cat", "doubt", "raised-eyebrow"],
+  "semantic_tags": ["blush", "cheeks", "diagonal-stripes", "embarrassment", "glow"],
   "content": {"rating": "general", "warnings": []}
 }
 ```
 
-This is an illustrative excerpt, not a complete record ready for submission.
-The full record also contains identifiers, visual characteristics, media hashes,
-provenance, and review status. [More examples](examples/README.md) demonstrate
+This excerpt omits fields required for submission. The full record also contains
+visual characteristics, media hashes, provenance, and review status.
+[More examples](examples/README.md) demonstrate
 visible text and emoji that adapt to the text color.
 
 Warnings such as `flashing` stay in the metadata for applications to filter or

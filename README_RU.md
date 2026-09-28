@@ -22,33 +22,35 @@ MojiLex — открытая база описаний кастомных эмо
 
 ## Как выглядит запись
 
-Этот фрагмент [полного примера](examples/telegram/emoji.json) описывает жёлтого
-кота, который приподнимает бровь:
+Этот фрагмент [реальной записи об эмодзи](data/telegram/emojis/e15ccc4e470a16ca1ce68a82e179d5b6b49e47d7cae8a56a28ff5d68faf076cd.jsonl)
+из [пака EffectEmoji](data/telegram/collections/mxc_03605639-75ad-5e87-9d76-3ef32dabbebd/README.md)
+описывает анимированные розовые полоски румянца:
 
 ```json
 {
+  "id": "mxe_bfd60047-faa7-5cda-94d4-5ddd3e906248",
   "descriptions": {
     "ru": {
-      "text": "Жёлтый кот подозрительно приподнимает одну бровь.",
+      "text": "Три наклонные розовые полоски румянца на фоне мягкого светящегося круга.",
       "motion_status": "described",
-      "motion": "Кот медленно поднимает бровь и замирает.",
-      "usage": ["подозрение", "недоверие"]
+      "motion": "Полоски и круглое свечение мягко пульсируют, меняя размер и интенсивность.",
+      "usage": ["румянец", "смущение", "милота"]
     },
     "en": {
-      "text": "A yellow cat suspiciously raises one eyebrow.",
+      "text": "Three diagonal pink blush stripes over a soft glowing circular background.",
       "motion_status": "described",
-      "motion": "The cat slowly raises an eyebrow and pauses.",
-      "usage": ["suspicion", "doubt"]
+      "motion": "The stripes and circular glow gently pulse, fluctuating in size and intensity.",
+      "usage": ["blush", "shyness", "cute"]
     }
   },
-  "semantic_tags": ["cat", "doubt", "raised-eyebrow"],
+  "semantic_tags": ["blush", "cheeks", "diagonal-stripes", "embarrassment", "glow"],
   "content": {"rating": "general", "warnings": []}
 }
 ```
 
-Это иллюстративный фрагмент, а не полная запись, готовая к отправке. Полная
-запись также содержит идентификаторы, визуальные признаки, хеши медиа, сведения
-о происхождении и статус проверки. [Другие примеры](examples/README.md)
+Во фрагменте опущены поля, обязательные для отправки. Полная запись также
+содержит визуальные признаки, хеши медиа, сведения о происхождении и статус
+проверки. [Другие примеры](examples/README.md)
 показывают видимый текст и эмодзи, которые подстраиваются под цвет текста.
 
 Предупреждения, например `flashing` — мигающие вспышки, остаются в данных:
