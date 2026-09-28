@@ -10,7 +10,9 @@ from pathlib import Path, PurePosixPath
 _SOURCE_ROOTS = (
     "analysis-profiles",
     "data",
+    "examples",
     "platforms",
+    "quality",
     "rights",
     "schemas",
     "taxonomy",
@@ -88,6 +90,8 @@ def _is_source_path(relative: str) -> bool:
         return True
     if len(parts) == 2 and parts[0] == "analysis-profiles" and path.suffix == ".json":
         return True
+    if parts and parts[0] in {"examples", "quality"} and path.suffix == ".json":
+        return True
     if len(parts) == 2 and parts[0] == "platforms" and path.suffix == ".json":
         return True
     if relative == "rights/profiles.json":
@@ -106,8 +110,10 @@ def _is_source_path(relative: str) -> bool:
         return True
     if len(parts) == 3 and parts[0] == "tombstones" and path.suffix == ".json":
         return True
-    if len(parts) == 6 and parts[0] == "data" and parts[2] == "collections":
+    if len(parts) in {5, 6} and parts[0] == "data" and parts[2] == "collections":
         return parts[-1] in {"collection.json", "memberships.jsonl"}
+    if relative == "data/telegram/collections/README.md":
+        return True
     if len(parts) == 5 and parts[0] == "data" and parts[2] == "emojis":
         return path.suffix == ".jsonl"
     return (

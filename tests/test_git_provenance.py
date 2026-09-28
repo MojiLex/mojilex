@@ -57,9 +57,13 @@ class GitProvenanceTests(unittest.TestCase):
             "rights/profiles.json": b"{}\n",
             "taxonomy/v1/taxonomy.json": b"{}\n",
             "data/telegram/emojis/00/00.jsonl": b"{}\n",
+            "data/telegram/collections/README.md": b"# Catalog\n",
             "data/telegram/collections/example/collection.json": b"{}\n",
             "data/telegram/collections/example/memberships.jsonl": b"{}\n",
             "data/relations/visual/00/00.jsonl": b"{}\n",
+            "examples/test-vectors.json": b"{}\n",
+            "quality/model-qualifications.json": b"{}\n",
+            "quality/description-profiles/standard-v1.json": b"{}\n",
             "tombstones/00/example.json": b"{}\n",
         }
         for relative, content in files.items():
@@ -93,6 +97,36 @@ class GitProvenanceTests(unittest.TestCase):
             (root / "dataset.json").write_bytes(b'{"changed":true}\n')
             with self.assertRaisesRegex(ValueError, "differs from commit"):
                 verify_release_source(root, revision)
+
+    def test_rejects_modified_collection_and_validation_inputs(self) -> None:
+        paths = (
+            "data/telegram/collections/example/collection.json",
+            "data/telegram/collections/example/memberships.jsonl",
+            "data/telegram/collections/README.md",
+            "quality/model-qualifications.json",
+            "quality/description-profiles/standard-v1.json",
+            "examples/test-vectors.json",
+        )
+        for relative in paths:
+            with self.subTest(path=relative), tempfile.TemporaryDirectory() as temporary:
+                root, revision = self._repository(Path(temporary).resolve())
+                (root / relative).write_bytes(b"changed\n")
+                with self.assertRaisesRegex(ValueError, "differs from commit"):
+                    verify_release_source(root, revision)
+
+    def test_rejects_untracked_flat_collection_and_quality_inputs(self) -> None:
+        paths = (
+            "data/telegram/collections/another/collection.json",
+            "quality/another-policy.json",
+        )
+        for relative in paths:
+            with self.subTest(path=relative), tempfile.TemporaryDirectory() as temporary:
+                root, revision = self._repository(Path(temporary).resolve())
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"{}\n")
+                with self.assertRaisesRegex(ValueError, "absent from commit"):
+                    verify_release_source(root, revision)
 
     def test_rejects_untracked_allowlisted_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
