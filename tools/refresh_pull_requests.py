@@ -19,15 +19,15 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from tools.collection_catalog import render_catalog
+from tools.collection_catalog import render_catalog, render_pack_page
 from tools.common import compact_json, entity_shard, parse_json, pretty_json
 from tools.validate import validate_repository
 
 RecordKey = tuple[str, str]
 Records = dict[RecordKey, dict[str, Any]]
 DATA_PATH = re.compile(
-    r"(?:data/[a-z0-9_-]+/(?:emojis/[0-9a-f]{2}/(?:[0-9a-f]{2}|[0-9a-f]{6})\.jsonl"
-    r"|collections/(?:[0-9a-f]{2}/)?mxc_[a-z0-9-]+/(?:collection\.json|memberships\.jsonl))"
+    r"(?:data/[a-z0-9_-]+/(?:emojis/(?:[0-9a-f]{64}|[0-9a-f]{2}/(?:[0-9a-f]{2}|[0-9a-f]{6}))\.jsonl"
+    r"|collections/(?:[0-9a-f]{2}/)?mxc_[a-z0-9-]+/(?:collection\.json|memberships\.jsonl|README\.md))"
     r"|data/telegram/collections/README\.md"
     r"|data/relations/visual/[0-9a-f]{2}/(?:[0-9a-f]{2}|[0-9a-f]{6})\.jsonl"
     r"|tombstones/[0-9a-f]{2}/[a-z0-9_-]+\.json)\Z"
@@ -92,7 +92,7 @@ def read_records(root: Path, files: dict[str, tuple[str, str]]) -> Records:
     for path, (mode, blob) in sorted(files.items()):
         if not DATA_PATH.fullmatch(path):
             continue
-        if path == "data/telegram/collections/README.md":
+        if path == "data/telegram/collections/README.md" or path.endswith("/README.md"):
             continue
         if mode != "100644":
             raise RefreshError("data must be ordinary non-executable files")
@@ -159,7 +159,7 @@ def render_records(records: Records, *, include_catalog: bool = False) -> dict[s
             if not isinstance(platform, str) or not SAFE_SEGMENT.fullmatch(platform):
                 raise RefreshError("record has no valid platform or owning collection")
             if kind == "emoji":
-                path = f"data/{platform}/emojis/{shard[:2]}/{shard[2:]}.jsonl"
+                path = f"data/{platform}/emojis/{entity_shard(identity, 64)}.jsonl"
             else:
                 collection_id = value["collection_id"] if kind == "membership" else identity
                 folder = f"data/{platform}/collections/{collection_id}"
@@ -191,11 +191,23 @@ def render_records(records: Records, *, include_catalog: bool = False) -> dict[s
         )
         result[path] = text.encode("utf-8")
     if include_catalog:
-        result["data/telegram/collections/README.md"] = render_catalog(
-            value
-            for (kind, _), value in records.items()
+        telegram_collections = {
+            identity: value
+            for (kind, identity), value in records.items()
             if kind == "collection" and value.get("platform") == "telegram"
+        }
+        emojis = {identity: value for (kind, identity), value in records.items() if kind == "emoji"}
+        memberships_by_collection: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for (kind, _), value in records.items():
+            if kind == "membership":
+                memberships_by_collection[value["collection_id"]].append(value)
+        result["data/telegram/collections/README.md"] = render_catalog(
+            telegram_collections.values()
         )
+        for identity, collection in telegram_collections.items():
+            result[f"data/telegram/collections/{identity}/README.md"] = render_pack_page(
+                collection, memberships_by_collection[identity], emojis
+            )
     return result
 
 

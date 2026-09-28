@@ -115,10 +115,10 @@ def _is_source_path(relative: str) -> bool:
     if len(parts) == 3 and parts[0] == "tombstones" and path.suffix == ".json":
         return True
     if len(parts) in {5, 6} and parts[0] == "data" and parts[2] == "collections":
-        return parts[-1] in {"collection.json", "memberships.jsonl"}
+        return parts[-1] in {"collection.json", "memberships.jsonl", "README.md"}
     if relative == "data/telegram/collections/README.md":
         return True
-    if len(parts) == 5 and parts[0] == "data" and parts[2] == "emojis":
+    if len(parts) == 4 and parts[0] == "data" and parts[2] == "emojis":
         return path.suffix == ".jsonl"
     return (
         len(parts) == 5 and parts[:3] == ("data", "relations", "visual") and path.suffix == ".jsonl"

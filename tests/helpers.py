@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from tools.common import compact_json, load_json, pretty_json
+from tools.common import compact_json, entity_shard, load_json, pretty_json
 
 
 def copy_repository_contract(source_root: Path, target_root: Path) -> None:
@@ -37,9 +37,11 @@ def install_example_as_canonical(source_root: Path, target_root: Path) -> dict[s
     (collection_dir / "memberships.jsonl").write_text(
         compact_json(membership) + "\n", encoding="utf-8", newline=""
     )
-    emoji_dir = target_root / "data" / "telegram" / "emojis" / "a8"
+    emoji_dir = target_root / "data" / "telegram" / "emojis"
     emoji_dir.mkdir(parents=True)
-    (emoji_dir / "3e.jsonl").write_text(compact_json(emoji) + "\n", encoding="utf-8", newline="")
+    (emoji_dir / f"{entity_shard(emoji['id'], 64)}.jsonl").write_text(
+        compact_json(emoji) + "\n", encoding="utf-8", newline=""
+    )
     return {"collection": collection, "emoji": emoji, "membership": membership}
 
 

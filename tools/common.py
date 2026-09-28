@@ -622,8 +622,13 @@ def entity_shard(entity_id: str, length: int = 2) -> str:
     return sha256_bytes(entity_id.encode("utf-8"))[:length]
 
 
+def emoji_filename_matches(entity_id: str, stem: str) -> bool:
+    """Canonical emoji files use the complete SHA-256 digest of the stable ID."""
+    return len(stem) == 64 and stem == entity_shard(entity_id, 64)
+
+
 def bucket_shard_matches(entity_id: str, directory: str, stem: str) -> bool:
-    """Accept current eight-character buckets and correctly hashed legacy buckets."""
+    """Match current or legacy visual-relation buckets by their ID digest."""
     if len(directory) != 2 or len(stem) not in (2, 6):
         return False
     return entity_shard(entity_id, len(directory) + len(stem)) == directory + stem
@@ -850,7 +855,7 @@ def discover_records(root: Path) -> RepositoryRecords:
         for line, value in enumerate(load_jsonl(path), start=1):
             memberships.append(LocatedRecord(path, line, value))
 
-    for path in sorted((root / "data").glob("*/emojis/*/*.jsonl")):
+    for path in sorted((root / "data").glob("*/emojis/*.jsonl")):
         for line, value in enumerate(load_jsonl(path), start=1):
             emojis.append(LocatedRecord(path, line, value))
 

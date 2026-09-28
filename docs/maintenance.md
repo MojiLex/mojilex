@@ -15,8 +15,9 @@ dataset.json
 data/<platform>/collections/<collection_id>/
   collection.json
   memberships.jsonl
+  README.md  # generated member links and RU/EN descriptions
 data/telegram/collections/README.md  # generated pack catalog
-data/<platform>/emojis/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
+data/<platform>/emojis/<sha256(id)>.jsonl  # all 64 lowercase hex characters
 data/relations/visual/<sha256(id)[0:2]>/<sha256(id)[2:8]>.jsonl
 tombstones/<sha256(target_id)[0:2]>/<target_id>.json
 schemas/v1/
@@ -31,23 +32,26 @@ tools/
 tests/
 ```
 
-`collection.json` and tombstones are two-space JSON. Emoji bucket files contain
-one compact object per line sorted by `id`. Membership files contain compact
+`collection.json` and tombstones are two-space JSON. Each emoji JSONL file
+contains exactly one compact object. Membership files contain compact
 objects sorted by `status`, `position`, then `id`. All files use UTF-8 without a
 BOM, LF line endings, and deterministic formatting.
 
 The [Telegram pack catalog](../data/telegram/collections/README.md) is generated
-from collection titles, native short names, and item counts. Regenerate it after
-manual collection edits with `python -m tools.collection_catalog . --write`, then
-check it with `python -m tools.collection_catalog . --check`. CLI writes update it
+from collection titles, native short names, and item counts. Each pack's generated
+`README.md` links every membership to its canonical emoji record and displays
+its RU/EN descriptions. Regenerate all pages after manual data edits with
+`python -m tools.collection_catalog . --write`, then check them with
+`python -m tools.collection_catalog . --check`. CLI writes update them
 automatically. Stable collection IDs, not titles, determine directory paths.
 
-Emoji and visual-relation file paths use the first eight characters of the
-ID's SHA-256: two for the directory and six for the filename. This reduces
-shared-file conflicts between independent pull requests. Correctly hashed legacy
-four-character paths remain valid for saved runs and open pull requests. New
-writes use eight characters; moving a record does not change its ID or content.
-Duplicate IDs across legacy and current files are rejected.
+An emoji filename is the complete lowercase SHA-256 of its stable ID string,
+not a media/content hash. One record per file means different IDs no longer
+share a short bucket. The validator rejects old four- and eight-character emoji
+bucket paths in the canonical tree; the CLI and PR refresh can read them only to
+migrate previously saved work. Visual-relation files still use their separate
+eight-character bucket layout. Moving an emoji changes neither its ID nor its
+content.
 
 The root namespace UUID is permanently fixed in `dataset.json`. Schema-v1 IDs
 are UUIDv5 values over NFC-normalized components separated by U+0000. Exact

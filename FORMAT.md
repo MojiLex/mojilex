@@ -36,6 +36,14 @@ Prefixes are `mxc_`, `mxe_`, and `mxm_`. Approved visual relations use the
 derived `visual_relation_namespace`, prefix `mxr_`, and the NUL-joined identity
 covered by the normative vector in `examples/test-vectors.json`.
 
+The full stable collection ID names its directory. Each emoji has one canonical
+file named with all 64 lowercase hexadecimal characters of SHA-256 over the
+UTF-8 bytes of its full stable `mxe_...` ID:
+`data/<platform>/emojis/<sha256(id)>.jsonl`. This is a path hash, not a media or
+content digest. The file contains exactly one record; its `id` must match the
+ID used to derive the filename. Pack `README.md` pages are generated navigation,
+while `collection.json`, `memberships.jsonl`, and emoji JSONL are authoritative.
+
 ## Entities
 
 A collection identifies a platform collection and records availability and its

@@ -59,7 +59,7 @@ class GitProvenanceTests(unittest.TestCase):
             "platforms/telegram.json": b"{}\n",
             "rights/profiles.json": b"{}\n",
             "taxonomy/v1/taxonomy.json": b"{}\n",
-            "data/telegram/emojis/00/00.jsonl": b"{}\n",
+            f"data/telegram/emojis/{'0' * 64}.jsonl": b"{}\n",
             "data/telegram/collections/README.md": b"# Catalog\n\nMore lines\n",
             "data/telegram/collections/example/collection.json": b"{}\n",
             "data/telegram/collections/example/memberships.jsonl": b"",
@@ -135,11 +135,12 @@ class GitProvenanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "link or reparse point"):
                 verify_release_source(root, revision)
 
-    def test_rejects_modified_collection_and_validation_inputs(self) -> None:
+    def test_rejects_modified_emoji_collection_and_validation_inputs(self) -> None:
         paths = (
             "data/telegram/collections/example/collection.json",
             "data/telegram/collections/example/memberships.jsonl",
             "data/telegram/collections/README.md",
+            f"data/telegram/emojis/{'0' * 64}.jsonl",
             "quality/model-qualifications.json",
             "quality/description-profiles/standard-v1.json",
             "examples/test-vectors.json",
@@ -151,9 +152,10 @@ class GitProvenanceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "differs from commit"):
                     verify_release_source(root, revision)
 
-    def test_rejects_untracked_flat_collection_and_quality_inputs(self) -> None:
+    def test_rejects_untracked_flat_emoji_collection_and_quality_inputs(self) -> None:
         paths = (
             "data/telegram/collections/another/collection.json",
+            f"data/telegram/emojis/{'1' * 64}.jsonl",
             "quality/another-policy.json",
         )
         for relative in paths:

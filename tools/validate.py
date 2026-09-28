@@ -40,6 +40,7 @@ if __package__:
         compact_json,
         discover_records,
         duplicate_group_id,
+        emoji_filename_matches,
         entity_shard,
         expected_entity_id,
         expected_visual_relation_id,
@@ -62,6 +63,7 @@ else:
         compact_json,
         discover_records,
         duplicate_group_id,
+        emoji_filename_matches,
         entity_shard,
         expected_entity_id,
         expected_visual_relation_id,
@@ -1745,7 +1747,7 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
     }
     expected_jsonl_paths = (
         {path.resolve() for path in (root / "data").glob("*/collections/*/memberships.jsonl")}
-        | {path.resolve() for path in (root / "data").glob("*/emojis/*/*.jsonl")}
+        | {path.resolve() for path in (root / "data").glob("*/emojis/*.jsonl")}
         | {path.resolve() for path in (root / "data" / "relations" / "visual").glob("*/*.jsonl")}
     )
     expected_paths = expected_json_paths | expected_jsonl_paths
@@ -1789,26 +1791,24 @@ def _check_paths_and_canonical(root: Path, records: RepositoryRecords, report: R
     for record in records.emojis:
         emoji_files[record.path].append(record.value)
         parts = record.path.relative_to(root).parts
-        platform, shard_1, shard_2 = parts[1], parts[3], record.path.stem
+        platform, digest = parts[1], record.path.stem
         value = record.value
         if value.get("platform") != platform:
             report.add(record.location, "record platform does not match path platform")
-        if isinstance(value.get("id"), str) and not bucket_shard_matches(
-            value["id"], shard_1, shard_2
-        ):
-            report.add(record.location, "emoji bucket path does not match SHA-256(id)")
+        if isinstance(value.get("id"), str) and not emoji_filename_matches(value["id"], digest):
+            report.add(record.location, "emoji filename does not match full SHA-256(id)")
     for path, values in emoji_files.items():
-        if values != sorted(values, key=lambda value: value.get("id", "")):
-            report.add(path, "emoji bucket is not sorted by id")
+        if len(values) != 1:
+            report.add(path, "emoji file must contain exactly one record")
         expected = "".join(f"{compact_json(value)}\n" for value in values)
         try:
             if read_utf8(path) != expected:
                 report.add(path, "emoji JSONL is not canonical compact JSON")
         except DataError as exc:
             report.add(path, str(exc))
-    for path in sorted((root / "data").glob("*/emojis/*/*.jsonl")):
+    for path in sorted((root / "data").glob("*/emojis/*.jsonl")):
         if path.stat().st_size == 0:
-            report.add(path, "empty emoji bucket files are forbidden")
+            report.add(path, "empty emoji files are forbidden")
 
     membership_files: dict[Path, list[dict[str, Any]]] = defaultdict(list)
     for record in records.memberships:

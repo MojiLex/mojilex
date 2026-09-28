@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tests.helpers import copy_repository_contract, install_example_as_canonical
-from tools.common import entity_shard, load_json
+from tools.common import compact_json, entity_shard, load_json
 from tools.refresh_pull_requests import (
     RefreshError,
     dispatch_validation,
@@ -30,6 +30,25 @@ class EntityMergeTests(unittest.TestCase):
         right = {("emoji", "right"): {"id": "right", "description": "PR"}}
         self.assertEqual(merge_records({}, right, left), left | right)
 
+    def test_legacy_bucket_records_render_as_individual_full_digest_files(self):
+        first = load_json(ROOT / "examples/telegram/emoji.json")
+        second = copy.deepcopy(first)
+        second["id"] = "mxe_second-emoji"
+        raw = (compact_json(first) + "\n" + compact_json(second) + "\n").encode("utf-8")
+        with patch("tools.refresh_pull_requests.blob_bytes", return_value=raw):
+            records = read_records(
+                Path("."), {"data/telegram/emojis/ab/cd.jsonl": ("100644", "legacy")}
+            )
+        files = render_records(records)
+        self.assertEqual(
+            set(files),
+            {
+                f"data/telegram/emojis/{entity_shard(first['id'], 64)}.jsonl",
+                f"data/telegram/emojis/{entity_shard(second['id'], 64)}.jsonl",
+            },
+        )
+        self.assertTrue(all(content.count(b"\n") == 1 for content in files.values()))
+
     def test_same_record_independent_edits_are_explicit_conflict(self):
         key = ("emoji", "same")
         with self.assertRaisesRegex(RefreshError, "conflicting changes"):
@@ -48,11 +67,11 @@ class EntityMergeTests(unittest.TestCase):
         with self.assertRaises(RefreshError):
             merge_records(base, {}, {key: {"text": "new"}})
 
-    def test_renderer_uses_eight_hash_characters(self):
+    def test_renderer_uses_full_emoji_hash(self):
         emoji = load_json(ROOT / "examples/telegram/emoji.json")
         files = render_records({("emoji", emoji["id"]): emoji})
-        digest = entity_shard(emoji["id"], 8)
-        self.assertEqual(list(files), [f"data/telegram/emojis/{digest[:2]}/{digest[2:]}.jsonl"])
+        digest = entity_shard(emoji["id"], 64)
+        self.assertEqual(list(files), [f"data/telegram/emojis/{digest}.jsonl"])
 
     def test_unsafe_platform_rejected_before_writing(self):
         with self.assertRaises(RefreshError):
@@ -71,7 +90,7 @@ class EntityMergeTests(unittest.TestCase):
         files = render_records({("collection", collection["id"]): collection}, include_catalog=True)
         catalog = files["data/telegram/collections/README.md"].decode("utf-8")
         self.assertIn(collection["title"], catalog)
-        self.assertIn(f"({collection['id']}/)", catalog)
+        self.assertIn(f"({collection['id']}/README.md)", catalog)
 
     def test_non_data_edits_and_symlinks_rejected(self):
         for path, mode in (
@@ -82,15 +101,20 @@ class EntityMergeTests(unittest.TestCase):
             with self.subTest(path=path, mode=mode), self.assertRaises(RefreshError):
                 ensure_data_only({}, {path: (mode, "blob")})
 
-    def test_legacy_and_new_data_paths_allowed(self):
+    def test_legacy_and_full_digest_data_paths_allowed(self):
         ensure_data_only(
             {},
             {
                 "data/telegram/emojis/ab/cd.jsonl": ("100644", "old"),
-                "data/telegram/emojis/ab/cdef01.jsonl": ("100644", "new"),
+                "data/telegram/emojis/ab/cdef01.jsonl": ("100644", "previous"),
+                f"data/telegram/emojis/{'a' * 64}.jsonl": ("100644", "new"),
                 "data/telegram/collections/README.md": ("100644", "catalog"),
             },
         )
+
+    def test_truncated_flat_emoji_data_path_rejected(self):
+        with self.assertRaisesRegex(RefreshError, "non-data path"):
+            ensure_data_only({}, {"data/telegram/emojis/abcdef01.jsonl": ("100644", "new")})
 
     def test_duplicate_ids_in_different_files_rejected(self):
         raw = b'{"entity_type":"emoji","id":"same"}\n'
@@ -151,7 +175,7 @@ class PublicationTests(unittest.TestCase):
     def test_merge_commit_has_both_parents_and_nonforce_update(self):
         api, calls = self.api()
         publish_refresh(
-            api, self.pr, self.latest, {"data/telegram/emojis/ab/cdef01.jsonl": b"{}\n"}
+            api, self.pr, self.latest, {f"data/telegram/emojis/{'a' * 64}.jsonl": b"{}\n"}
         )
         commit = next(
             payload
@@ -271,6 +295,12 @@ class RefreshIntegrationTests(unittest.TestCase):
             git("commit", "-qm", "base contract")
             base = git("rev-parse", "HEAD")
             values = install_example_as_canonical(ROOT, root)
+            emoji = values["emoji"]
+            digest = entity_shard(emoji["id"], 64)
+            current = root / "data/telegram/emojis" / f"{digest}.jsonl"
+            legacy = current.parent / digest[:2] / f"{digest[2:8]}.jsonl"
+            legacy.parent.mkdir()
+            current.rename(legacy)
             git("add", "data")
             git("commit", "-qm", "legacy data PR")
             head = git("rev-parse", "HEAD")
@@ -280,8 +310,7 @@ class RefreshIntegrationTests(unittest.TestCase):
             git("commit", "-qm", "main advanced")
             latest = git("rev-parse", "HEAD")
             changes = prepare_refresh(root, base, head, latest)
-            digest = entity_shard(values["emoji"]["id"], 8)
-            self.assertIn(f"data/telegram/emojis/{digest[:2]}/{digest[2:]}.jsonl", changes)
+            self.assertIn(f"data/telegram/emojis/{digest}.jsonl", changes)
             self.assertNotIn("README.md", changes)
 
 

@@ -48,10 +48,9 @@ def _install_fixture(repository: Path, records: dict[str, dict[str, Any]]) -> No
     (collection_dir / "memberships.jsonl").write_text(
         compact_json(membership) + "\n", encoding="utf-8", newline=""
     )
-    emoji_shard = entity_shard(emoji["id"], 4)
-    emoji_dir = repository / "data" / emoji["platform"] / "emojis" / emoji_shard[:2]
+    emoji_dir = repository / "data" / emoji["platform"] / "emojis"
     emoji_dir.mkdir(parents=True)
-    (emoji_dir / f"{emoji_shard[2:]}.jsonl").write_text(
+    (emoji_dir / f"{entity_shard(emoji['id'], 64)}.jsonl").write_text(
         compact_json(emoji) + "\n", encoding="utf-8", newline=""
     )
 
