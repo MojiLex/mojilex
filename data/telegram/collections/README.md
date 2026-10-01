@@ -3,8 +3,8 @@
 Названия берутся из карточек паков. Каталог не является источником данных.
 Titles come from `collection.json`; the records remain the source of truth.
 
-Паков / Packs: 68<br>
-Эмодзи в паках / Emojis across packs: 7127
+Паков / Packs: 69<br>
+Эмодзи в паках / Emojis across packs: 7192
 
 | Название / Title | Имя Telegram / Telegram name | Эмодзи / Emojis |
 |---|---|---:|
@@ -47,6 +47,7 @@ Titles come from `collection.json`; the records remain the source of truth.
 | VK.com/RussiaGlorySongs | [best\_russia\_emoji](mxc_c6f292b1-cfb5-5272-94f5-ae6f5ec81ddb/README.md) | 14 |
 | Wizard Stars Emoji Pack | [WizardStarsEmojiPack](mxc_6ba30391-8f01-5d74-a1d6-508b47da47d0/README.md) | 25 |
 | Буквы на заказ @shik\_zakaz | [Jeltozelenii](mxc_0ccac458-c495-57f9-9842-4ddc27895675/README.md) | 162 |
+| Майнкрафт Алфавит @kelyeBan | [MinecraftAlphabet](mxc_0be693f5-7fb2-5820-8312-ab68631c3bdd/README.md) | 65 |
 | Оружие @TgEmodziBot | [Guns\_and\_rifles\_by\_TgEmodziBot](mxc_eb139457-751d-53ac-a7fc-438eec08cd66/README.md) | 110 |
 | Осень @my\_vase :: @fStikBot | [Autumnpackem\_by\_fStikBot](mxc_f6e6cc22-819d-5cf0-8ebe-e902c381f940/README.md) | 166 |
 | Основное \| Геншин Импакт @blednayaleaks\_genshin | [Blednayaleaks](mxc_51d7169f-788a-5192-8566-213d04d894ad/README.md) | 200 |
