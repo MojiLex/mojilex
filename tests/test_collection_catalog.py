@@ -29,7 +29,12 @@ class CollectionCatalogTests(unittest.TestCase):
 
     def test_repository_pack_pages_match_canonical_records(self) -> None:
         pages = generated_pages(ROOT)
-        self.assertEqual(len(pages), 69)
+        collection_root = ROOT / "data" / "telegram" / "collections"
+        expected_paths = {collection_root / "README.md"}
+        expected_paths.update(
+            path.with_name("README.md") for path in collection_root.glob("*/collection.json")
+        )
+        self.assertEqual({ROOT / path for path in pages}, expected_paths)
         for relative_path, expected in pages.items():
             with self.subTest(path=relative_path):
                 self.assertEqual((ROOT / relative_path).read_bytes(), expected)
